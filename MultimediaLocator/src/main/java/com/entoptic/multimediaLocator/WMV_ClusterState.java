@@ -43,7 +43,7 @@ public class WMV_ClusterState
 	public boolean isAttractor;							// Whether cluster is attracting viewer
 	public float clusterGravity = 0.1333f;				// Cluster gravitational pull
 	public float farMassFactor = 8.f;					// How much more mass to give distant attractors to speed up navigation?
-	public float clusterMass = 1.5f;					// Cluster mass for calculating attraction force
+	public float mass = 1.5f;					// Cluster mass for calculating attraction force
 
 	/* Media */
 	public List<Integer> images = new ArrayList<Integer>();			// List of associated image IDs

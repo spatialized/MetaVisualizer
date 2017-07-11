@@ -1,8 +1,8 @@
 package main.java.com.entoptic.multimediaLocator;
 
 /*********************************
+ * Viewer settings
  * @author davidgordon
- * Current virtual viewer settings
  */
 public class WMV_ViewerSettings 
 {

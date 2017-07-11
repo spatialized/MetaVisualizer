@@ -64,7 +64,7 @@ public class MultimediaLocator extends PApplet
 	private static boolean createJar = false;		// Determines how to load cubemap shader
 
 	/* Development*/
-	public static boolean pathNavigationOn = false;
+	public static boolean pathNavigationOn = true;	// -- In progress feature
 	
 	/* Classes */
 	ML_Library library;								// Multimedia library
@@ -468,52 +468,60 @@ public class MultimediaLocator extends PApplet
 		{
 			boolean success = false;
 			
-			/* Attempt to load simulation state from data folder */
-			if(loadState)
+			if(loadState)								/* Attempt to load simulation state from data folder */
 			{
 				WMV_Field loadedField;
 				if(fieldID + 1 >= world.getFields().size())
 					loadedField = loadFieldState(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
 				else
 					loadedField = loadFieldState(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
-
+				
 				if(world.getFields().size() == 0)				// Reset current viewer field
 					if(world.viewer.getCurrentFieldID() > 0)
 						world.viewer.setCurrentField(0, false);
-
+				
 				/* Check if field loaded correctly */
 				success = (loadedField != null);												// If a field state was loaded
 				if(success) world.setField(loadedField, fieldID);								// Attempt to set field from saved field state
 				if(success) success = world.getField(fieldID).getClusters() != null;			// Check that clusters exist
 				if(success) success = (world.getField(fieldID).getClusters().size() > 0);		
 			}
+			
 			if(success)									/* Loaded field state from disk */
 			{
-				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
+				if(metadata.gpsTrackFilesFound) 			/* Load GPS tracks */
+					world.getField(fieldID).setGPSTracks( metadata.loadGPSTracks( world.getField(fieldID) ) );
+				
 				world.getField(fieldID).setDataFolderLoaded(true);
+				
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Loading MultimediaLocator library...");		/* Change Library Window Text */
 
-				if(debug.ml || debug.world) systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
+				if(debug.ml || debug.world) 
+					systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
 			}
-			else										/* If failed to load field, initialize from metadata */
+			else											/* If failed to load field, initialize from metadata */
 			{
-				if(f.getID() == 0)
+				if(f.getID() == 0)						/* First field to be initialized */
 					display.window.setLibraryWindowText("Building MultimediaLocator library...");		/* Change Library Window Text */
 
-				if(debug.ml || debug.world) systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
+				if(debug.ml || debug.world) 
+					systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
 				
 				world.getField(fieldID).initialize();
 				world.getField(fieldID).setDataFolderLoaded(false);
-				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
+				
+				if(metadata.gpsTrackFilesFound) 
+					world.getField(fieldID).setGPSTracks( metadata.loadGPSTracks(world.getField(fieldID)) );	// Load GPS tracks
 
 				if(setSoundGPSLocations)
-					if(f.getSounds().size() > 0)
-						metadata.setSoundLocationsFromGPSTracks(f, f.getSounds());
+					if(world.getField(fieldID).getSounds().size() > 0)
+						metadata.setSoundLocationsFromGPSTracks(world.getField(fieldID), world.getField(fieldID).getSounds());
 			}
 
 			world.getField(fieldID).setLoadedState(success);		/* Set field loaded state flag */
 		}
+		
 		world.getField(fieldID).setLoadedState(false);			/* Set field loaded state flag */
 	}
 	
@@ -1889,10 +1897,8 @@ public class MultimediaLocator extends PApplet
 				{
 					String windowTitle = nativeFrame.getTitle();
 					
-//					if(debug.ml) 
-//						System.out.println(">>> Window: "+windowTitle+" lost focus...");
-					
-			  	  	display.window.handleWindowLostFocus(state.running, windowTitle);
+					if(!display.disableLostFocusHook)
+						display.window.handleWindowLostFocus(state.running, windowTitle);
 				}
 			}
 		}

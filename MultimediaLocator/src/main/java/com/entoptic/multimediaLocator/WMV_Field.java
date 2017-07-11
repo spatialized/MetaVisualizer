@@ -4539,8 +4539,16 @@ public class WMV_Field
 	 */
 	public WMV_Cluster getCluster(int id)
 	{
-		WMV_Cluster c = clusters.get(id);
-		return c;
+		if(id > clusters.size())
+		{
+			System.out.println("Field.getCluster()... Cluster requested: "+id+" out of range: "+clusters.size()+" ...");
+			return null;
+		}
+		else
+		{
+			WMV_Cluster c = clusters.get(id);
+			return c;
+		}
 	}
 
 	public WMV_Image getImage(int id)

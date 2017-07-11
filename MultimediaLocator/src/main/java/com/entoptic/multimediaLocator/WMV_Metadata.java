@@ -6,6 +6,11 @@ import processing.core.PVector;
 import processing.video.Movie;
 
 import org.homeunix.thecave.moss.util.image.ExifToolWrapper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.metadata.Directory;
@@ -29,6 +34,9 @@ import java.util.Set;
 //import java.util.prefs.BackingStoreException;
 //import java.util.prefs.Preferences;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 /**************
  * Class for extracting metadata and adding media to field 
  * @author davidgordon
@@ -38,7 +46,7 @@ class WMV_Metadata
 	/* Classes */
 	MultimediaLocator ml; 											// Parent app
 	WMV_Utilities u;												// Utility class
-	ML_DebugSettings debugSettings;									// Debug settings
+	ML_DebugSettings debug;									// Debug settings
 	
 	public File exiftoolFile;										// File for ExifTool executable
 
@@ -85,7 +93,7 @@ class WMV_Metadata
 	{
 		ml = parent;
 		u = new WMV_Utilities();
-		debugSettings = newDebugSettings;
+		debug = newDebugSettings;
 		
 //		loadExiftoolPath();
 	}
@@ -160,7 +168,7 @@ class WMV_Metadata
 		library = libraryFolder;
 		String fieldPath = f.getName();
 
-		if(debugSettings.metadata) ml.systemMessage("Metadata.load()... Will load files from:"+library+" at fieldPath:"+fieldPath);
+		if(debug.metadata) ml.systemMessage("Metadata.load()... Will load files from:"+library+" at fieldPath:"+fieldPath);
 
 		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
@@ -205,6 +213,7 @@ class WMV_Metadata
 		File gpsTrackFile = null;
 		String gpsTrackName = "";
 		boolean valid = false;
+		
 		if (newTrackFile == null) 
 		{
 			ml.systemMessage("Metadata.loadGPSTrack()... newTrackFile is null!");
@@ -214,7 +223,8 @@ class WMV_Metadata
 			String input = newTrackFile.getPath();
 			gpsTrackName = input;
 
-			if(debugSettings.metadata) ml.systemMessage("Metadata.loadGPSTrack()... Adding GPS Track: " + input);
+			if(debug.metadata || debug.gps || debug.viewer)
+				ml.systemMessage("Metadata.loadGPSTrack()... Adding GPS Track: " + input);
 			
 			try
 			{
@@ -231,21 +241,104 @@ class WMV_Metadata
 				else
 				{
 					valid = false;
-					ml.systemMessage("Bad GPS Track.. doesn't end in .GPX!:"+input);
+					ml.systemMessage("Metadata.loadGPSTrack()... Bad GPS Track.. doesn't end in .GPX!:"+input);
 				}
 			}
 			catch (Throwable t)
 			{
-				ml.systemMessage("loadGPSTrack() Error... Throwable: "+t);
+				ml.systemMessage("Metadata.loadGPSTrack()... ERROR... Throwable: "+t);
 			}
 		}
 		
 		if(valid)
-		{
-			return ml.world.utilities.getGPSTrackFromFile(ml, f, gpsTrackFile, gpsTrackID);
-		}
+			return getGPSTrackFromFile(ml, f, gpsTrackFile, gpsTrackID);
 		else 
 			return null;
+	}
+	
+	/**
+	 * Analyze current GPS track
+	 */
+	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(MultimediaLocator ml, WMV_Field f, File gpsTrackFile, int gpsTrackID)
+	{
+		ArrayList<WMV_Waypoint> gpsTrack = new ArrayList<WMV_Waypoint>();			
+		
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(gpsTrackFile);
+
+			doc.getDocumentElement().normalize();
+
+//			System.out.println("\ngetGPSTrackFromFile()... Analyzing GPS Track:"+gpsTrackFile.getName());
+//			System.out.println("Root Node:" + doc.getDocumentElement().getNodeName());
+//			System.out.println("----");
+
+			NodeList allNodes = doc.getElementsByTagName("*");
+			
+			int len;
+			int count = 0;
+			
+			len = allNodes.getLength();
+			
+//			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
+//			{
+//				Element e;
+//				e = (Element)allNodes.item(h);										// Location
+////				System.out.println("Node "+h+" is "+e.getTagName() + ":");
+//			}
+			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
+			{
+				NamedNodeMap locationNodeMap;
+				Element locationVal, elevationVal, timeVal;
+
+				locationVal = (Element)allNodes.item(h);							// Location
+				elevationVal = (Element)allNodes.item(h+1);							// Elevation
+				timeVal = (Element)allNodes.item(h+2);								// Time
+//				System.out.println("Node "+h+" Start ---> "+locationVal.getTagName() + ":");
+
+				/* Parse Location */
+				locationNodeMap = locationVal.getAttributes();
+
+				Node latitudeVal, longitudeVal;
+				latitudeVal = locationNodeMap.item(0);
+				longitudeVal = locationNodeMap.item(1);
+
+				float fLat = Float.parseFloat(latitudeVal.getNodeValue());
+				float fLong = Float.parseFloat(longitudeVal.getNodeValue());
+				float latitude = fLat;
+				float longitude = fLong;
+				
+				float altitude = Float.parseFloat(elevationVal.getTextContent());
+				
+				String latitudeRef = ml.world.utilities.getLatitudeRefFromDecimal( fLat );
+				String longitudeRef = ml.world.utilities.getLongitudeRefFromDecimal( fLong );
+
+				/* Parse Node Date */
+				String dateTimeStr = timeVal.getTextContent(); 			// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
+				
+				ZonedDateTime zoned = ml.world.utilities.parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());	// Parse node time in UTC 
+				WMV_Time zonedTime = new WMV_Time();
+				zonedTime.initialize( zoned, "", count, 0, -1, f.getTimeZoneID() );
+
+				PVector gpsLocation = new PVector(longitude, latitude);
+				PVector captureLocation = ml.world.utilities.getCaptureLocationFromGPSAndAltitude(gpsLocation, altitude, longitudeRef, latitudeRef, f.getModel());
+				
+//				System.out.println("Metadata.getGPSTrackFromFile()... captureLocation x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
+				
+				WMV_Waypoint wp = new WMV_Waypoint(count, -1, gpsTrackID, captureLocation, gpsLocation, altitude, zonedTime);		// Convert GPS track node to Waypoint
+				gpsTrack.add(wp);																					// Add Waypoint to GPS track
+				
+				count++;
+			}
+
+//			System.out.println("Added "+count+" nodes to gpsTrack...");
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return gpsTrack;
 	}
 
 	/**
@@ -266,7 +359,7 @@ class WMV_Metadata
 		largeImageFolderFound = (largeImageFolderFile.exists() && largeImageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 		
-		if(debugSettings.metadata)
+		if(debug.metadata)
 		{
 			ml.systemMessage("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder+" found? "+smallImageFolderFound);
 			ml.systemMessage("               				 largeImageFolder: "+largeImageFolder+" found? "+largeImageFolderFound);
@@ -288,7 +381,7 @@ class WMV_Metadata
 		smallVideoFolderFound = (smallVideoFolderFile.exists() && smallVideoFolderFile.isDirectory());	
 		largeVideoFolderFound = (largeVideoFolderFile.exists() && largeVideoFolderFile.isDirectory());
 
-		if(debugSettings.metadata)
+		if(debug.metadata)
 		{
 			if(smallVideoFolderFound)
 				ml.systemMessage("Metadata.loadVideoFolders()... smallVideoFolder: "+smallVideoFolder);
@@ -306,7 +399,7 @@ class WMV_Metadata
 		soundFolderFile = new File(soundFolder);
 		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
 		
-		if(debugSettings.metadata)
+		if(debug.metadata)
 		{
 			if(soundFolderFound)
 				ml.systemMessage("Metadata.loadSoundFolder()... soundFolder: "+soundFolder);
@@ -335,7 +428,7 @@ class WMV_Metadata
 				soundFilesFound = true;
 		}
 		
-		if (debugSettings.sound)
+		if (debug.sound)
 			ml.systemMessage("Sound Folder:" + soundFolder);
 	}
 	
@@ -356,7 +449,7 @@ class WMV_Metadata
 				gpsTrackFilesFound = true;
 		}
 		
-		if (debugSettings.metadata) ml.systemMessage("GPS Track Folder:" + gpsTrackFolder);
+		if (debug.metadata) ml.systemMessage("GPS Track Folder:" + gpsTrackFolder);
 	}
 	
 	/**
@@ -393,14 +486,14 @@ class WMV_Metadata
 		{
 			for(ArrayList<WMV_Waypoint> track : f.getState().gpsTracks)
 			{
-				if(debugSettings.metadata && debugSettings.sound)
+				if(debug.metadata && debug.sound)
 					ml.systemMessage("Metadata.setSoundLocationsFromGPSTracks()...  Setting sound locations from track...");
 				ml.world.utilities.setSoundGPSLocationsFromGPSTrack( f.getSounds(), track, ml.world.getSettings().soundGPSTimeThreshold );
 			}
 		}
 		else
 		{
-			if(debugSettings.metadata && debugSettings.sound)
+			if(debug.metadata && debug.sound)
 				ml.systemMessage("Metadata.setSoundLocationsFromGPSTracks()... No GPS tracks in field #"+f.getID());
 		}
 	}
@@ -444,7 +537,7 @@ class WMV_Metadata
 			}
 		}
 		
-		if (debugSettings.ml)
+		if (debug.ml)
 			ml.systemMessage("Data Folder: " + dataFolder + " Valid Format? "+dataFilesValidFormat);
 	}
 	
@@ -454,7 +547,7 @@ class WMV_Metadata
 	 */
 	public void loadImageFiles(String fieldPath)
 	{
-		if(debugSettings.metadata) 
+		if(debug.metadata) 
 			ml.systemMessage("Metadata.loadImageFiles()...");
 		
 		smallImageFiles = null;
@@ -484,7 +577,7 @@ class WMV_Metadata
 						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
 				}
 				
-				if(debugSettings.metadata) 
+				if(debug.metadata) 
 				{
 					if(smallImageFilesFound)
 						ml.systemMessage("Metadata.loadImageFiles()... Files found in small_images folder, will use instead of shrinking large images...");
@@ -503,10 +596,10 @@ class WMV_Metadata
 			boolean success = u.shrinkImageFolder(largeImageFolder, smallImageFolder);		
 			if(success)
 			{
-				if(debugSettings.metadata) ml.systemMessage("Shrink images successful...");
+				if(debug.metadata) ml.systemMessage("Shrink images successful...");
 			}
 			else
-				if(debugSettings.metadata)  ml.systemMessage("Shrink images failed...");
+				if(debug.metadata)  ml.systemMessage("Shrink images failed...");
 		}
 	}
 
@@ -566,14 +659,14 @@ class WMV_Metadata
 			boolean success = true;		
 			if(success)
 			{
-				if(debugSettings.metadata) ml.systemMessage("Shrink videos successful...");
+				if(debug.metadata) ml.systemMessage("Shrink videos successful...");
 				smallVideoFiles = smallVideoFolderFile.listFiles();
 				if(smallVideoFiles != null) 
 					if(smallVideoFiles.length > 0)
 						smallVideoFilesFound = true;
 			}
 			else
-				if(debugSettings.metadata)  ml.systemMessage("Shrink videos failed...");
+				if(debug.metadata)  ml.systemMessage("Shrink videos failed...");
 		}
 	}
 	
@@ -705,7 +798,7 @@ class WMV_Metadata
 
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata) ml.systemMessage("Could not add image! Error: "+ex);
+			if (debug.metadata) ml.systemMessage("Could not add image! Error: "+ex);
 		}
 	}
 	
@@ -729,7 +822,7 @@ class WMV_Metadata
 				ml.systemMessage("Invalid panorama metadata!  Panorama:"+pMetadata.name);
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata) ml.systemMessage("Could not add panorama! Error: "+ex);
+			if (debug.metadata) ml.systemMessage("Could not add panorama! Error: "+ex);
 		}
 	}
 
@@ -753,12 +846,12 @@ class WMV_Metadata
 				ml.systemMessage("Invalid video metadata!  Video:"+vMetadata.name);
 		}
 		catch (Throwable t) {
-			if (debugSettings.metadata)
+			if (debug.metadata)
 			{
 				ml.systemMessage("Could not add video! Error: "+t);
 				t.printStackTrace();
 				StackTraceElement[] stes = t.getStackTrace();
-				if (debugSettings.video)
+				if (debug.video)
 					for(StackTraceElement ste : stes)
 						ml.systemMessage("     : "+ste.toString());
 			}
@@ -786,7 +879,7 @@ class WMV_Metadata
 			}
 		}
 		catch (Throwable t) {
-			if (debugSettings.metadata)
+			if (debug.metadata)
 			{
 				ml.systemMessage("Could not add sound! Error:: "+t);
 			}
@@ -838,7 +931,7 @@ class WMV_Metadata
 		}
 		catch (Throwable t) 
 		{
-			if(debugSettings.metadata && debugSettings.detailed)
+			if(debug.metadata && debug.detailed)
 				ml.systemMessage("Metadata.loadImageMetadata()...  Throwable:" + t +" name:"+sName+"  file.getAbsolutePath():"+file.getAbsolutePath());
 			if(!dataMissing) dataMissing = true;
 		}
@@ -846,7 +939,7 @@ class WMV_Metadata
 		/* Set image variables from metadata */
 		if (imageMetadata != null) 
 		{
-			if (debugSettings.metadata && debugSettings.image && debugSettings.detailed) 
+			if (debug.metadata && debug.image && debug.detailed) 
 			{
 				ml.systemMessage("*******************************************************");
 				ml.systemMessage("*  Loading Image Metadata: "+sName);
@@ -862,14 +955,14 @@ class WMV_Metadata
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						sSoftware = parseSoftware(tagString);
-						if (debugSettings.metadata && debugSettings.detailed) 
+						if (debug.metadata && debug.detailed) 
 							ml.systemMessage("Found Software..." + sSoftware);
 					}
 
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Camera Model..." + sCameraModel);
+						if (debug.metadata && debug.detailed) ml.systemMessage("Found Camera Model..." + sCameraModel);
 
 						try
 						{
@@ -877,72 +970,72 @@ class WMV_Metadata
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Throwable in camera model / focal length..." + t);
+							if (debug.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Throwable in camera model / focal length..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
 
-					if (tagName.equals("Orientation")) // Orientation
+					if (tagName.equals("Orientation")) 			// Orientation
 					{
 						sOrientation = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found Orientation..." + sOrientation);
 					}
-					if (tagName.equals("Date/Time Original")) // Orientation
+					if (tagName.equals("Date/Time Original")) 	// Original Date/Time
 					{
 						sDateTime = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
 					}
-					if (tagName.equals("GPS Latitude Ref")) // Latitude
+					if (tagName.equals("GPS Latitude Ref")) 		// Latitude
 					{
 						sLatitudeRef = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.image) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Latitude Ref..." + sLatitudeRef);
 					}
-					if (tagName.equals("GPS Longitude Ref")) // Longitude
+					if (tagName.equals("GPS Longitude Ref"))		// Longitude
 					{
 						sLongitudeRef = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.image) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Longitude Ref..." + sLongitudeRef);
 					}
-					if (tagName.equals("GPS Latitude")) // Latitude
+					if (tagName.equals("GPS Latitude")) 			// Latitude
 					{
 						sLatitude = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.image) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Latitude..." + sLatitude);
 					}
-					if (tagName.equals("GPS Longitude")) // Longitude
+					if (tagName.equals("GPS Longitude")) 		// Longitude
 					{
 						sLongitude = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.image) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Longitude..." + sLongitude);
 					}
-					if (tagName.equals("GPS Altitude")) // Altitude
+					if (tagName.equals("GPS Altitude")) 			// Altitude
 					{
 						sAltitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found Altitude..." + sAltitude);
 					}
-					if (tagName.equals("Focal Length")) // Focal Length
+					if (tagName.equals("Focal Length"))			// Focal Length
 					{
 						sFocalLength = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found Focal Length..." + sFocalLength);
 					}
 
-					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
+					if (tagName.equals("Focal Length 35")) 		// Focal Length (35 mm. equivalent)
 					{
 						sFocalLength35mm = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found Focal Length 35mm Equivalent..." + sFocalLength);
 					}
-					if (tagName.equals("GPS Img Direction")) // Image Direction
+					if (tagName.equals("GPS Img Direction")) 	// Image Direction
 					{
 						sDirection = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps)
+						if ((debug.metadata && debug.detailed && debug.image) || (debug.gps && debug.detailed) )
 							ml.systemMessage("Found GPS Img Direction..." + sDirection);
 					}
 					if (tagName.equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
@@ -963,10 +1056,10 @@ class WMV_Metadata
 						else
 						{
 //							descriptionMissing = true;
-							if(debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()...  Not a Theodolite image...");
+							if(debug.metadata) ml.systemMessage("Metadata.loadImageMetadata()...  Not a Theodolite image...");
 						}
 
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image)
+						if (debug.metadata && debug.detailed && debug.image)
 							ml.systemMessage("Found Description..." + sDescription);
 					}
 					
@@ -987,7 +1080,7 @@ class WMV_Metadata
 
 					if (tagName.equals("Keywords"))
 					{
-						if (debugSettings.metadata)
+						if (debug.metadata)
 							ml.systemMessage("Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
@@ -1025,7 +1118,7 @@ class WMV_Metadata
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) ml.systemMessage("Error in getting zoned date / time... " + ex);
+				if (debug.metadata) ml.systemMessage("Error in getting zoned date / time... " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
@@ -1035,7 +1128,7 @@ class WMV_Metadata
 			} 
 			catch (Throwable t) // If not, must be only one keyword
 			{
-				if (debugSettings.metadata) ml.systemMessage("Throwable in camera model / focal length..." + t);
+				if (debug.metadata) ml.systemMessage("Throwable in camera model / focal length..." + t);
 				if(!dataMissing) dataMissing = true;
 			}
 			
@@ -1066,7 +1159,7 @@ class WMV_Metadata
 			
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) ml.systemMessage("Error reading image location:" + sName + "  " + ex);
+				if (debug.metadata) ml.systemMessage("Error reading image location:" + sName + "  " + ex);
 
 				if(!dataMissing) dataMissing = true;
 			}
@@ -1081,12 +1174,12 @@ class WMV_Metadata
 					fDirection = ParseDirection(sDirection);		
 				else
 				{
-					if (debugSettings.metadata) ml.systemMessage("Image fDirection is null! "+sName);
+					if (debug.metadata) ml.systemMessage("Image fDirection is null! "+sName);
 					fDirection = -100000.f;
 				}
 			} 
 			catch (RuntimeException ex) {
-				if (debugSettings.metadata)
+				if (debug.metadata)
 					ml.systemMessage("Metadata.loadImageMetadata()... Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
@@ -1102,10 +1195,10 @@ class WMV_Metadata
 						sLongitudeRef, sLatitudeRef );
 			}
 			else
-				if(debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Data missing! Excluded image:"+sName);
+				if(debug.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Data missing! Excluded image:"+sName);
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Could not add image! Error: "+ex);
+			if (debug.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Could not add image! Error: "+ex);
 		}
 
 		return null;
@@ -1147,7 +1240,7 @@ class WMV_Metadata
 
 		Metadata panoramaMetadata = null;				// For images
 
-		if (debugSettings.metadata && debugSettings.panorama && debugSettings.detailed) 
+		if (debug.metadata && debug.panorama && debug.detailed) 
 		{
 			ml.systemMessage("*******************************************************");
 			ml.systemMessage("*  Loading Panorama Metadata: "+sName);
@@ -1158,7 +1251,7 @@ class WMV_Metadata
 		}
 		catch (Throwable t) 
 		{
-			if(debugSettings.metadata || debugSettings.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable:" + t);
+			if(debug.metadata || debug.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable:" + t);
 			if(!dataMissing) dataMissing = true;
 		}
 
@@ -1175,25 +1268,25 @@ class WMV_Metadata
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+						if (debug.metadata && debug.detailed && debug.panorama) 
 							ml.systemMessage("Found Software..." + sSoftware);
 					}
 
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+						if (debug.metadata && debug.detailed && debug.panorama)
 							ml.systemMessage("Found Camera Model..." + sCameraModel);
 
 						try
 						{
 							iCameraModel = parseCameraModel(sCameraModel);
-							if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+							if (debug.metadata && debug.detailed && debug.panorama) 
 								ml.systemMessage("Set iCameraModel:" + iCameraModel);
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata || debugSettings.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable in camera model..." + t);
+							if (debug.metadata || debug.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable in camera model..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
@@ -1201,13 +1294,13 @@ class WMV_Metadata
 					if (tagName.equals("Orientation")) 			// Orientation		-- Not needed for panorama?
 					{
 						sOrientation = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+						if (debug.metadata && debug.detailed && debug.panorama) 
 							ml.systemMessage("Found Orientation..." + sOrientation);
 					}
 					if (tagName.equals("Date/Time Original")) 	// Date/Time
 					{
 						sDateTime = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+						if (debug.metadata && debug.detailed && debug.panorama) 
 							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
@@ -1215,37 +1308,37 @@ class WMV_Metadata
 					if (tagName.equals("GPS Latitude Ref")) // Latitude
 					{
 						sLatitudeRef = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Latitude Ref..." + sLatitudeRef);
 					}
 					if (tagName.equals("GPS Longitude Ref")) // Longitude
 					{
 						sLongitudeRef = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Longitude Ref..." + sLongitudeRef);
 					}
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
 						sLatitude = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Latitude..." + sLatitude);
 					}
 					if (tagName.equals("GPS Longitude")) // Longitude
 					{
 						sLongitude = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Longitude..." + sLongitude);
 					}
 					if (tagName.equals("GPS Altitude")) // Altitude
 					{
 						sAltitude = tagString;
-						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Altitude..." + sAltitude);
 					}
 					if (tagName.equals("Focal Length")) // Focal Length
 					{
 						sFocalLength = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) )
 							ml.systemMessage("Found Focal Length..." + sFocalLength);
 					}
 
@@ -1259,19 +1352,19 @@ class WMV_Metadata
 					{
 						sDirection = tagString;
 						
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+						if (debug.metadata && debug.detailed && debug.panorama)
 							ml.systemMessage("Found Panorama Direction..." + sDirection);
 					}
 					if (tagName.equals("Image Description")) 	// Description	 -- Unused for panorama?
 					{
 						sDescription = tagString;
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+						if (debug.metadata && debug.detailed && debug.panorama)
 							ml.systemMessage("Found Description..." + sDescription);
 					}
 					
 					if (tagName.equals("Keywords"))
 					{
-						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+						if (debug.metadata && debug.detailed && debug.panorama)
 							ml.systemMessage("Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
@@ -1307,7 +1400,7 @@ class WMV_Metadata
 
 				if (directory.hasErrors()) {
 					for (String error : directory.getErrors()) {
-						if (debugSettings.metadata || debugSettings.panorama) 
+						if (debug.metadata || debug.panorama) 
 							ml.systemMessage("Metadata.loadPanoramaMetadata()... ERROR: " + error);
 					}
 				}
@@ -1318,7 +1411,7 @@ class WMV_Metadata
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata || debugSettings.panorama) 
+				if (debug.metadata || debug.panorama) 
 					ml.systemMessage("Metadata.loadPanoramaMetadata()... Error in date / time... " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
@@ -1351,21 +1444,21 @@ class WMV_Metadata
 			
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Error reading image location:" + sName + "  " + ex);
+				if (debug.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Error reading image location:" + sName + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
 			try {
 				if(sDirection == null)
 				{
-					if (debugSettings.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Panorama fDirection is null! "+sName);
+					if (debug.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Panorama fDirection is null! "+sName);
 					fDirection = -100000.f;
 				}
 				else
 					fDirection = ParseDirection(sDirection);		
 			}
 			catch (RuntimeException ex) {
-				if (debugSettings.ml || debugSettings.metadata) 
+				if (debug.ml || debug.metadata) 
 					ml.systemMessage("Metadata.loadPanoramaMetadata()... Error reading panorama orientation / direction... sDirection:" + sDirection+" fOrientation:"+fOrientation + "  fDirection:" + fDirection + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
@@ -1383,7 +1476,7 @@ class WMV_Metadata
 				ml.systemMessage("Metadata.loadPanoramaMetadata()... Data missing!  Could not get panorama metadata:"+sName);
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata)
+			if (debug.metadata)
 				ml.systemMessage("Metadata.loadPanoramaMetadata()... Could not get panorama metadata! Error: "+ex);
 		}
 		
@@ -1419,12 +1512,12 @@ class WMV_Metadata
 		String sKeywords = null;
 		String[] keywords = new String[0];	
 
-		if(debugSettings.metadata && debugSettings.video && debugSettings.detailed) 
+		if(debug.metadata && debug.video && debug.detailed) 
 			ml.systemMessage("Metadata.loadVideoMetadata()... Loading video metadata for file: "+sName);
 
 		Map<String, String> videoMetadata = null;
 
-		if (debugSettings.metadata && debugSettings.video && debugSettings.detailed) 
+		if (debug.metadata && debug.video && debug.detailed) 
 		{
 			ml.systemMessage("*******************************************************");
 			ml.systemMessage("*  Loading Video Metadata: "+sName);
@@ -1436,7 +1529,7 @@ class WMV_Metadata
 		}
 		catch(Throwable t)
 		{
-			if(debugSettings.metadata) 
+			if(debug.metadata) 
 				ml.systemMessage("Metadata.loadVideoMetadata()... Throwable while reading video metadata: " + t);
 			dataMissing = true;
 		}
@@ -1457,7 +1550,7 @@ class WMV_Metadata
 			String[] parts = sDateTime.split("-");
 			sDateTime = parts[0];
 
-			if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
+			if(debug.metadata && debug.video && debug.detailed)
 			{
 				ml.systemMessage("  Latitude:"+sLatitude+"  Longitude:"+sLongitude+"  Altitude:"+altitude);
 				ml.systemMessage("  Date:"+sDateTime+"  duration:"+duration+"  width:"+sWidth+"  height:"+sHeight);
@@ -1495,7 +1588,7 @@ class WMV_Metadata
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata)
+				if (debug.metadata)
 					ml.systemMessage("Metadata.loadVideoMetadata()... Error reading video location:" + sName + "  " + ex);
 				dataMissing = true;
 			}
@@ -1526,12 +1619,12 @@ class WMV_Metadata
 						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords, "", sLongitudeRef, sLatitudeRef );
 				return vMetadata;
 			}
-			else if(debugSettings.metadata || debugSettings.video)
+			else if(debug.metadata || debug.video)
 				ml.systemMessage("Metadata.loadVideoMetadata()... Data missing!  Could not get video metadata:"+sName);
 
 		}
 		catch (Throwable t) {
-			if (debugSettings.metadata)
+			if (debug.metadata)
 			{
 				ml.systemMessage("Metadata.loadVideoMetadata()... Throwable while getting video metadata: "+t);
 				ml.systemMessage("   pFilePath:" + sFilePath+"  pLoc.x:" + gpsLoc.x+"    pLoc.y:" + gpsLoc.y+"    pLoc.z:" + gpsLoc.z);
@@ -1570,7 +1663,7 @@ class WMV_Metadata
 			{
 				if(!dataMissing)
 				{
-					if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
+					if(debug.sound || debug.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
 					BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 					FileTime creationTime = attr.creationTime();
 					
@@ -1580,14 +1673,14 @@ class WMV_Metadata
 					ZonedDateTime soundDateTime = getZonedTimeFromTimeStamp(creationTime, timeZoneID);
 					String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundDateTime);		// 2016:04:10 17:52:39
 
-					if(debugSettings.metadata && debugSettings.sound)
+					if(debug.metadata && debug.sound)
 						ml.systemMessage("Metadata.loadSoundMetadata()... soundDateTimeString:"+soundDateTimeString+" timeZoneID:"+timeZoneID+" Zoned Day:"+soundDateTime.getDayOfMonth()+" Hour:"+soundDateTime.getHour()+" Min:"+soundDateTime.getMinute());
 
 					return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundDateTime, soundDateTimeString, timeZoneID, 
 							null, "", "", "" );
 				}
 				else
-					if(debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Data missing! Excluded sound:"+sName);
+					if(debug.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Data missing! Excluded sound:"+sName);
 			}
 			catch(Throwable t)
 			{
@@ -1646,7 +1739,7 @@ class WMV_Metadata
 		}
 		catch (Throwable t) 
 		{
-			if(debugSettings.metadata && debugSettings.detailed)
+			if(debug.metadata && debug.detailed)
 				ml.systemMessage("fileIsPanorama()... Throwable:" + t);
 		}
 
@@ -1683,7 +1776,7 @@ class WMV_Metadata
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) ml.systemMessage("Metadata.fileIsPanorama()... Throwable in parsing camera model..." + t);
+							if (debug.metadata) ml.systemMessage("Metadata.fileIsPanorama()... Throwable in parsing camera model..." + t);
 						}
 					}
 				}
@@ -1977,7 +2070,7 @@ class WMV_Metadata
 		}
 		else
 		{
-			if(debugSettings.metadata) ml.systemMessage("Unknown Camera Model:"+model);
+			if(debug.metadata) ml.systemMessage("Unknown Camera Model:"+model);
 			return 0;
 		}
 	}
@@ -2049,7 +2142,7 @@ class WMV_Metadata
 				parts[i] = parts[i].substring(1);
 			}
 			afPoints[i] = parseAFPoint(parts[i]);
-			if (debugSettings.metadata)
+			if (debug.metadata)
 				ml.systemMessage("afPoints[i]:" + afPoints[i]);
 		}
 
@@ -2082,7 +2175,7 @@ class WMV_Metadata
 		else if (afPoint.equals("Far Right"))
 			return 10;
 
-		if (debugSettings.metadata) {
+		if (debug.metadata) {
 			ml.systemMessage("Not a valid afPoint: " + afPoint);
 		}
 

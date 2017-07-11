@@ -20,7 +20,7 @@ public class WMV_Model
 	WMV_ViewerState viewerState;		// Viewer state
 	WMV_ModelState state;				// Model state
 	WMV_Utilities utilities;			// Utility methods
-	ML_DebugSettings debugSettings;		// Debug settings
+	ML_DebugSettings debug;		// Debug settings
 
 	WMV_Model(){}
 
@@ -28,7 +28,7 @@ public class WMV_Model
 	{
 		state = new WMV_ModelState();									// Initialize model state
 		worldSettings = newWorldSettings;								// Load world settings
-		debugSettings = newDebugSettings;								// Load debug settings
+		debug = newDebugSettings;								// Load debug settings
 		
 		utilities = new WMV_Utilities();								// Initialize utility class
 		state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
@@ -41,7 +41,7 @@ public class WMV_Model
 	{
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
-			if(debugSettings.world || debugSettings.gps) System.out.println("Model.setup()... Initializing field model...");
+			if(debug.world || debug.gps) System.out.println("Model.setup()... Initializing field model...");
 			
 			analyzeSpatialDimensions(images, panoramas, videos, null); 		// Calculate bounds of field from spatial metadata
 																			// -- No sounds, since need model to set sound locations) -- Fix model later!
@@ -93,14 +93,14 @@ public class WMV_Model
 
 			state.fieldAspectRatio = state.fieldWidth / state.fieldLength;
 
-			if (debugSettings.world && debugSettings.detailed)
+			if (debug.world && debug.detailed)
 			{
 				System.out.print("Model.setup()... Field Width:"+state.lowLongitude+" Field Length:"+state.fieldLength+" Field Height:"+state.fieldHeight);	
 				System.out.println("Model.setup()... Field Area:"+state.fieldArea+" Media Density:"+state.mediaDensity);
 			}
 		}
 		else 
-			if(debugSettings.world) 
+			if(debug.world) 
 				System.out.println("Model.setup()... No media loaded! Couldn't initialize field...");
 	}
 
@@ -200,7 +200,7 @@ public class WMV_Model
 			clusters = nextDepth;										// Move to next depth
 		}	
 
-		if(debugSettings.cluster) 
+		if(debug.cluster) 
 			System.out.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 
 		return clusters;
@@ -215,7 +215,7 @@ public class WMV_Model
 	 */
 	 void analyzeSpatialDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos, ArrayList<WMV_Sound> sounds) 
 	 {
-		 if(debugSettings.world) System.out.println("Calculating field dimensions...");
+		 if(debug.world) System.out.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
@@ -315,8 +315,13 @@ public class WMV_Model
 					 state.lowLatitude = s.getMediaState().gpsLocation.z;
 			 }
 		 }
+		 
+		 if(state.lowAltitude == 1000000.f && state.highAltitude != -1000000.f) 			// Adjust for fields with no altitude variation
+			 state.lowAltitude = state.highAltitude;
+		 else if(state.highAltitude == -1000000.f && state.lowAltitude != 1000000.f) 
+			 state.highAltitude = state.lowAltitude;
 
-		 if (debugSettings.world && debugSettings.detailed) 							// Display results for debugging
+		 if (debug.world && debug.detailed) 							// Display results for debugging
 		 {
 			 System.out.println("Model.analyzeSpatialDimensions()... High Longitude:" + state.highLongitude+" High Latitude:" + state.highLatitude);
 			 System.out.println("Model.analyzeSpatialDimensions()... High Altitude:" + state.highAltitude);
@@ -340,7 +345,7 @@ public class WMV_Model
 		 boolean initVideoTime = true, initVideoDate = true;	
 		 boolean initSoundTime = true, initSoundDate = true;	
 
-		 if(debugSettings.world && debugSettings.detailed) System.out.println("Analyzing media in field...");
+		 if(debug.world && debug.detailed) System.out.println("Analyzing media in field...");
 
 		 for (WMV_Image i : images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
@@ -482,7 +487,7 @@ public class WMV_Model
 		 if (state.highSoundDate > state.highDate)
 			 state.highDate = state.highSoundDate;
 
-		 if (debugSettings.media) 							// Display results for debugging
+		 if (debug.media) 							// Display results for debugging
 		 {
 			 System.out.println("Model.analyzeTimeDimensions():");
 			 if(state.highImageTime != -1000000.f) System.out.println(" High Image Time:" + state.highImageTime);

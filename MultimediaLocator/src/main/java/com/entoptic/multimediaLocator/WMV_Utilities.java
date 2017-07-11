@@ -100,6 +100,8 @@ public class WMV_Utilities
 	 */
 	public PVector lerp3D(PVector point1, PVector point2, float step)
 	{
+//		System.out.println("Utilities.lerp3D()... point1.x:"+point1.x+" point2.x:"+point2.x+" step:"+step);
+//		System.out.println("                      result will be:"+( lerp(point1.x, point2.x, step) ));
 		PVector result = new PVector(0,0,0);
 		result.x = lerp(point1.x, point2.x, step);
 		result.y = lerp(point1.y, point2.y, step);
@@ -616,91 +618,6 @@ public class WMV_Utilities
 		{
 			s.calculateLocationFromGPSTrack(gpsTrack, soundGPSTimeThreshold);
 		}
-	}
-
-	/**
-	 * Analyze current GPS track
-	 */
-	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(MultimediaLocator ml, WMV_Field f, File gpsTrackFile, int gpsTrackID)
-	{
-		ArrayList<WMV_Waypoint> gpsTrack = new ArrayList<WMV_Waypoint>();			
-		
-		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(gpsTrackFile);
-
-			doc.getDocumentElement().normalize();
-
-//			System.out.println("\ngetGPSTrackFromFile()... Analyzing GPS Track:"+gpsTrackFile.getName());
-//			System.out.println("Root Node:" + doc.getDocumentElement().getNodeName());
-//			System.out.println("----");
-
-			NodeList allNodes = doc.getElementsByTagName("*");
-			
-			int len;
-			int count = 0;
-			
-			len = allNodes.getLength();
-			
-//			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
-//			{
-//				Element e;
-//				e = (Element)allNodes.item(h);										// Location
-////				System.out.println("Node "+h+" is "+e.getTagName() + ":");
-//			}
-			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
-			{
-				NamedNodeMap locationNodeMap;
-				Element locationVal, elevationVal, timeVal;
-
-				locationVal = (Element)allNodes.item(h);							// Location
-				elevationVal = (Element)allNodes.item(h+1);							// Elevation
-				timeVal = (Element)allNodes.item(h+2);								// Time
-//				System.out.println("Node "+h+" Start ---> "+locationVal.getTagName() + ":");
-
-				/* Parse Location */
-				locationNodeMap = locationVal.getAttributes();
-
-				Node latitudeVal, longitudeVal;
-				latitudeVal = locationNodeMap.item(0);
-				longitudeVal = locationNodeMap.item(1);
-
-				float fLat = Float.parseFloat(latitudeVal.getNodeValue());
-				float fLong = Float.parseFloat(longitudeVal.getNodeValue());
-				float latitude = fLat;
-				float longitude = fLong;
-				
-				float altitude = Float.parseFloat(elevationVal.getTextContent());
-				
-				String latitudeRef = getLatitudeRefFromDecimal( fLat );
-				String longitudeRef = getLongitudeRefFromDecimal( fLong );
-
-				/* Parse Node Date */
-				String dateTimeStr = timeVal.getTextContent(); 			// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
-				
-				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());	// Parse node time in UTC 
-				WMV_Time zonedTime = new WMV_Time();
-				zonedTime.initialize( zoned, "", count, 0, -1, f.getTimeZoneID() );
-
-				PVector gpsLocation = new PVector(longitude, latitude);
-				PVector captureLocation = getCaptureLocationFromGPSAndAltitude(gpsLocation, altitude, longitudeRef, latitudeRef, f.getModel());
-				
-//				System.out.println("Utilities.getGPSTrackFromFile()... captureLocation x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y);
-				
-				WMV_Waypoint wp = new WMV_Waypoint(count, -1, gpsTrackID, captureLocation, gpsLocation, altitude, zonedTime);		// Convert GPS track node to Waypoint
-				gpsTrack.add(wp);																					// Add Waypoint to GPS track
-				
-				count++;
-			}
-
-//			System.out.println("Added "+count+" nodes to gpsTrack...");
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		return gpsTrack;
 	}
 
 	/**
@@ -1427,12 +1344,12 @@ public class WMV_Utilities
 	 */
 	public PVector getCaptureLocationFromGPSAndAltitude( PVector gpsLocation, float altitude, String longitudeRef, String latitudeRef, WMV_Model model )                                  
 	{
-		PVector gpsWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.z);
+		PVector gpsWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.y);	// {longitude, altitude, latitude}
 		return getCaptureLocationFromGPSLocation(gpsWithAltitude, longitudeRef, latitudeRef, model);
 	}
 	
 	/**
-	 * Calculate virtual capture.location based on GPS location in format {longitude, altitude, latitude}
+	 * Calculate virtual capture location based on GPS location in format {longitude, altitude, latitude}
 	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
 	 * @param longitudeRef Longitude reference
 	 * @param latitudeRef Latitude reference
@@ -1441,7 +1358,6 @@ public class WMV_Utilities
 	 */
 	public PVector getCaptureLocationFromGPSLocation( PVector gpsLocation, String longitudeRef, String latitudeRef, WMV_Model model )                                  
 	{
-//		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		PVector newCaptureLocation = new PVector(0,0,0);
 		
 		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
@@ -1449,14 +1365,14 @@ public class WMV_Utilities
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
 			{
-				newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
+				newCaptureLocation.x = mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
 						model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
 						* model.getState().fieldWidth); 					
 
-				newCaptureLocation.y = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude,  // Convert altitude feet to meters, negative to match P3D coordinate space
+				newCaptureLocation.y = -mapValue( gpsLocation.y, model.getState().lowAltitude,  // Convert altitude feet to meters, negative to match P3D coordinate space
 						model.getState().highAltitude, 0.f, model.getState().fieldHeight); 	
 
-				newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				newCaptureLocation.z = mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 						model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
 						-0.5f * model.getState().fieldLength); 
 				
@@ -1465,19 +1381,26 @@ public class WMV_Utilities
 				else
 					newCaptureLocation.y *= model.worldSettings.defaultAltitudeScalingFactor;
 				
-				if(model.debugSettings.gps && model.debugSettings.detailed)
+				if(model.debug.gps && model.debug.detailed)
 				{
 					System.out.println("Utilities.getCaptureLocationFromGPSLocation()... gpsLocation x:"+gpsLocation.x+" y:"+gpsLocation.y+" z:"+gpsLocation.z);
-					System.out.println("    High longitude:"+model.getState().highLongitude+"  Low longitude:"+model.getState().lowLongitude);
-					System.out.println("    High latitude:"+model.getState().highLatitude+"  Low latitude:"+model.getState().lowLatitude);
-					System.out.println(">>  newX:"+newCaptureLocation.x+" newY"+newCaptureLocation.y+" newZ"+newCaptureLocation.z);
+					System.out.println("		High longitude:"+model.getState().highLongitude+"  Low longitude:"+model.getState().lowLongitude);
+					System.out.println("		High latitude:"+model.getState().highLatitude+"  Low latitude:"+model.getState().lowLatitude);
+					System.out.println("			newX:"+newCaptureLocation.x+" newY"+newCaptureLocation.y+" newZ"+newCaptureLocation.z);
 				}
 			}
 			else
 			{
-				System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
+				System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR 1: high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
 				System.out.println("    High latitude:"+model.getState().highLatitude+" Low latitude:"+model.getState().lowLatitude);
+				System.out.println("    High altitude:"+model.getState().highAltitude+" Low altitude:"+model.getState().lowAltitude);
 			}
+		}
+		else
+		{
+			System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR 2: high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
+			System.out.println("    High latitude:"+model.getState().highLatitude+" Low latitude:"+model.getState().lowLatitude);
+			System.out.println("    High altitude:"+model.getState().highAltitude+" Low altitude:"+model.getState().lowAltitude);
 		}
 
 		return newCaptureLocation;
@@ -1515,7 +1438,7 @@ public class WMV_Utilities
 	 * @param decimal Decimal longitude input
 	 * @return Longitude ref
 	 */
-	private String getLongitudeRefFromDecimal( float decimal )
+	public String getLongitudeRefFromDecimal( float decimal )
 	{
 		String gpsLongitudeRef = "E";
 		if( (int)Math.signum(decimal) == -1 )
@@ -1528,7 +1451,7 @@ public class WMV_Utilities
 	 * @param decimal Decimal latitude input
 	 * @return Latitude ref
 	 */
-	private String getLatitudeRefFromDecimal( float decimal )
+	public String getLatitudeRefFromDecimal( float decimal )
 	{
 		String gpsLatitudeRef = "N";
 		if( (int)Math.signum(decimal) == -1 )
@@ -1542,7 +1465,7 @@ public class WMV_Utilities
 	 * @param zoneIDStr Time zone ID string
 	 * @return ZonedDateTime object from date/time string
 	 */
-	private ZonedDateTime parseUTCDateTimeString(String dateTimeStr, String zoneIDStr)
+	public ZonedDateTime parseUTCDateTimeString(String dateTimeStr, String zoneIDStr)
 	{
 		String[] parts = dateTimeStr.split("T");
 		String dateStr = parts[0];			

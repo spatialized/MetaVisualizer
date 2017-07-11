@@ -455,37 +455,10 @@ public class WMV_World
 		if(ml.debug.ml) ml.systemMessage("World.enterFieldAtBeginning()... fieldIdx:"+fieldIdx);
 		viewer.enterField( fieldIdx, false );								// Enter field
 		
-		/* NEW METHOD */
-//		WMV_Waypoint entry = f.getState().entryLocation;
-//
-//		boolean hasEntryPoint = false;
-//		if(entry != null)
-//			hasEntryPoint = entry.initialized();
-//
-//		if(hasEntryPoint)
-//		{
-//			if(ml.debug.viewer) 
-//				ml.systemMessage("World.enterFieldByIndex()...  Field has Entry Point... "+f.getState().entryLocation.getWorldLocation());
-//			viewer.moveToWaypoint( f.getState().entryLocation, true, true );	 // Move to waypoint and stop				
-////			viewer.setIgnoreTeleportGoal( true );	// Added 7-4-17
-//		}
-//		else
-//		{
-//			if(ml.debug.viewer) 
-//				ml.systemMessage("World.enterFieldByIndex()...  No Entry Point found... f.getState() == null? "+(f.getState()==null));
-//			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
-//		}
-		
-		/* OLD METHOD */
-//		if(f.getState().entryLocation.initialized())
-//			viewer.moveToWaypoint(f.getState().entryLocation, true, true);
-//		else
-//			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+		viewer.moveToFirstTimeSegment(false);		// Move to first time segment if start location not set from saved data 
 
-		viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
-
-		viewer.updateNavigation();									// Update navigation
-		viewer.start();												// Start the viewer if this is the first frame
+		viewer.updateNavigation();					// Update navigation
+		viewer.start();								// Start the viewer if this is the first frame
 
 		if(state.displayTerrain)
 			state.waitingToFadeInTerrainAlpha = true;

@@ -5,9 +5,9 @@ import java.util.List;
 
 import processing.core.PVector;
 
-/**
+/*********************************
+ * Viewer state
  * @author davidgordon
- * Current viewer state
  */
 public class WMV_ViewerState 
 {
@@ -29,9 +29,6 @@ public class WMV_ViewerState
 	/* Navigation */
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	public boolean movingToCluster = false;				// Moving to cluster 
-	public PVector pathGoal;							// Next goal point for camera in navigating from memory
-	public boolean following = false;					// Is the camera currently navigating from memory
-	public int pathLocationIdx;							// Index of current cluster in memory
 	public boolean movingToTimeSegment = false;			// Moving / teleporting to target time segment
 	public int timeSegmentTarget = -1;					// Field time segment goal			
 
@@ -46,11 +43,28 @@ public class WMV_ViewerState
 	public int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
 	public int attractorCluster = -1;					// ID of single cluster currently attracting viewer
 	public int attractionStart = 0;						// Frame when current attractor began attracting viewer
-	public boolean continueAtAttractor = false;			// Whether current attractor is a waypoint along a path
-	public boolean pathWaiting = false;					// Whether to stop wait at each waypoint when moving along a path
 	
 	public float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
 	public float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
+	
+	/* Path Navigation */
+	public boolean following = false;					// Is the camera currently navigating from memory
+	public PVector pathGoal;							// Next goal point for camera in navigating from memory
+	public int pathLocationIdx;							// Index of current cluster in memory
+	public int pathWaitStartFrame;								// Frame viewer started waiting to move while following a path
+	public boolean pathWaiting = false;					// Whether to stop wait at each waypoint when moving along a path
+//	public boolean continueAtAttractor = false;			// Whether current attractor is a waypoint along a path	-- Disabled
+	
+	/* GPS Track Navigation */
+	public boolean followingGPSTrack = false;					// Moving to precise center from a point less than clusterCenterSize
+	public String gpsTrackName = "";								// Selected GPS track name
+	public int gpsTrackID = -1;									// Selected GPS track ID
+	public PVector gpsTrackGoal;									// Next goal point for camera in navigating from memory
+	public int gpsTrackLocationIdx;								// Index of current cluster in memory
+	public int gpsTrackTransitionLength;							// Frame length of GPS track transition
+	public PVector gpsTrackStartLocation;						// Distance covered over one frame during GPS track transition 
+	public float gpsTransitionLengthDistanceFactor = 14.f;		// Conversion factor from GPS track point distance to transition length
+	public int gpsTrackTransitionStart, gpsTrackTransitionEnd;	// GPS track transition start / end frame
 	
 	/* Teleporting */
 	public boolean navigationTeleport = false;		// Teleport when following navigation commands
@@ -87,16 +101,15 @@ public class WMV_ViewerState
 	public boolean movingY = false;			// Whether viewer is automatically moving in Y dimension (up or down)
 	public boolean movingZ = false;			// Whether viewer is automatically moving in Z dimension (forward or backward)
 	
-	public float moveXDirection;				// 1 (right)   or -1 (left)
-	public float moveYDirection;				// 1 (down)    or -1 (up)
-	public float moveZDirection;				// 1 (forward) or -1 (backward)
-	public boolean movingNearby = false;		// Moving to center from a point less than nearClusterDistance but greater than clusterCenterSize
-	public boolean centering = false;			// Moving to precise center from a point less than clusterCenterSize
-	public final int centeringTransitionLength = 20;	// Frame length of centering transition
-	public int centeringTransitionStart, centeringTransitionEnd;	// Frame length of centering transition
-	public boolean waiting = false;				// Whether viewer is waiting to move while following a path
-	public int pathWaitStartFrame;
-	
+	public float moveXDirection;									// 1 (right)   or -1 (left)
+	public float moveYDirection;									// 1 (down)    or -1 (up)
+	public float moveZDirection;									// 1 (forward) or -1 (backward)
+	public boolean movingNearby = false;							// Moving to center from a point less than nearClusterDistance but greater than clusterCenterSize
+	public boolean centering = false;							// Moving to precise center from a point less than clusterCenterSize
+	public final int centeringTransitionLength = 20;				// Frame length of centering transition
+	public int centeringTransitionStart, centeringTransitionEnd;	// Centering transition start / end frame
+	public boolean waiting = false;								// Whether viewer is waiting to move while following a path
+
 	/* Turning */
 	public PVector turningVelocity;			// Turning velocity in X direction
 	public PVector turningAcceleration;		// Turning acceleration in X direction
@@ -134,11 +147,9 @@ public class WMV_ViewerState
 	public float zoomStart, zoomDirection;
 	public int zoomLength = 15;
 
-	/* GPS Tracks */
-//	public File gpsTrackFile;					// GPS track file
-	public String gpsTrackName = "";			// GPS track name
-	public int gpsTrackSelected = -1;			// ID of GPS track selected
-
+	/**
+	 * Constructor for viewer state
+	 */
 	public WMV_ViewerState()
 	{
 		clusterOrientations = new ArrayList<WMV_Orientation>();

@@ -13,8 +13,8 @@ import processing.core.PConstants;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
-/**
- * Handles secondary program windows
+/*********************************
+ * Secondary window handler
  * @author davidgordon
  */
 public class ML_Window 
@@ -2119,6 +2119,9 @@ public class ML_Window
 	{
 		if(list.size() > 0)
 		{
+			if(!world.ml.display.disableLostFocusHook) 
+				world.ml.display.disableLostFocusHook = true;
+
 			listItemWindowList = new ArrayList<String>(list);
 			listItemWindowText = promptText;
 			listItemWindowHeight = 120 + listItemWindowList.size() * 30;			// -- Update this
@@ -2146,6 +2149,9 @@ public class ML_Window
 	 */
 	public void closeListItemWindow()
 	{
+		if(world.ml.display.disableLostFocusHook) 
+			world.ml.display.disableLostFocusHook = false;
+		
 		closeListItemWindow = true;
 		listItemWindow.setVisible(false);
 		listItemWindow.close();

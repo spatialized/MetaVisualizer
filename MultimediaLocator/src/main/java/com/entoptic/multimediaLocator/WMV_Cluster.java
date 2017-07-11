@@ -996,9 +996,9 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			float mass, dist = getClusterDistance();
 //			System.out.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
 			if( dist > worldSettings.clusterFarDistance )
-				mass = state.clusterMass * state.farMassFactor * (float)Math.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
+				mass = state.mass * state.farMassFactor * (float)Math.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
 			else
-				mass = state.clusterMass;
+				mass = state.mass;
 
 			float strength;
 
@@ -1963,15 +1963,15 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public void setMass(float newMass)
 	{
-		state.clusterMass = newMass;
+		state.mass = newMass;
 	}
 	
 	/**
 	 * @return Cluster mass
 	 */
-	public float getClusterMass()
+	public float getMass()
 	{
-		return state.clusterMass;
+		return state.mass;
 	}
 	
 	/**

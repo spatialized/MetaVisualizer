@@ -495,7 +495,7 @@ public abstract class WMV_Media
 //		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		PVector newCaptureLocation = new PVector(0,0,0);
 		
-		if(model.debugSettings.gps && model.debugSettings.detailed)
+		if(model.debug.gps && model.debug.detailed)
 		{
 			System.out.println("Media.calculateCaptureLocation()... ID #"+getID()+" Type: "+getType());
 			System.out.println("   gpsLocation x:"+mState.gpsLocation.x+" y: "+mState.gpsLocation.y+" z:"+mState.gpsLocation.z);

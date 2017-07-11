@@ -29,6 +29,9 @@ public class ML_Display
 	public boolean dataFolderFound = false;
 	public float setupProgress = 0.f;
 	
+	/* Window Behavior */
+	public boolean disableLostFocusHook = false;
+	
 	/* Graphics */
 	private PMatrix3D originalMatrix; 							/* For restoring 3D view after 2D HUD */
 	private float currentFieldOfView;

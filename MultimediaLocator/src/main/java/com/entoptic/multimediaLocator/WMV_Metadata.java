@@ -5,7 +5,10 @@ import processing.core.PImage;
 import processing.core.PVector;
 import processing.video.Movie;
 
-import org.homeunix.thecave.moss.util.image.ExifToolWrapper;
+//import org.homeunix.thecave.moss.util.image.ExifToolWrapper;
+//import 
+
+//import org.homeunix.thecave.moss.util.image.ExifToolWrapper;	// Works with full Moss
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -18,6 +21,8 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
 //import com.sun.tools.javac.util.Paths;
 
+//import ca.digitalcave.moss.image.ExifToolWrapper;
+
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -28,6 +33,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -784,7 +790,7 @@ class WMV_Metadata
 			if(iMetadata.isValid())
 			{
 				PImage pImg = ml.createImage(0, 0, processing.core.PConstants.RGB);
-				f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
+				f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata, ml.world.getState().aspectWidthRatioFactor ) );
 				iCount++;
 			}
 			else
@@ -827,22 +833,29 @@ class WMV_Metadata
 	 */
 	public void addVideoToField(WMV_Field f, File file)
 	{
+//		try 
+//		{
+//			WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
+
+		WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
 		try 
 		{
-			WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
 			if(vMetadata.isValid())
 			{
+//				if(debug.metadata && debug.video) 
+				ml.systemMessage("Adding video #"+vCount+" aspectWidthRatioFactor:"+ml.world.getState().aspectWidthRatioFactor);
 				Movie pMov = new Movie(ml, vMetadata.filePath);
-				f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
+				f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata, ml.world.getState().aspectWidthRatioFactor) );
 				vCount++;
 			}
 			else
 				ml.systemMessage("Invalid video metadata!  Video:"+vMetadata.name);
 		}
-		catch (Throwable t) {
-			if (debug.metadata)
+		catch (Throwable t) 
+		{
+			if (debug.metadata || debug.video)
 			{
-				ml.systemMessage("Could not add video! Error: "+t);
+				ml.systemMessage("Metadata.addVideoToField()... Could not add video! Error: "+t);
 				t.printStackTrace();
 				StackTraceElement[] stes = t.getStackTrace();
 				if (debug.video)
@@ -1532,13 +1545,13 @@ class WMV_Metadata
 		try {
 //			sLongitudeRef = videoMetadata.get("GPSLongitudeRef");
 //			sLatitudeRef = videoMetadata.get("GPSLatitudeRef");
-			sLongitude = videoMetadata.get("GPSLongitude");
-			sLatitude = videoMetadata.get("GPSLatitude");
-			altitude = videoMetadata.get("GPSAltitude");
-			duration = videoMetadata.get("MediaDuration");
-			sDateTime = videoMetadata.get("CreationDate");
-			sWidth = videoMetadata.get("ImageWidth");
-			sHeight = videoMetadata.get("ImageHeight");
+			sLongitude = videoMetadata.get("GPS Longitude");
+			sLatitude = videoMetadata.get("GPS Latitude");
+			altitude = videoMetadata.get("GPS Altitude");
+			duration = videoMetadata.get("Media Duration");
+			sDateTime = videoMetadata.get("Creation Date");
+			sWidth = videoMetadata.get("Image Width");
+			sHeight = videoMetadata.get("Image Height");
 			sKeywords = videoMetadata.get("Keywords");
 			
 			String[] parts = sDateTime.split("-");
@@ -1565,9 +1578,24 @@ class WMV_Metadata
 			try {
 				float xCoord, yCoord, zCoord;
 				
-				xCoord = parseFloatLongitude(sLongitude);			// Get longitude decimal value without sign
-				yCoord = Float.valueOf(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
-				zCoord = parseFloatLatitude(sLatitude);				// Get longitude decimal value without sign
+//				xCoord = parseLongitude(sLongitude);				// Get longitude decimal value without sign
+//				yCoord = parseVideoAltitude(altitude);			// Get altitude in m. (Altitude ref. assumed to be sea level)
+//				zCoord = parseLatitude(sLatitude);				// Get longitude decimal value without sign
+
+				sLongitudeRef = getLongitudeRef(sLongitude);		// Get reference direction of longitude sign of longitude
+				sLatitudeRef = getLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
+				xCoord = parseVideoLongitude(sLongitude, sLongitudeRef);
+				yCoord = parseVideoAltitude(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
+				zCoord = parseVideoLatitude(sLatitude, sLatitudeRef);
+
+				ml.systemMessage("xCoord:"+xCoord);
+				ml.systemMessage("yCoord:"+yCoord);
+				ml.systemMessage("zCoord:"+zCoord);
+				
+				/* WORKED WITH ExifToolWrapper */
+//				xCoord = parseFloatLongitude(sLongitude);			// Get longitude decimal value without sign
+//				yCoord = Float.valueOf(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
+//				zCoord = parseFloatLatitude(sLatitude);				// Get longitude decimal value without sign
 				
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
@@ -1577,9 +1605,11 @@ class WMV_Metadata
 				else 
 					gpsLoc = new PVector(xCoord, yCoord, zCoord);
 				
-				sLongitudeRef = getFloatLongitudeRef(sLongitude);	// Get reference direction of longitude sign of longitude
-				sLatitudeRef = getFloatLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
-			} 
+//				sLongitudeRef = getLongitudeRef(sLongitude);		// Get reference direction of longitude sign of longitude
+//				sLatitudeRef = getLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
+//				sLongitudeRef = getFloatLongitudeRef(sLongitude);		// Get reference direction of longitude sign of longitude
+//				sLatitudeRef = getFloatLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
+			}
 			catch (RuntimeException ex) 
 			{
 				if (debug.metadata)
@@ -1602,6 +1632,7 @@ class WMV_Metadata
 		}
 		catch (Throwable t) {
 			ml.systemMessage("Metadata.loadVideoMetadata()... Throwable while extracting video EXIF data:" + t);
+			t.printStackTrace();
 			if(!dataMissing) dataMissing = true;
 		}
 
@@ -1693,23 +1724,78 @@ class WMV_Metadata
 	 */
 	private Map<String, String> readVideoMetadata(File file, File exifToolFile)
 	{
-		Map<String, String> result;
+		Map<String, String> result = new HashMap<String, String>();
 		try
 		{
-			Set<String> tags = new HashSet();
-			tags.add("GPSLongitude");
-			tags.add("GPSLatitude");
-			tags.add("GPSAltitude");
-			tags.add("MediaDuration");
-			tags.add("CreationDate");
-			tags.add("ImageWidth");
-			tags.add("ImageHeight");
-			tags.add("Keywords");
+//			Command:
+//			exiftool -GPSLongitude -GPSLatitude -GPSAltitude -MediaDuration -CreationDate -ImageWidth 
+//			 -ImageHeight -Keywords <fileName> 
+//			
+//			Ex. 
+//			exiftool -GPSLongitude -GPSLatitude -GPSAltitude -MediaDuration -CreationDate -ImageWidth 
+//			 -ImageHeight -Keywords IMG_7944.mov 
+
+//			Example Output:
+//			
+//			GPS Longitude                   : 119 deg 50' 51.36" W
+//			GPS Latitude                    : 34 deg 26' 27.96" N
+//			GPS Altitude                    : 6.008 m
+//			Media Duration                  : 18.65 s
+//			Creation Date                   : 2016:11:22 16:57:11-08:00
+//			Image Width                     : 640
+//			Image Height                    : 360
+
+			String exifToolPath = exifToolFile.getAbsolutePath();
+			String filePath = file.getAbsolutePath();
+			WMV_Command commandExecutor;
+			ArrayList<String> command = new ArrayList<String>();
 			
-			ExifToolWrapper exifToolWrapper = new ExifToolWrapper(exifToolFile);
-			
-			result = exifToolWrapper.getTagsFromFile(file, tags);
-			return result;
+			command.add(exifToolPath);				// Use full path?
+//			command.add("exiftool");				// Use full path?
+			command.add("-GPSLongitude");
+			command.add("-GPSLatitude");
+			command.add("-GPSAltitude");
+			command.add("-MediaDuration");
+			command.add("-CreationDate");
+			command.add("-ImageWidth");
+			command.add("-ImageHeight");
+			command.add("-Keywords");
+			command.add(filePath);
+
+			commandExecutor = new WMV_Command("", command);
+			try {
+				int res = commandExecutor.execute();
+				StringBuilder stdout = commandExecutor.getStandardOutput();
+				StringBuilder stderr = commandExecutor.getStandardError();
+
+				String output = stdout.toString();
+				int length = stdout.length();
+				
+				ml.systemMessage("Metadata.readVideoMetadata()...  output: " + output);
+				ml.systemMessage("Metadata.readVideoMetadata()...  output length: " + length);
+				
+				String[] lines = output.split("\\n");
+				for (int i=0; i<lines.length; i++)
+				{
+					String[] parts = lines[i].split(" : ");
+					String tagName = parts[0].trim();
+					String tagString = parts[1].trim();
+					ml.systemMessage("Metadata.readVideoMetadata()... Loaded video metadata for: "+filePath);
+					ml.systemMessage(">>> tagName: " + tagName);
+					ml.systemMessage(">>> tagString: " + tagString);
+					
+					result.put(tagName, tagString);
+				}
+
+				ml.systemMessage("Result ..."+result);
+				ml.systemMessage("");
+				return result;
+			}
+			catch(Throwable t)
+			{
+				ml.systemMessage("Throwable t while loading video metadata:"+t);
+				return null;
+			}	
 		}
 		catch(Throwable t)
 		{
@@ -1718,6 +1804,43 @@ class WMV_Metadata
 		
 		return null;
 	}
+
+	
+	/* ExifToolWrapper method */
+//	/**
+//	 * Read video metadata using ExifToolWrapper
+//	 * @param file File location to read metadata from
+//	 * @param exifToolFile File object for ExifTool executable
+//	 * @return Map containing metadata values
+//	 */
+//	private Map<String, String> readVideoMetadata(File file, File exifToolFile)
+//	{
+//		Map<String, String> result;
+//		try
+//		{
+//			Set<String> tags = new HashSet();
+//			
+//			tags.add("GPSLongitude");
+//			tags.add("GPSLatitude");
+//			tags.add("GPSAltitude");
+//			tags.add("MediaDuration");
+//			tags.add("CreationDate");
+//			tags.add("ImageWidth");
+//			tags.add("ImageHeight");
+//			tags.add("Keywords");
+//			
+//			ExifToolWrapper exifToolWrapper = new ExifToolWrapper(exifToolFile);
+//			
+//			result = exifToolWrapper.getTagsFromFile(file, tags);
+//			return result;
+//		}
+//		catch(Throwable t)
+//		{
+//			ml.systemMessage("Throwable while getting video tags from file:" + t);			
+//		}
+//		
+//		return null;
+//	}
 
 	/**
 	 * Check metadata for image file to tell whether it is a regular image or panorama
@@ -1856,6 +1979,58 @@ class WMV_Metadata
 	}
 
 	/**
+	 * Parse metadata input for GPS longitude in D/M/S format
+	 * @param input String input
+	 * @return GPS decimal longitude
+	 */
+	public float parseVideoLongitude(String input, String direction) {
+//		GPS Longitude=118 deg 41' 7.08" W, 
+
+//		String[] parts = input.split("Longitude -");
+//		input = parts[1];
+		
+//		ml.systemMessage("Metadata.parseVideoLongitude()... input:"+input);
+//		ml.systemMessage("Metadata.parseVideoLongitude()... direction:"+direction);
+		
+		String[] parts = input.split(" deg ");
+		float degrees = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("'");
+		float minutes = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("\"");
+		float seconds = Float.valueOf(parts[0]);
+
+		float decimal = convertVideoDMSCoordsToDecimal(degrees, minutes, seconds, direction);
+//		float decimal = convertDMSCoordsToDecimal(degrees, minutes, seconds, direction);
+		return decimal;
+	}
+
+	/**
+	 * Parse metadata input for GPS latitude in D/M/S format
+	 * @param input String input
+	 * @return GPS decimal latitude
+	 */
+	public float parseVideoLatitude(String input, String direction) {
+//		GPS Latitude=34 deg 1' 58.80" N, 
+
+//		String[] parts = input.split("Latitude -");
+//		input = parts[1];
+		String[] parts = input.split(" deg ");
+		float degrees = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("'");
+		float minutes = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("\"");
+		float seconds = Float.valueOf(parts[0]);
+
+		float decimal = convertVideoDMSCoordsToDecimal(degrees, minutes, seconds, direction);
+//		float decimal = convertDMSCoordsToDecimal(degrees, minutes, seconds, direction);
+		return decimal;
+	}
+
+	/**
 	 * Convert GPS coordinates in DMS format to decimal
 	 * @param degrees Degrees
 	 * @param minutes Minutes
@@ -1866,7 +2041,8 @@ class WMV_Metadata
 	{
 	    float decimal = Math.signum(degrees) * (Math.abs(degrees) + (minutes / 60.0f) + (seconds / 3600.0f));
 
-		if (direction == "S" || direction == "W") 			// -- Added 6/30/17
+//		if (direction == "S" || direction == "W") 			// -- Added 6/30/17
+		if (direction.equals("S") || direction.equals("W")) 			// -- Changed 7/11/17
 		{
 			if(Math.signum(decimal) == 1)					// Make decimal negative if necessary
 				decimal *= -1; 
@@ -1878,7 +2054,32 @@ class WMV_Metadata
 //		float dd = degrees + minutes / 60 + seconds / (60 * 60);
 //		return dd;
 	}
-	
+
+
+	/**
+	 * Convert GPS coordinates in DMS format to decimal
+	 * @param degrees Degrees
+	 * @param minutes Minutes
+	 * @param seconds Seconds
+	 * @return Decimal value 
+	 */
+	public float convertVideoDMSCoordsToDecimal(float degrees, float minutes, float seconds, String direction) 
+	{
+	    float decimal = Math.signum(degrees) * (Math.abs(degrees) + (minutes / 60.0f) + (seconds / 3600.0f));
+
+		if (direction.equals("S") || direction.equals("W")) 			// -- Added 6/30/17
+		{
+			if(Math.signum(decimal) == 1)					// Make decimal negative if necessary
+				decimal *= -1; 
+		}
+
+		return decimal;
+		
+		/* Old Method */
+//		float dd = degrees + minutes / 60 + seconds / (60 * 60);
+//		return dd;
+	}
+
 	/**
 	 * Parse metadata input string for GPS longitude in decimal format
 	 * @param input Input string
@@ -1906,13 +2107,45 @@ class WMV_Metadata
 	 * @param input Longitude metadata input
 	 * @return Longitude reference
 	 */
-	private String getFloatLongitudeRef( String input )
+	private String getLongitudeRef( String input )
 	{
-		float decimal = Float.valueOf(input);
-		String gpsLongitudeRef = "E";
-		if( (int)Math.signum(decimal) == -1 )
-			gpsLongitudeRef = "W";
+//		ml.systemMessage("Metadata.getLongitudeRef()... input:"+input);
+		
+		String[] parts = input.split(" deg ");
+		float deg = Float.valueOf(parts[0].trim());
+		parts = input.split("\"");
+		String refStr = parts[1].trim();
+
+//		ml.systemMessage("  refStr:"+refStr);
+		
+		String gpsLongitudeRef = refStr;
 		return gpsLongitudeRef;
+		
+//		if( (int)Math.signum(deg) == 1 )				// Positive sign – no need to flip longitude reference
+//		{
+//			gpsLongitudeRef = refStr;
+//			return gpsLongitudeRef;
+//		}
+//		else if( (int)Math.signum(deg) == -1 )		// Flip longitude reference if negative sign
+//		{
+//			if(refStr.equals("W"))
+//			{
+//				gpsLongitudeRef = "E";
+//				return gpsLongitudeRef;
+//			}
+//			else if(refStr.equals("E"))
+//			{
+//				gpsLongitudeRef = "W";
+//				return gpsLongitudeRef;
+//			}
+//		}
+		
+//		return null;
+		
+//		String gpsLongitudeRef = "E";
+//		if( (int)Math.signum(decimal) == -1 )
+//			gpsLongitudeRef = "W";
+		
 	}
 	
 	/**
@@ -1920,14 +2153,73 @@ class WMV_Metadata
 	 * @param input Latitude metadata input
 	 * @return Latitude reference
 	 */
-	private String getFloatLatitudeRef( String input )
+	private String getLatitudeRef( String input )
 	{
-		float decimal = Float.valueOf(input);
-		String gpsLatitudeRef = "N";
-		if( (int)Math.signum(decimal) == -1 )
-			gpsLatitudeRef = "S";
+		String[] parts = input.split(" deg ");
+		float deg = Float.valueOf(parts[0].trim());
+		parts = input.split("\"");
+		String refStr = parts[1].trim();
+
+		String gpsLatitudeRef = refStr;
 		return gpsLatitudeRef;
+		
+//		if( (int)Math.signum(deg) == 1 )				// No need to flip latitude reference if positive sign
+//		{
+//			gpsLatitudeRef = refStr;
+//			return gpsLatitudeRef;
+//		}
+//		else if( (int)Math.signum(deg) == -1 )		// Flip latitude reference if negative sign
+//		{
+//			if(refStr.equals("N"))
+//			{
+//				gpsLatitudeRef = "S";
+//				return gpsLatitudeRef;
+//			}
+//			else if(refStr.equals("S"))
+//			{
+//				gpsLatitudeRef = "N";
+//				return gpsLatitudeRef;
+//			}
+//		}
+//		
+//		return null;
+
+//		String[] parts = input.split(" deg ");
+//		float deg = Float.valueOf(parts[0].trim());
+//		String gpsLatitudeRef = "N";
+//		if( (int)Math.signum(decimal) == -1 )
+//			gpsLatitudeRef = "S";
+//		return gpsLatitudeRef;
 	}
+
+	/* WORKED WITH ExifToolWrapper */
+//	/**
+//	 * Get longitude reference of longitude metadata input
+//	 * @param input Longitude metadata input
+//	 * @return Longitude reference
+//	 */
+//	private String getLongitudeRef( String input )
+//	{
+//		float decimal = Float.valueOf(input);
+//		String gpsLongitudeRef = "E";
+//		if( (int)Math.signum(decimal) == -1 )
+//			gpsLongitudeRef = "W";
+//		return gpsLongitudeRef;
+//	}
+//	
+//	/**
+//	 * Get latitude reference of latitude metadata input
+//	 * @param input Latitude metadata input
+//	 * @return Latitude reference
+//	 */
+//	private String getLatitudeRef( String input )
+//	{
+//		float decimal = Float.valueOf(input);
+//		String gpsLatitudeRef = "N";
+//		if( (int)Math.signum(decimal) == -1 )
+//			gpsLatitudeRef = "S";
+//		return gpsLatitudeRef;
+//	}
 
 	/**
 	 * Parse metadata input for GPS bearing (i.e. compass orientation) in decimal format, given in degrees
@@ -1950,6 +2242,22 @@ class WMV_Metadata
 		String[] parts = input.split("-");
 		input = parts[1];
 		parts = input.split("metres");
+		float altitude = Float.valueOf(parts[0]);
+
+		return altitude;
+	}
+
+	/**
+	 * Parse metadata input for GPS altitude in decimal format, given in m.
+	 * @param input String input
+	 * @return Altitude in meters
+	 */
+	public float parseVideoAltitude(String input) {
+//		GPS Altitude=1.372 m, 
+
+		String[] parts = input.split("m");
+		input = parts[0];
+//		parts = input.split("metres");
 		float altitude = Float.valueOf(parts[0]);
 
 		return altitude;

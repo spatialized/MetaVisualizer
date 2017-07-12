@@ -28,6 +28,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	private PImage blurMask;						// Blur mask
 	private PImage blurred;							// Combined pixels
 
+	private float aspectWidthRatioFactor;
+	
 	/**
 	 * Constructor for rectangular video in 3D space
 	 * @param newID Video ID
@@ -35,7 +37,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * @param newType Media type ID
 	 * @param newVideoMetadata Video metadata
 	 */
-	WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata )
+	public WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata, float newAspectWidthRatioFactor )
 	{
 		super( newID, newType, newVideoMetadata.name, newVideoMetadata.filePath, newVideoMetadata.dateTime, newVideoMetadata.timeZone, 
 			   newVideoMetadata.gpsLocation, newVideoMetadata.longitudeRef, newVideoMetadata.latitudeRef );
@@ -57,6 +59,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(newVideo != null)
 			setLengthFromMovie(newVideo);
+		
+		aspectWidthRatioFactor = newAspectWidthRatioFactor;
 	}  
 	
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
@@ -428,13 +432,35 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		state.vertices = translateVertices(state.vertices, getCaptureLocation());                       // Move image to photo capture location   
 
-		state.disp = getDisplacementVector();
-		state.vertices = translateVertices(state.vertices, state.disp);          // Translate image vertices from capture to viewing location
+		calculateLocation();
+		
+//		state.disp = getDisplacementVector();
+//		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );	// Location in Path Mode
+//		addToLocation(state.disp);
+		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image vertices from capture to viewing location
+		state.sVertices = translateVertices(state.sVertices, state.displacement);      // Translate image static vertices from capture to viewing location
 
-		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );	// Location in Path Mode
-		addToLocation(state.disp);
+//		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );	// Location in Path Mode
+//		addToLocation(state.disp);
 	}
 	
+	
+	/**
+	 * Calculate location given displacement vector
+	 */
+	public void calculateLocation()
+	{
+//		System.out.println("Video.calculateLocation()... #" + getID() + " getCaptureLocation().x:"+getCaptureLocation().x+"   y:"+getCaptureLocation().y+"  z:"+getCaptureLocation().z);
+//		System.out.println("   getGPSLocation().x:"+getGPSLocation().x+"   y:"+getGPSLocation().y+"  z:"+getGPSLocation().z);
+		
+		state.displacement = getDisplacementVector();
+		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
+		addToLocation(state.displacement);
+		
+//		System.out.println(" After displacement: getCaptureLocation().x:"+getCaptureLocation().x+"   y:"+getCaptureLocation().y+"  z:"+getCaptureLocation().z);
+//		System.out.println("   getGPSLocation().x:"+getGPSLocation().x+"   y:"+getGPSLocation().y+"  z:"+getGPSLocation().z);
+	}
+
 	public PVector getDisplacementVector()
 	{
 		float r;				  				 // Viewing sphere radius
@@ -721,9 +747,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
 		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
 
-		state.disp = new PVector(-xDisp, -yDisp, -zDisp);
+		state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
 
-		loc.add(state.disp);
+		loc.add(state.displacement);
 		float distance = PVector.dist(loc, camLoc);     
 
 		return distance;
@@ -1305,6 +1331,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
 		
+		left *= aspectWidthRatioFactor;			/* Testing */
+		right *= aspectWidthRatioFactor;
+
 		PVector[] verts = new PVector[4]; 
 
 		verts[0] = new PVector( left, top, 0 );    	  // UPPER LEFT  

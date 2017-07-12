@@ -981,7 +981,8 @@ public class WMV_Field
 
 			calculateMediaLocations(false); 		// Set location of each media in simulation, excluding sounds
 			findVideoPlaceholders();				// Find image place holders for videos
-			calculateMediaVertices();				// Calculate vertices for all visual media
+			calculateMediaVertices();			// Calculate vertices for all visual media
+//			calculateImageAndSoundLocations();	// Calculate media viewing locations that are displaced from capture locations
 		}
 		else
 			System.out.println("Field #"+getID()+" has no media! Cannot initialize field...");
@@ -1508,7 +1509,7 @@ public class WMV_Field
 	/**
 	 * Calculate vertices for all images and videos in the field
 	 */
-	public void calculateMediaVertices() 
+	private void calculateMediaVertices() 
 	{
 		if(debugSettings.world) 	System.out.println("Calculating media vertices...");
 
@@ -1517,6 +1518,18 @@ public class WMV_Field
 
 		for (int i = 0; i < videos.size(); i++) 
 			videos.get(i).calculateVertices();
+	}
+	
+	/**
+	 * Calculate viewing locations for all images and videos in the field			-- Disabled
+	 */
+	public void calculateImageAndSoundLocations()		
+	{
+		for (int i = 0; i < images.size(); i++) 
+			images.get(i).calculateLocation();
+
+		for (int i = 0; i < videos.size(); i++) 
+			videos.get(i).calculateLocation();
 	}
 
 	/**
@@ -3923,7 +3936,7 @@ public class WMV_Field
 						if(debugSettings.image) System.out.println(" Adding Images... "+newImageStateList.images.size());
 						for(WMV_ImageState is : newImageStateList.images)
 						{
-							WMV_Image newImage = getImageFromImageState(is);
+							WMV_Image newImage = getImageFromImageState(is, ml.world.getState().aspectWidthRatioFactor);
 							
 							if(newImage != null)
 							{
@@ -3983,7 +3996,7 @@ public class WMV_Field
 						if(debugSettings.video) System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
 						for(WMV_VideoState vs : newVideoStateList.videos)
 						{
-							WMV_Video newVideo = getVideoFromVideoState(vs);
+							WMV_Video newVideo = getVideoFromVideoState(vs, ml.world.getState().aspectWidthRatioFactor);
 							if(newVideo != null)
 							{
 								if(newVideo.getAssociatedClusterID() == -1)			// Fix index 0 missing in JSON error
@@ -4307,9 +4320,9 @@ public class WMV_Field
 		return newCluster;
 	}
 
-	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
+	private WMV_Image getImageFromImageState(WMV_ImageState imageState, float aspectWidthRatioFactor)
 	{
-		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata());
+		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata(), aspectWidthRatioFactor);
 		newImage.setState( imageState );
 		newImage.initializeTime();
 		return newImage;
@@ -4325,9 +4338,15 @@ public class WMV_Field
 		return newPanorama;
 	}
 
-	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState)			 // --  NULL error
+	/**
+	 * Get video from video state
+	 * @param videoState Video state to load video from
+	 * @param aspectWidthRatioFactor Screen aspect width ratio factor
+	 * @return Loaded video
+	 */
+	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState, float aspectWidthRatioFactor)			 // --  NULL error
 	{
-		WMV_Video newVideo = new WMV_Video( videoState.mState.id, null, videoState.mState.mediaType, videoState.getMetadata() );
+		WMV_Video newVideo = new WMV_Video( videoState.mState.id, null, videoState.mState.mediaType, videoState.getMetadata(), aspectWidthRatioFactor );
 		newVideo.setState( videoState );
 		newVideo.initializeTime();
 		return newVideo;

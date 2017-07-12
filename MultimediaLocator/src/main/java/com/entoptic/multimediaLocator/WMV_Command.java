@@ -11,7 +11,6 @@ import java.util.List;
 public class WMV_Command
 {
   private List<String> command;
-//  private String adminPassword;
   private WMV_Thread inputStreamHandler;
   private WMV_Thread errorStreamHandler;
   private String directory;

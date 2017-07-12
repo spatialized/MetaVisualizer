@@ -14,10 +14,12 @@ public class WMV_Image extends WMV_Media
 	private WMV_ImageState state;			// Image virtual state
 	private WMV_ImageMetadata metadata;		// Image metadata
 
-	/* Graphics */
+	/* Image */
 	public PImage image;					// Image pixels to display
 	public PImage blurMask;					// Blur mask
 	public PImage blurred;					// Combined pixels 
+
+	private float aspectWidthRatioFactor;
 
 	/**
 	 * Constructor for image in 3D space
@@ -26,7 +28,7 @@ public class WMV_Image extends WMV_Media
 	 * @param newMediaType Media type ID
 	 * @param newImageMetadata Image metadata
 	 */
-	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
+	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata, float newAspectWidthRatioFactor ) 
 	{
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
 				newImageMetadata.gpsLocation, newImageMetadata.longitudeRef, newImageMetadata.latitudeRef );
@@ -54,6 +56,8 @@ public class WMV_Image extends WMV_Media
 		state.sVertices = new PVector[4]; 				// Initialize Static (Orientation) Mode vertices
 
 		setAspectRatio( calculateAspectRatio() );		// Set image aspect ratio
+
+		aspectWidthRatioFactor = newAspectWidthRatioFactor;
 	}
 
 	/**
@@ -473,13 +477,27 @@ public class WMV_Image extends WMV_Media
 		}
 		else
 		{
-			state.displacement = getDisplacementVector();
+			calculateLocation();
+//			state.displacement = getDisplacementVector();
+//			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
+//			addToLocation(state.displacement);     													 
+			
 			state.vertices = translateVertices(state.vertices, state.displacement);        // Translate image vertices from capture to viewing location
 			state.sVertices = translateVertices(state.sVertices, state.displacement);      // Translate image static vertices from capture to viewing location
 
-			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
-			addToLocation(state.displacement);     													 
+//			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
+//			addToLocation(state.displacement);     													 
 		}
+	}
+	
+	/**
+	 * Calculate location given displacement vector
+	 */
+	public void calculateLocation()
+	{
+		state.displacement = getDisplacementVector();
+		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
+		addToLocation(state.displacement);     													 
 	}
 
 	/**
@@ -929,11 +947,22 @@ public class WMV_Image extends WMV_Media
 	{
 		float width = getImageWidthInMeters();										
 		float height = width * getAspectRatio();		
-
+		
 		float left = -width * 0.5f;						
 		float right = width * 0.5f;
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
+		
+		left *= aspectWidthRatioFactor;			/* Testing */
+		right *= aspectWidthRatioFactor;
+		
+//		if(getID() == 1)
+//		{
+//			System.out.println("ID #1   left:"+left);
+//			System.out.println(" would have been :"+(-width * 0.5f));
+//			System.out.println(" getWorldState().aspectWidthRatioFactor: "+getWorldState().aspectWidthRatioFactor);
+//			System.out.println("");
+//		}
 
 		PVector[] verts = new PVector[4]; 
 

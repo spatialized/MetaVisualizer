@@ -35,7 +35,7 @@ public class WMV_VideoState
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 	
 	/* Model*/
-	public PVector disp = new PVector(0, 0, 0);    	// Displacement from capture location
+	public PVector displacement = new PVector(0, 0, 0);    	// Displacement from capture location
 	public boolean thinningVisibility = false;
 
 	/* Graphics */

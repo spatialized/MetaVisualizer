@@ -495,6 +495,7 @@ public abstract class WMV_Media
 //		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		PVector newCaptureLocation = new PVector(0,0,0);
 		
+//		if(getType() == 1)
 		if(model.debug.gps && model.debug.detailed)
 		{
 			System.out.println("Media.calculateCaptureLocation()... ID #"+getID()+" Type: "+getType());
@@ -562,12 +563,12 @@ public abstract class WMV_Media
 	/**
 	 * @return Distance from the image capture state.location to the camera
 	 */
-	public float getCaptureDistance()       // Find distance from camera to media capture location
-	{
-		PVector camLoc = viewerState.getLocation();
-		float distance = PVector.dist(mState.captureLocation, camLoc);     
-		return distance;
-	}
+//	public float getCaptureDistance()       // Find distance from camera to media capture location
+//	{
+//		PVector camLoc = viewerState.getLocation();
+//		float distance = PVector.dist(mState.captureLocation, camLoc);     
+//		return distance;
+//	}
 
 	/**
 	 * @return How far the image capture state.location is from a point

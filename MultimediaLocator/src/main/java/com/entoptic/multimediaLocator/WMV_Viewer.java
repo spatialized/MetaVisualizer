@@ -3806,8 +3806,9 @@ public class WMV_Viewer
 				WMV_Panorama n = p.getCurrentField().getPanorama(id);
 				if(!n.getMediaState().disabled)
 				{
-					if( n.getCaptureDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance &&
-							n.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+					float captureDistance = n.getCaptureLocation().dist(getLocation());
+					if( captureDistance < settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+							captureDistance > settings.nearClippingDistance * 2.f )		// Find images in range
 						closePanoramas.add(n);							
 				}
 			}
@@ -3828,8 +3829,9 @@ public class WMV_Viewer
 				WMV_Sound s = p.getCurrentField().getSound(id);
 				if(!s.getMediaState().disabled)
 				{
-					if( s.getCaptureDistance() <= settings.farViewingDistance + worldSettings.defaultFocusDistance &&
-						s.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
+					float captureDistance = s.getCaptureLocation().dist(getLocation());
+					if( captureDistance <= settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+						captureDistance > settings.nearClippingDistance * 2.f )		// Find videos in range
 						closeSounds.add(s);							
 				}
 			}
@@ -4220,7 +4222,7 @@ public class WMV_Viewer
 
 		for(WMV_Sound s : possibleSounds)
 		{
-			float result = s.getCaptureDistance();
+			float result = s.getCaptureLocation().dist(getLocation());
 			if(result < closestSoundDist)								// Find closest to camera orientation
 			{
 				closestSoundDist = result;
@@ -4452,7 +4454,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getPanoramas().size(); i++) 
 		{
-			float panoramaDist = f.getPanorama(i).getCaptureDistance();
+			float panoramaDist = f.getPanorama(i).getCaptureLocation().dist( getLocation() );
 			if (panoramaDist < smallest && panoramaDist > settings.nearClippingDistance) 
 			{
 				if(inclCurrent)
@@ -4521,7 +4523,8 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getSounds().size(); i++) 
 		{
-			float soundDist = f.getSound(i).getCaptureDistance();
+			float soundDist = f.getSound(i).getCaptureLocation().dist(getLocation());
+//			float soundDist = f.getSound(i).getCaptureDistance();
 			p.ml.systemMessage("Viewer.getNearestSound()... id #"+i+" soundDist:"+soundDist);
 			
 			if (soundDist < smallest) 

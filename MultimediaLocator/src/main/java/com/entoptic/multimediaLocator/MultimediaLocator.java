@@ -53,38 +53,40 @@ import processing.video.Movie;
 
 import com.apple.eawt.Application;
 
+import ddf.minim.Minim;
+
 /**
  * MultimediaLocator App  
  * @author davidgordon
  */
-@SuppressWarnings("restriction")					// Allow setting app icon
+@SuppressWarnings("restriction")						// Allow setting app icon
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private static boolean createJar = false;		// Determines how to load cubemap shader
+	private static boolean createJar = false;			// Determines how to load cubemap shader
 
 	/* Classes */
 	ML_Library library;								// Multimedia library
 	ML_Input input;									// Mouse / keyboard input
 	ML_Stitcher stitcher;							// Panoramic stitching
 	ML_Display display;								// Displaying 2D graphics and text
-	ML_DebugSettings debug;					// Debug settings
+	ML_DebugSettings debug;							// Debug settings
 	
+	/* WorldMediaViewer */
+	public WMV_World world;							// World simulation
+	public WMV_Metadata metadata;					// Metadata reading and writing
+	public WMV_Utilities utilities;
+
 	/* App */
 	private String appName = "MultimediaLocator 0.9.0";
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
-	private final int basicDelay = 50;	
+	private final int basicDelay = 60;	
 	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
 	public boolean createNewLibrary = false;
 	public boolean cubeMapInitialized = false;
-
-	/* WorldMediaViewer */
-	public WMV_World world;						// World simulation
-	public WMV_Metadata metadata;					// Metadata reading and writing
-	public WMV_Utilities utilities;
 
 	/* Graphics */
 	public PShader cubemapShader;
@@ -95,6 +97,9 @@ public class MultimediaLocator extends PApplet
 	public PImage[] faces;
 	public int cubeMapSize = 2048;   
 	
+	/* Sound */
+	public Minim minim;
+
 	/* Memory */
 	public boolean lowMemory = false;
 	public boolean performanceSlow = false;
@@ -120,84 +125,14 @@ public class MultimediaLocator extends PApplet
 //	    		setupLibraries();
 	}
 	
-	/**
-	 * Tell program where to look for native libraries		-- Improve this
-	 */
-//	private static void setupLibraries()
-//	{
-//		try{
-//			URL appURL = getAppLocation();
-//			File appFile = urlToFile(appURL);
-
-//			if(createJar)
-//			{
-//				appPath = appFile.getAbsolutePath();
-//				appDirectory = appFile.getParentFile().getAbsolutePath();
-//				gStreamerDirectory = "/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64";					// GStreamer directory
-//				gStreamerPluginDirectory = "/lib/macosx64/plugins/";		// GStreamer plugin directory
-//			}
-//			else
-//			{
-////				appPath = appFile.getAbsolutePath();
-////				appDirectory = appFile.getParentFile().getAbsolutePath();
-//				gStreamerDirectory = "/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64";					// GStreamer directory
-//				gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
-//			}
-//			appPath = appFile.getAbsolutePath();
-//			appDirectory = appFile.getParentFile().getAbsolutePath();
-//			gStreamerDirectory = appDirectory + "/lib/macosx64/";					// GStreamer directory
-//			gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
-//		}
-//		catch (Throwable t)
-//		{
-//			startupMessages.add("ML.setupLibraries()... Error getting application path...");
-//			System.out.println("ML.setupLibraries()... Error getting application path...");
-//		}
-//		
-//		if(!appPath.equals(""))
-//		{
-//			try{
-////				if (appPath.endsWith("/")) 
-//				{
-//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64");
-//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64/plugins");
-//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library");
-//				}
-//			}
-//			catch(Throwable t)
-//			{
-//				startupMessages.add("ML.setupLibraries()... Error adding library paths...");
-//				System.out.println("ML.setupLibraries()... Error adding library paths...");
-//			}
-//		}
-//		else
-//		{
-//			startupMessages.add("ML.setupLibraries()... No app path!");
-//			System.out.println("ML.setupLibraries()... No app path!");
-//			return;
-//		}
-		
-//		try{
-//			loadNativeLibraryDependencies();
-//		}
-//		catch(Throwable t)
-//		{
-//			startupMessages.add("ML.setupLibraries()... Error loading libraries... t:"+t);
-//			System.out.println("ML.setupLibraries()... Error loading libraries... t:"+t);
-//			t.printStackTrace();
-//		}
-//	}
-	
 	/** 
 	 * Setup function called at launch
 	 */
 	public void setup()
 	{
+		/* Main Classes */
 		utilities = new WMV_Utilities();
 
-//		surface.setResizable(true);
-//		hideAppWindow();
-		
 		delay(basicDelay);
 		
 		debug = new ML_DebugSettings();
@@ -205,26 +140,29 @@ public class MultimediaLocator extends PApplet
 		
 		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
-//		printLibraryPath();
-		
 		input = new ML_Input();
 		world = new WMV_World(this);
 		
+		/* App Icon */
 		appIcon = getImageResource("icon.png");
 		
+		/* HUD Display */
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
 
 		Toolkit.getDefaultToolkit().addAWTEventListener(
 				new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | AWTEvent.FOCUS_EVENT_MASK);
 
+		/* Panoramic Stitching */
 		stitcher = new ML_Stitcher(world);
+
+		/* Metadata */
 		metadata = new WMV_Metadata(this, debug);
-		
 		loadExiftoolPath();
 		
 		if(debug.ml) systemMessage("Initial setup complete...");
 
+		/* Graphics */
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
@@ -232,6 +170,9 @@ public class MultimediaLocator extends PApplet
 
 		initCubeMap();
 		delay(basicDelay);
+
+		/* Sound */
+		minim = new Minim(this);
 		
 		addShutdownHook();
 	}
@@ -430,6 +371,11 @@ public class MultimediaLocator extends PApplet
 //		System.out.println( "ML.initializeNextField()... >>> showStartupWindow? "+display.window.showStartupWindow+
 //				" setupStartupWindow:"+display.window.setupStartupWindow);
 		
+		if(debug.video) 
+			systemMessage( "ML.initializeNextField()... After initialized field... Field videos: "+
+							world.getField(state.initializationField).getVideoCount()+" video errors: "+
+							world.getField(state.initializationField).getVideoErrors() );
+
 		state.initializationField++;				/* Set next field to initialize */
 
 		if( state.initializationField >= world.getFields().size() || state.singleField )	
@@ -504,9 +450,19 @@ public class MultimediaLocator extends PApplet
 				if(debug.ml || debug.world) 
 					systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
 				
+				if(debug.video) 
+					systemMessage( "ML.initializeField()... Before initialize... Field videos: "+
+									world.getField(fieldID).getVideoCount()+" video errors: "+
+									world.getField(fieldID).getVideoErrors() );
+
 				world.getField(fieldID).initialize();
 				world.getField(fieldID).setDataFolderLoaded(false);
-				
+
+				if(debug.video) 
+					systemMessage( "ML.initializeField()... After initialize... Field videos: "+
+									world.getField(fieldID).getVideoCount()+" video errors: "+
+									world.getField(fieldID).getVideoErrors() );
+
 				if(metadata.gpsTrackFilesFound) 
 					world.getField(fieldID).setGPSTracks( metadata.loadGPSTracks(world.getField(fieldID)) );	// Load GPS tracks
 
@@ -531,6 +487,9 @@ public class MultimediaLocator extends PApplet
 	private WMV_Field loadFieldState(WMV_Field f, String libraryFolder, boolean set)
 	{
 		boolean savedStateData = metadata.load(f, libraryFolder);		/* Load metadata from media associated with field */
+
+		if(debug.video) 
+			systemMessage("ML.loadFieldState()... Added videos: "+f.getVideoCount()+" video errors: "+f.getVideoErrors());
 
 		if(savedStateData)		/* Attempt to load simulation state */
 		{
@@ -857,12 +816,13 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void libraryFolderSelected(File selection) 
 	{
-		if(selection != null)
+		boolean selected = (selection != null);
+		if(selected)
 		{
-			display.window.lblStartupWindowText.setVisible(true);			// Set "Please wait..." text
-			openLibraryFolder(selection);
+			display.window.lblStartupWindowText.setVisible(true);		// Set "Please wait..." text
+			selected = openLibraryFolder(selection);
 		}
-		else
+		if(!selected)												// Valid library was not selected
 		{
 			state.inLibrarySetup = false;
 			display.window.btnCreateLibrary.setVisible(true);
@@ -871,6 +831,9 @@ public class MultimediaLocator extends PApplet
 //			display.window.btnLibraryHelp.setVisible(true);
 			display.window.lblStartup.setVisible(true);
 			display.window.lblStartupWindowText.setVisible(false);
+			
+			display.window.showStartupWindow(false);					// Show Startup Window again
+//			display.window.showStartupWindow(true);
 		}
 	}
 
@@ -1012,17 +975,14 @@ public class MultimediaLocator extends PApplet
 	 * Analyze and load media folders given user selection
 	 * @param selection Selected folder
 	 */
-	public void openLibraryFolder(File selection) 
+	public boolean openLibraryFolder(File selection) 
 	{
 		boolean selectedFolder = false;
 		
 //		if(!windowVisible)
 //			showAppWindow();
 
-		if (selection == null) {
-			System.out.println("Window was closed or the user hit cancel.");
-		} 
-		else 
+		if (selection != null) 
 		{
 			String input = selection.getPath();
 
@@ -1082,11 +1042,16 @@ public class MultimediaLocator extends PApplet
 		{
 			state.selectedLibrary = true;	// Library folder has been selected
 			state.inLibrarySetup = false;	// End library setup
+			return true;
 		}
 		else
 		{
-			state.selectedLibrary = false;	// Library in improper format if masks are missing
-			state.inLibrarySetup = true;		// Still in library setup
+			return false;
+//			state.selectedLibrary = false;	// Library in improper format if masks are missing
+//			state.inLibrarySetup = true;		// Still in library setup
+//			
+////			if(!display.window.showStartupWindow)
+//				display.window.showStartupWindow(true);
 		}
 	}
 
@@ -1980,7 +1945,7 @@ public class MultimediaLocator extends PApplet
 	 * Load native library from java.library.path
 	 * @param filename Native library name
 	 */
-	public static void loadNativeLibrary(String filename)
+	private static void loadNativeLibrary(String filename)
 	{
 		try{
 			System.loadLibrary(filename);					// Load the library
@@ -1996,7 +1961,7 @@ public class MultimediaLocator extends PApplet
 	 * Load native library from absolute filepath
 	 * @param filepath Absolute filepath
 	 */
-	public static void loadNativeLibraryFromPath(String filepath)
+	private static void loadNativeLibraryFromPath(String filepath)
 	{
 		try{
 			if (!filepath.startsWith("/")) {
@@ -2664,6 +2629,73 @@ public class MultimediaLocator extends PApplet
 	    }
 	}
 
+	/**
+	 * Tell program where to look for native libraries		-- Improve this
+	 */
+//	private static void setupLibraries()
+//	{
+//		try{
+//			URL appURL = getAppLocation();
+//			File appFile = urlToFile(appURL);
+
+//			if(createJar)
+//			{
+//				appPath = appFile.getAbsolutePath();
+//				appDirectory = appFile.getParentFile().getAbsolutePath();
+//				gStreamerDirectory = "/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64";					// GStreamer directory
+//				gStreamerPluginDirectory = "/lib/macosx64/plugins/";		// GStreamer plugin directory
+//			}
+//			else
+//			{
+////				appPath = appFile.getAbsolutePath();
+////				appDirectory = appFile.getParentFile().getAbsolutePath();
+//				gStreamerDirectory = "/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64";					// GStreamer directory
+//				gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
+//			}
+//			appPath = appFile.getAbsolutePath();
+//			appDirectory = appFile.getParentFile().getAbsolutePath();
+//			gStreamerDirectory = appDirectory + "/lib/macosx64/";					// GStreamer directory
+//			gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
+//		}
+//		catch (Throwable t)
+//		{
+//			startupMessages.add("ML.setupLibraries()... Error getting application path...");
+//			System.out.println("ML.setupLibraries()... Error getting application path...");
+//		}
+//		
+//		if(!appPath.equals(""))
+//		{
+//			try{
+////				if (appPath.endsWith("/")) 
+//				{
+//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64");
+//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64/plugins");
+//					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library");
+//				}
+//			}
+//			catch(Throwable t)
+//			{
+//				startupMessages.add("ML.setupLibraries()... Error adding library paths...");
+//				System.out.println("ML.setupLibraries()... Error adding library paths...");
+//			}
+//		}
+//		else
+//		{
+//			startupMessages.add("ML.setupLibraries()... No app path!");
+//			System.out.println("ML.setupLibraries()... No app path!");
+//			return;
+//		}
+		
+//		try{
+//			loadNativeLibraryDependencies();
+//		}
+//		catch(Throwable t)
+//		{
+//			startupMessages.add("ML.setupLibraries()... Error loading libraries... t:"+t);
+//			System.out.println("ML.setupLibraries()... Error loading libraries... t:"+t);
+//			t.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * Load GStreamer, Video and JNA native library dependencies

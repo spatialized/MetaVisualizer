@@ -42,7 +42,7 @@ public class WMV_World
 	public WMV_WorldState state;						// World state
 	public WMV_Utilities utilities;						// Utility class
 	public ML_Input input;								// Keyboard input handler
-
+	
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
@@ -111,7 +111,7 @@ public class WMV_World
 		settings = new WMV_WorldSettings();
 		utilities = new WMV_Utilities();
 		
-		state = new WMV_WorldState();
+		state = new WMV_WorldState((float)ml.height / (float)ml.width);
 		viewer = new WMV_Viewer(this, settings, state, ml.debug);			// Initialize navigation + viewer
 		
 		/* Setup interpolation variables */

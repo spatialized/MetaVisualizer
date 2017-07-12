@@ -2,7 +2,12 @@ package main.java.com.entoptic.multimediaLocator;
 
 import java.util.ArrayList;
 
-import beads.*;
+import ddf.minim.AudioSample;
+
+//import beads.*;
+//import processing.sound.*;
+//import ddf.minim.*;
+
 import processing.core.PApplet;
 //import processing.core.PImage;
 import processing.core.PVector;
@@ -18,11 +23,15 @@ public class WMV_Sound extends WMV_Media
 	WMV_SoundState state;
 
 	/* Sound */
-	AudioContext ac;					/* Beads audio context */
-	private SamplePlayer player;		/* Beads sample player */
-	private Bead sound;				/* Beads sound object */
-	Gain g;							/* Gain object */
+//	AudioContext ac;					/* Beads audio context */
+//	private SamplePlayer player;		/* Beads sample player */
+//	private Bead sound;				/* Beads sound object */
+//	Gain g;							/* Gain object */
 
+//	SoundFile sound;
+
+	AudioSample sound;
+	
 	/**
 	 * Constructor for sound in 3D space 
 	 * @param newID
@@ -162,7 +171,9 @@ public class WMV_Sound extends WMV_Media
 		if(state.fadingVolume && getWorldState().frameCount < state.volumeFadingEndFrame)	// Still fading
 		{
 			state.volume = PApplet.map(getWorldState().frameCount, state.volumeFadingStartFrame, state.volumeFadingEndFrame, state.volumeFadingStartVal, state.volumeFadingTarget);
-			g.setGain(state.volume);
+
+			sound.setGain(state.volume);
+//			g.setGain(state.volume);
 		}
 		else								// Reached target
 		{
@@ -256,13 +267,26 @@ public class WMV_Sound extends WMV_Media
 		
 		if( !getMediaState().hidden && !getMediaState().disabled )
 		{
-			ac = new AudioContext();
-			player = new SamplePlayer(ac, SampleManager.sample(getMetadata().filePath));
-			g = new Gain(ac, 2, 0.2f);
-			g.addInput(player);
-			ac.out.addInput(g);
-			
-			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
+//			ac = new AudioContext();
+//			player = new SamplePlayer(ac, SampleManager.sample(getMetadata().filePath));
+//			g = new Gain(ac, 2, 0.2f);
+//			g.addInput(player);
+//			ac.out.addInput(g);
+
+			sound = ml.minim.loadSample(getMetadata().filePath);		// Load sound as a sample
+
+			setLength( (float)sound.getMetaData().length() * 0.001f);	// Set sound length
+
+//			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
+
+			/* WORKED WITH Beads */
+//			ac = new AudioContext();
+//			player = new SamplePlayer(ac, SampleManager.sample(getMetadata().filePath));
+//			g = new Gain(ac, 2, 0.2f);
+//			g.addInput(player);
+//			ac.out.addInput(g);
+//			
+//			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
 			
 			if(getViewerSettings().autoPlaySounds)
 			{
@@ -287,7 +311,9 @@ public class WMV_Sound extends WMV_Media
 	{
 		if(getDebugSettings().sound) System.out.println("Sound.play()...");
 		
-		ac.start();					// Start audio context 
+		sound.trigger();				// Trigger sound to play
+		
+//		ac.start();					// Start audio context 
 		state.playing = true;
 		state.volume = 0.f;
 		fadeSoundIn();
@@ -312,7 +338,8 @@ public class WMV_Sound extends WMV_Media
 	private void pauseSound()
 	{
 		if(getDebugSettings().sound) System.out.println("pauseSound()...");
-		player.pause(true);
+		sound.stop();
+//		player.pause(true);
 		state.playing = false;
 	}
 
@@ -325,7 +352,9 @@ public class WMV_Sound extends WMV_Media
 		try{
 			if(sound != null)
 			{
-				player.clearInputConnections();
+				sound.stop();
+				sound.close();
+//				player.clearInputConnections();
 			}
 		}
 		catch(Throwable t)
@@ -521,9 +550,10 @@ public class WMV_Sound extends WMV_Media
 //		System.out.println("Sound.getLengthInFrames()... state.length: "+state.length+" player.sample.length (ms.): "+player.getSample().getLength());
 		if(state.length != 0)
 			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
-		else if(player != null)
+		else if(sound != null)
 		{
-			setLengthFromSound(player.getSample());
+//			setLengthFromSound(player.getSample());
+			state.length = (float) sound.getMetaData().length() * 0.001f;
 			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
 		}		
 		else 
@@ -657,10 +687,10 @@ public class WMV_Sound extends WMV_Media
 		 System.out.println("Sound.setLength()... newLength:"+newLength+" state.length:"+state.length);
 	 }
 	 
-	 void setLengthFromSound( Sample sample )
-	 {
-		state.length = (float) sample.getLength() * 0.001f;
-	 }
+//	 void setLengthFromSound( Sample sample )
+//	 {
+//		state.length = (float) sample.getLength() * 0.001f;
+//	 }
 	 
 	 public WMV_SoundMetadata getMetadata()
 	 {

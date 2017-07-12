@@ -21,6 +21,8 @@ public class WMV_WorldState
 	/* Graphics */
 	public boolean loadedMasks = false;
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
+	public float screenAspectRatio;
+	public float aspectWidthRatioFactor;
 	
 	public boolean displayTerrain = false;				// Show ground as wireframe grid
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
@@ -60,7 +62,13 @@ public class WMV_WorldState
 	/* Stitching */
 	String stitchingPath;								// Stitched panorama output folder
 
-	WMV_WorldState(){}
+	public WMV_WorldState(float newScreenAspectRatio)
+	{
+		screenAspectRatio = newScreenAspectRatio;
+		aspectWidthRatioFactor = screenAspectRatio / 0.625f;
+		
+		System.out.println("screenAspectRatio:"+screenAspectRatio+" aspectWidthRatioFactor:"+aspectWidthRatioFactor);
+	}
 	
 	public int getTimeMode()
 	{

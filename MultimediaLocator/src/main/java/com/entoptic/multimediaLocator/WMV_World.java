@@ -1146,7 +1146,7 @@ public class WMV_World
 	{
 		return settings;
 	}
-
+	
 	/**
 	 * Get current world state
 	 * @return Get current world state

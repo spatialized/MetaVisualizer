@@ -44,14 +44,22 @@ public class WMV_WorldSettings
 	public final float maxClusterDistanceConstant = 0.33f;		// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;				// Limit on maxClusterDistance as multiple of min. as media spread increases
 
+	/* Model Display*/
+	public float gpsTrackWidth = 4.f;						// Width of GPS track line when Show Model option is on
+	public float gpsTrackHue = 90.f;							// GPS track line hue
+	public float gpsTrackSaturation = 225.f;					// GPS track line saturation
+	public float gpsTrackBrightness = 185.f;					// GPS track line brightness
+	public float gpsTrackAlphaMax = 215.f;					// GPS track line maximum alpha
+	public float gpsTrackVisibleDistance = 200.f;			// Distance at which a GPS track waypoint is shown with Show Model option on
+	
 	/* Graphics */
 	public int maxVisibleClusters = -1;						// Maximum visible clusters at once (-1: no limit)
 	public final int minClusterVisibility = 2;				// Minimum value for max visible clusters
-	public boolean depthTesting = false;					// Enable depth testing
 	public final int maxVisibleImages = 85;					// Maximum visible images at one time
 	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
 	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
 	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
+	public boolean depthTesting = false;						// Enable depth testing		-- Not recommended
 	
 	/* Time */
 	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API

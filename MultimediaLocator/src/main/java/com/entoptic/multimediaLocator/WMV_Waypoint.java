@@ -111,11 +111,21 @@ public class WMV_Waypoint
 
 	/**
 	 * @param cPoint Waypoint to compare
-	 * @return Distance between this and comparison point
+	 * @return Distance between this and comparison waypoint
 	 */
 	public float getDistance(WMV_Waypoint cPoint)
 	{
 		float dist = PVector.dist(captureLocation, cPoint.captureLocation);
+		return dist;
+	}
+
+	/**
+	 * @param cPoint World location to compare
+	 * @return Distance between this and comparison point
+	 */
+	public float getDistanceFromPoint(PVector cPoint)
+	{
+		float dist = PVector.dist(captureLocation, cPoint);
 		return dist;
 	}
 	

@@ -144,6 +144,8 @@ public class WMV_Field
 		{
 			displayImageModels(ml, images);
 			displayVideoModels(ml, videos);
+			if(ml.world.viewer.getSelectedGPSTrackID() != -1)
+				displayGPSTrack( ml, getGPSTracks().get(ml.world.viewer.getSelectedGPSTrackID()) );
 		}
 		
 //		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)	// Draw current clusters with user panoramas -- Disabled
@@ -252,6 +254,88 @@ public class WMV_Field
 //			if(inVisibleRange) img.displayModel(ml);			// Display model
 //		}
 	}
+	
+	/**
+	 * Display GPS track path in World View
+	 * @param gpsTrack GPS track ID to display
+	 */
+	public void displayGPSTrack(MultimediaLocator ml, ArrayList<WMV_Waypoint> gpsTrack)
+	{
+		int count = 0;
+		
+//		ml.stroke(ml.world.getSettings().gpsTrackHue, 0.f, ml.world.getSettings().gpsTrackBrightness, ml.world.getSettings().gpsTrackAlpha);
+		ml.strokeWeight(ml.world.getSettings().gpsTrackWidth);
+		
+		for(WMV_Waypoint w : gpsTrack)
+		{
+			if(count > 0)
+			{
+				float distance = w.getDistanceFromPoint(ml.world.viewer.getLocation());
+				float max = ml.world.getSettings().gpsTrackAlphaMax;
+				if(distance < ml.world.getSettings().gpsTrackVisibleDistance)
+				{
+					float alpha = max - PApplet.constrain( utilities.mapValue(distance, 0.f, 100.f, 0.f, max), 0.f, max );
+					
+					ml.stroke( ml.world.getSettings().gpsTrackHue, ml.world.getSettings().gpsTrackSaturation, 
+							   ml.world.getSettings().gpsTrackBrightness, alpha );
+					
+					PVector pt1 = gpsTrack.get(count - 1).getWorldLocation();		// Last waypoint
+					PVector pt2 = w.getWorldLocation();							// This waypoint
+					
+					ml.pushMatrix();
+					ml.line(pt1.x, pt1.y, pt1.z, pt2.x, pt2.y, pt2.z);
+					ml.popMatrix();
+				}
+			}
+			count++;
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+//ml.pushMatrix();
+//ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+//ml.textureMode(PApplet.NORMAL);
+//
+//ml.noFill();
+//
+//if(getWorldState().useBlurMasks)
+//ml.texture(blurred);
+//else
+//ml.texture(image);        			// Apply the image to the face as a texture 
+//
+//if(!getWorldState().alphaMode)
+//ml.tint(getViewingBrightness(), 255);          				
+//else
+//ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+//
+//if(getViewerSettings().orientationMode)
+//{
+//ml.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);         // UPPER LEFT      
+//ml.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, 1, 0);         // UPPER RIGHT           
+//ml.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, 1, 1);			// LOWER RIGHT        
+//ml.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, 1);         // LOWER LEFT
+//}
+//else
+//{
+//ml.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);            // UPPER LEFT      
+//ml.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, 1, 0);            // UPPER RIGHT           
+//ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, 1, 1);			// LOWER RIGHT        
+//ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, 1);            // LOWER LEFT
+//}
+//
+//ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+//ml.popMatrix();
+	
+	
+	
+	
+	
+	
 	
 	/**
 	 * Update images in field
@@ -633,9 +717,6 @@ public class WMV_Field
 			brightness *= angleBrightnessFactor;
 		}
 		
-//		if(ml.debugSettings.image && ml.debugSettings.detailed)
-//			System.out.println("  id #"+getID()+" 2 brightness:"+brightness);
-
 		m.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
 		if (!m.isHidden() && !m.isDisabled()) 
@@ -3341,7 +3422,7 @@ public class WMV_Field
 		for(WMV_Image i:images)
 		{
 			float newFocusDistance = i.getFocusDistance() * multiple;
-			i.fadeFocusDistance(newFocusDistance);
+			i.fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 
 		for(WMV_Panorama n:panoramas)
@@ -3354,7 +3435,7 @@ public class WMV_Field
 		for(WMV_Video v:videos)
 		{
 			float newFocusDistance = v.getFocusDistance() * multiple;
-			v.fadeFocusDistance(newFocusDistance);
+			v.fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 	}
 

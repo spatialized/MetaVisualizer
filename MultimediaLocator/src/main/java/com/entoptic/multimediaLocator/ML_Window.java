@@ -102,10 +102,10 @@ public class ML_Window
 
 	/* Navigation Window */
 	public GCheckbox chkbxPathFollowing; 															/* Navigation Window Options */
+	public GCheckbox chkbxFollowTeleport;
 	public GOption optMove, optTeleport;
 	public GToggleGroup tgNavigationTeleport;	
 //	public GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
-	public GCheckbox chkbxFollowTeleport;
 	
 	public GSlider sdrTeleportLength, sdrPathWaitLength;											/* Navigation Window Sliders */
 
@@ -117,7 +117,8 @@ public class ML_Window
 	private GButton btnMoveToNearestCluster, btnMoveToLastCluster;
 	private GButton btnMoveToNearestImage, btnMoveToNearestPanorama;
 	private GButton btnMoveToNearestVideo, btnMoveToNearestSound;
-	public GButton btnGoToPreviousField, btnGoToNextField, btnChooseGPSTrack;
+	public GButton btnGoToPreviousField, btnGoToNextField;
+	private GButton btnChooseGPSTrack;
 
 	public GButton btnMapView;		
 	private GButton btnPanUp, btnPanLeft, btnPanDown, btnPanRight;		
@@ -129,7 +130,7 @@ public class ML_Window
 	int mapWindowHeight;
 
 	private GLabel lblTimeNavigation, lblAutoNavigation, lblNearest, lblPathNavigation, 			/* Navigation Window Labels */
-	lblTeleportLength, lblPathWaitLength, lblMemory;
+	lblTeleportLength, lblPathWaitLength, lblNoGPSTracks, lblGPSTrackSpeed;
 //	public GLabel lblShift1;
 	private GButton btnNavigationWindowExit, btnNavigationWindowClose;		
 
@@ -140,7 +141,7 @@ public class ML_Window
 	public GLabel lblMediaLength, lblTimeCycleLength, lblCurrentTime, lblClusterLength;
 	public GLabel lblTime;
 	public GCheckbox chkbxPaused, chkbxTimeFading;
-	public GSlider sdrMediaLength, sdrTimeCycleLength, sdrCurrentTime, sdrClusterLength;
+	public GSlider sdrMediaLength, sdrTimeCycleLength, sdrCurrentTime, sdrClusterLength, sdrGPSTrackSpeed;
 	public GToggleGroup tgTimeMode;	
 	public GOption optClusterTimeMode, optFieldTimeMode; //, optMediaTimeMode;
 	public GLabel lblCommand2;
@@ -510,7 +511,7 @@ public class ML_Window
 		optMove.setLocalColorScheme(G4P.SCHEME_10);
 		optMove.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optMove.tag = "NavigationMove";
-		optTeleport = new GOption(navigationWindow, x+=75, y, 150, iVerySmallBoxHeight, "Teleport  (t)");
+		optTeleport = new GOption(navigationWindow, x += 75, y, 150, iVerySmallBoxHeight, "Teleport  (t)");
 		optTeleport.setLocalColorScheme(G4P.SCHEME_10);
 		optTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optTeleport.tag = "NavigationTeleport";
@@ -821,19 +822,149 @@ public class ML_Window
 		if(!compressTallWindows) lblPathNavigation.setTextAlign(GAlign.CENTER, null);
 		lblPathNavigation.setTextBold();
 
-		x = 40;
+//		x = 40;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iSmallBoxHeight;
+//		optTimeline = new GOption(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Timeline");
+//		optTimeline.setLocalColorScheme(G4P.SCHEME_10);
+//		optTimeline.tag = "FollowTimeline";
+//		optGPSTrack = new GOption(navigationWindow, x+=85, y, 90, iVerySmallBoxHeight, "GPS Track");
+//		optGPSTrack.setLocalColorScheme(G4P.SCHEME_10);
+//		optGPSTrack.tag = "FollowGPSTrack";
+//		optMemory = new GOption(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Memory");
+//		optMemory.setLocalColorScheme(G4P.SCHEME_10);
+//		optMemory.tag = "FollowMemory";
+//		
+//		switch(world.viewer.getPathNavigationMode())			// 0: Timeline 1: GPS Track 2: Memory
+//		{
+//			case 0:						// Timeline
+//				optTimeline.setSelected(true);
+//				optGPSTrack.setSelected(false);
+//				optMemory.setSelected(false);
+//				break;
+//			case 1:						// GPS Track
+//				optTimeline.setSelected(false);
+//				optGPSTrack.setSelected(true);
+//				optMemory.setSelected(false);
+//				break;
+//			case 2:						// Memory
+//				optTimeline.setSelected(false);
+//				optGPSTrack.setSelected(false);
+//				optMemory.setSelected(true);
+//				break;
+//		}
+//		
+//		tgFollow = new GToggleGroup();
+//		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
+//
+//		world.ml.delay(delayAmount / 2);
+
+
+		x = 45;
 		if(compressTallWindows) x += windowWidth;
-		y += iSmallBoxHeight;
-		optTimeline = new GOption(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Timeline");
-		optTimeline.setLocalColorScheme(G4P.SCHEME_10);
-		optTimeline.tag = "FollowTimeline";
-		optGPSTrack = new GOption(navigationWindow, x+=85, y, 90, iVerySmallBoxHeight, "GPS Track");
+		y += iMediumBoxHeight;
+		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "On / Off (>)");
+		chkbxPathFollowing.tag = "Following";
+		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
+		if(world.viewer.getPathNavigationMode() == 1)
+			chkbxPathFollowing.setEnabled(world.viewer.getSelectedGPSTrackID() != -1);
+
+		x += 145;
+//		if(compressTallWindows) x += windowWidth;
+		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
+		chkbxFollowTeleport.tag = "FollowTeleport";
+//		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
+		
+		x = 25;
+		if(compressTallWindows) x += windowWidth;
+		y += iMediumBoxHeight;
+		optGPSTrack = new GOption(navigationWindow, x, y, 115, iVerySmallBoxHeight, "GPS Track");
 		optGPSTrack.setLocalColorScheme(G4P.SCHEME_10);
+		optGPSTrack.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optGPSTrack.tag = "FollowGPSTrack";
-		optMemory = new GOption(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Memory");
+		
+		world.ml.delay(delayAmount / 2);
+		
+		x = 135;
+		if(compressTallWindows) x += windowWidth;
+		lblNoGPSTracks = new GLabel(navigationWindow, x+8, y, 85, iVerySmallBoxHeight, "No Tracks");
+		lblNoGPSTracks.setLocalColorScheme(G4P.SCHEME_10);
+		lblNoGPSTracks.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 75, iVerySmallBoxHeight, "Select");
+		btnChooseGPSTrack.tag = "ChooseGPSTrack";
+		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
+	
+		x += 80;
+		y -= iMediumBoxHeight;
+		sdrGPSTrackSpeed = new GSlider(navigationWindow, x, y, 80, 80, 20);
+		sdrGPSTrackSpeed.setLocalColorScheme(G4P.GOLD_SCHEME);
+		sdrGPSTrackSpeed.setLimits(world.viewer.getSettings().gpsTrackTransitionSpeedFactor, 0.1f, 2.f);
+		sdrGPSTrackSpeed.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrGPSTrackSpeed.setEasing(0);
+		sdrGPSTrackSpeed.setShowValue(true);
+		sdrGPSTrackSpeed.tag = "GPSTrackSpeed";
+
+//		x = 165;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight * 0.4f;
+//		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
+//		chkbxFollowTeleport.tag = "FollowTeleport";
+//		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
+		
+		x = 235;
+		y += iMediumBoxHeight * 2;
+		lblGPSTrackSpeed = new GLabel(navigationWindow, x, y - 8, navigationWindow.width, iVerySmallBoxHeight, "Speed");
+		lblGPSTrackSpeed.setLocalColorScheme(G4P.SCHEME_10);
+//		lblGPSTrackSpeed.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+//		lblGPSTrackSpeed.setTextBold();
+		
+		boolean noGPSTracks = world.getCurrentField().getGPSTracks() == null;
+		if(!noGPSTracks) noGPSTracks = world.getCurrentField().getGPSTracks().size() == 0;
+		if(noGPSTracks) 
+		{
+			btnChooseGPSTrack.setEnabled(false);
+			btnChooseGPSTrack.setVisible(false);
+
+			sdrGPSTrackSpeed.setEnabled(false);
+			sdrGPSTrackSpeed.setVisible(false);
+			
+			lblGPSTrackSpeed.setVisible(false);
+		}
+
+		x = 25;
+		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight * 2;
+		optTimeline = new GOption(navigationWindow, x, y, 115, iVerySmallBoxHeight, "Timeline");
+		optTimeline.setLocalColorScheme(G4P.SCHEME_10);
+		optTimeline.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		optTimeline.tag = "FollowTimeline";
+
+		x = 25;
+		if(compressTallWindows) x += windowWidth;
+		y += iLargeBoxHeight;
+		optMemory = new GOption(navigationWindow, x, y, 110, iVerySmallBoxHeight, "Memory");
+		optMemory.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optMemory.setLocalColorScheme(G4P.SCHEME_10);
 		optMemory.tag = "FollowMemory";
 		
+		x = 135;
+		if(compressTallWindows) x += windowWidth;
+		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
+		btnSaveLocation.tag = "SaveLocation";
+		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 215;
+		if(compressTallWindows) x += windowWidth;
+		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
+		btnClearMemory.tag = "ClearMemory";
+		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
+
 		switch(world.viewer.getPathNavigationMode())			// 0: Timeline 1: GPS Track 2: Memory
 		{
 			case 0:						// Timeline
@@ -855,72 +986,6 @@ public class ML_Window
 		
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
-
-		world.ml.delay(delayAmount / 2);
-
-		x = 165;
-		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight - 3;
-		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
-		chkbxPathFollowing.tag = "Following";
-		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
-		if(world.viewer.getPathNavigationMode() == 1)
-			chkbxPathFollowing.setEnabled(world.viewer.getSelectedGPSTrackID() != -1);
-
-		x = 25;
-		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight * 0.5f;
-		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Select GPS Track");
-		btnChooseGPSTrack.tag = "ChooseGPSTrack";
-		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 165;
-		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight * 0.4f;
-		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
-		chkbxFollowTeleport.tag = "FollowTeleport";
-		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
-	
-		boolean noGPSTracks = world.getCurrentField().getGPSTracks() == null;
-		if(!noGPSTracks) noGPSTracks = world.getCurrentField().getGPSTracks().size() == 0;
-		if(noGPSTracks) 
-		{
-			btnChooseGPSTrack.setEnabled(false);
-			btnChooseGPSTrack.setVisible(false);
-			if(compressTallWindows) 
-			{
-				chkbxPathFollowing.moveTo(100 + windowWidth, chkbxPathFollowing.getY());
-				chkbxFollowTeleport.moveTo(100 + windowWidth, chkbxFollowTeleport.getY());
-			}
-			else
-			{
-				chkbxPathFollowing.moveTo(100, chkbxPathFollowing.getY());
-				chkbxFollowTeleport.moveTo(100, chkbxFollowTeleport.getY());
-			}
-		}
-		
-		x = 25;
-		if(compressTallWindows) x += windowWidth;
-		y += iLargeBoxHeight;
-		lblMemory = new GLabel(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Memory");
-		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
-		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		
-		x = 105;
-		if(compressTallWindows) x += windowWidth;
-		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
-		btnSaveLocation.tag = "SaveLocation";
-		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 190;
-		if(compressTallWindows) x += windowWidth;
-		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
-		btnClearMemory.tag = "ClearMemory";
-		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
 
 //		x = 112;
 //		if(compressTallWindows) x += windowWidth;
@@ -956,13 +1021,13 @@ public class ML_Window
 		
 		x = 25;
 		if(compressTallWindows) x += windowWidth;
-		y += iSmallBoxHeight - 2;
-		lblTeleportLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Teleport Time");
+		y += iSmallBoxHeight - 10;
+		lblTeleportLength = new GLabel(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Teleport Time");
 		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
 
 		x = 175;
 		if(compressTallWindows) x += windowWidth;
-		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
+		lblPathWaitLength = new GLabel(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Wait Time");
 		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 		
 		setMapControlsEnabled(display.getDisplayView() == 1);
@@ -980,6 +1045,7 @@ public class ML_Window
 		btnNavigationWindowExit = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Main Menu (space)");
 		btnNavigationWindowExit.tag = "ExitNavigationWindow";
 		btnNavigationWindowExit.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
 //		btnNavigationWindowExit.setTextBold();
 
 //		lblShift1 = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight);		/* Window Label */
@@ -1537,7 +1603,7 @@ public class ML_Window
 		y += 15;
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 160, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(G4P.CYAN_SCHEME);
-		sdrTimeCycleLength.setLimits(0.f, world.settings.timeCycleLength, 3200.f);
+		sdrTimeCycleLength.setLimits(0.f, world.settings.timeCycleLength, 3600.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrTimeCycleLength.setEasing(0);
 		sdrTimeCycleLength.setShowValue(true);

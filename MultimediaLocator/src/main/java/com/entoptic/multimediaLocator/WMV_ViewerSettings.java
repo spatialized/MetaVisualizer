@@ -1,5 +1,7 @@
 package main.java.com.entoptic.multimediaLocator;
 
+import processing.core.PVector;
+
 /*********************************
  * Viewer settings
  * @author davidgordon
@@ -71,7 +73,10 @@ public class WMV_ViewerSettings
 	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
 	public final int pathWaitLengthInit = 60;				// Initial pathWaitLength
 	public int pathWaitLength = pathWaitLengthInit;			// Time to wait once reached path location before moving to next
-	
+
+	/* GPS Track Navigation */
+	public float gpsTrackTransitionSpeedFactor = 1.f;					// Speed of GPS track transition (gpsTrackTransitionLength)
+
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
 	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity

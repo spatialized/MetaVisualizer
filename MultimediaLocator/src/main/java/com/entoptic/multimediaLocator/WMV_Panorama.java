@@ -64,6 +64,9 @@ public class WMV_Panorama extends WMV_Media
 		state.origRadius = state.radius;
 	}  
 
+	/**
+	 * Initialize panorama time
+	 */
 	public void initializeTime()
 	{
 		if(metadata.dateTime == null)
@@ -676,6 +679,11 @@ public class WMV_Panorama extends WMV_Media
 		metadata.filePath = newFilePath;
 	}
 
+	/**
+	 * Update file path
+	 * @param ml
+	 * @param parentField
+	 */
 	public void updateFilePath(MultimediaLocator ml, WMV_Field parentField)
 	{
 		String oldFilePath = getFilePath();

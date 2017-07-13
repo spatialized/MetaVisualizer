@@ -249,22 +249,17 @@ public class WMV_Image extends WMV_Media
 			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorNear;
 		}
 
-		float distanceBrightnessFactor = getDistanceBrightness( ml.world.viewer, 
-															    ml.world.viewer.getFarViewingDistance() + metadata.focusDistance, 
-															    farViewingDistance ); 
-		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
+		float distanceBrightnessFactor = getDistanceBrightness( ml.world.viewer, ml.world.viewer.getFarViewingDistance() +
+															   metadata.focusDistance, farViewingDistance ); 
+		brightness *= distanceBrightnessFactor; 					// Fade brightness based on distance to camera
 
-		
-//		System.out.println("Image #"+getID()+" brightness:"+brightness+" distanceBrightnessFactor:"+distanceBrightnessFactor);
 		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
-//		System.out.println("  Model brightness:"+modelBrightness+" farViewingDistance:"+farViewingDistance+" state.outlineAlpha:"+state.outlineAlpha);
 
 //		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
 //			brightness *= getTimeBrightness(); 							// Fade model brightness based on time -- Disabled
 
 		/* Draw frame */
 		ml.pushMatrix();
-//		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
 		ml.stroke(0.f, 0.f, modelBrightness, modelBrightness);	 
 		ml.strokeWeight(2.f);
 
@@ -272,35 +267,42 @@ public class WMV_Image extends WMV_Media
 		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
 		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
 		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
-
-		PVector c = ml.world.getCurrentField().getCluster(getAssociatedClusterID()).getLocation();
-		PVector loc = getLocation();
-		PVector cl = getCaptureLocation();
 		ml.popMatrix();
 
-		/* Draw media, cluster and capture location */
-		ml.pushMatrix();
-		if(getWorldState().showMediaToCluster)
+		int clusterID = getAssociatedClusterID();
+		if(clusterID >= 0 && clusterID < ml.world.getCurrentFieldClusters().size())
 		{
-			ml.strokeWeight(3.f);
-			ml.stroke(80, 135, 255, getViewingBrightness() * 0.8f);
-			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-		}
+			WMV_Cluster cluster = ml.world.getCurrentField().getCluster(getAssociatedClusterID());
+			PVector c = cluster.getLocation();
+			PVector loc = getLocation();
+			PVector cl = getCaptureLocation();
 
-		if(getWorldState().showCaptureToMedia)
-		{
-			ml.strokeWeight(3.f);
-			ml.stroke(160, 100, 255, getViewingBrightness() * 0.8f);
-			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-		}
+			/* Draw media, cluster and capture location */
+			ml.pushMatrix();
+			if(getWorldState().showMediaToCluster)
+			{
+				ml.strokeWeight(3.f);
+				ml.stroke(80, 135, 255, getViewingBrightness() * 0.8f);
+				ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+			}
 
-		if(getWorldState().showCaptureToCluster)
-		{
-			ml.strokeWeight(3.f);
-			ml.stroke(120, 55, 255, getViewingBrightness() * 0.8f);
-			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			if(getWorldState().showCaptureToMedia)
+			{
+				ml.strokeWeight(3.f);
+				ml.stroke(160, 100, 255, getViewingBrightness() * 0.8f);
+				ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+			}
+
+			if(getWorldState().showCaptureToCluster)
+			{
+				ml.strokeWeight(3.f);
+				ml.stroke(120, 55, 255, getViewingBrightness() * 0.8f);
+				ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			}
+			ml.popMatrix();
 		}
-		ml.popMatrix();
+		else
+			ml.systemMessage("Image.displayModel()... Cluster requested: "+clusterID+" is out of range:"+ml.world.getCurrentField().getClusters().size()+" ...");
 	}
 
 	/** 
@@ -908,11 +910,11 @@ public class WMV_Image extends WMV_Media
 	 * Fade focus distance to given target while rescaling images 
 	 * @param target New focus distance
 	 */
-	public void fadeFocusDistance(float target)
+	public void fadeFocusDistance(float target, int frameCount)
 	{
 		setFadingFocusDistance(true);
-		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
-		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + state.fadingFocusDistanceLength;	
+		state.fadingFocusDistanceStartFrame = frameCount;					
+		state.fadingFocusDistanceEndFrame = frameCount + state.fadingFocusDistanceLength;	
 		state.fadingFocusDistanceStart = metadata.focusDistance;
 		state.fadingFocusDistanceTarget = target;
 	}

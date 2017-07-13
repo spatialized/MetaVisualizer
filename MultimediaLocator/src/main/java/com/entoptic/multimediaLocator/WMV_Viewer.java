@@ -3472,8 +3472,10 @@ public class WMV_Viewer
 			state.gpsTrackLocationIdx++;
 			if(state.gpsTrackLocationIdx < gpsTrack.size())
 				transitionToGPSTrackPointID( state.gpsTrackLocationIdx );			// Reached end of GPS track
-			else				
-				stopFollowingGPSTrack();
+			else			
+			{
+				stop(true);
+			}
 		}
 		else							// Perform interpolation between points
 		{
@@ -3484,8 +3486,6 @@ public class WMV_Viewer
 				setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), false );
 			}
 			else p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... path index 0... not updating location...");
-//			p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... state.gpsTrackStartLocation: " + state.gpsTrackStartLocation+" state.gpsTrackGoal: " + state.gpsTrackGoal);   					// Debug
-//			p.ml.systemMessage("  ... Moved by: "+last.dist( getLocation() ));    
 		}
 	}
 	
@@ -3511,6 +3511,7 @@ public class WMV_Viewer
 		
 		state.gpsTrackGoal = gpsTrack.get( gpsTrackLocationIdx ).getWorldLocation();
 		state.gpsTrackTransitionLength = (int)(state.gpsTrackGoal.dist( getLocation() ) * state.gpsTransitionLengthDistanceFactor);
+		state.gpsTrackTransitionLength /= settings.gpsTrackTransitionSpeedFactor;		// Added 7-13-17
 		state.gpsTrackStartLocation = getLocation();
 		state.gpsTrackTransitionStart = p.ml.frameCount;
 		state.gpsTrackTransitionEnd = p.ml.frameCount + state.gpsTrackTransitionLength;

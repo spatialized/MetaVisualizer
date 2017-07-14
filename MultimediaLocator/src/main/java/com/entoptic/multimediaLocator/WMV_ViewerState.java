@@ -63,7 +63,7 @@ public class WMV_ViewerState
 	public int gpsTrackLocationIdx;								// Index of current cluster in memory
 	public int gpsTrackTransitionLength;							// Frame length of GPS track transition
 	public PVector gpsTrackStartLocation;						// Distance covered over one frame during GPS track transition 
-	public float gpsTransitionLengthDistanceFactor = 14.f;		// Conversion factor from GPS track point distance to transition length
+	public float gpsTransitionLengthDistanceFactor = 16.f;		// Conversion factor to GPS track transition length from goal point distance
 	public int gpsTrackTransitionStart, gpsTrackTransitionEnd;	// GPS track transition start / end frame
 	
 	/* Teleporting */

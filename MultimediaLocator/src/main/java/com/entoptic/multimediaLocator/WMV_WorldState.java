@@ -15,9 +15,10 @@ public class WMV_WorldState
 	public int timeMode = 0;								// Time Mode: {0: cluster, 1: field}		(2 = media)
 
 	/* Model */
-	public final float modelDistanceVisibilityFactorNear = 5.f;		// Near distance at which media model becomes invisible
-	public float modelDistanceVisibilityFactorFar = 75.f;		// Far distance at which media model becomes invisible
-	
+	public final float modelBrightness = 255.f;
+	public final float modelAlpha = 205.f;
+	public final float modelDistanceVisibilityFactorClose = 5.f;		// Near distance at which media model becomes invisible
+	public float modelDistanceVisibilityFactorFar = 18.f;				// Far distance at which media model becomes invisible
 	/* Graphics */
 	public boolean loadedMasks = false;
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?

@@ -440,16 +440,16 @@ public class WMV_Viewer
 			if(fade)
 				teleportWithFading(dest, -1, -1);
 			else
-				jumpTo(dest, true);
+				jumpTo(dest, true, true);
 		}
 	}	
 	
 	/**
 	 * Teleport immediately to given point
 	 * @param dest Destination point
-	 * @param update Whether to update current cluster
+	 * @param updateCluster Whether to update current cluster
 	 */
-	public void jumpTo(PVector dest, boolean update)
+	public void jumpTo(PVector dest, boolean updateTarget, boolean updateCluster)
 	{
 //		p.ml.systemMessage("Viewer.jumpTeleport()... :"+dest);
 		if(state.atCurrentCluster)
@@ -457,8 +457,10 @@ public class WMV_Viewer
 			saveCurrentClusterOrientation();
 			state.atCurrentCluster = false;
 		}
-		camera.teleport(dest.x, dest.y, dest.z);
-		if(update)
+		
+		camera.teleport(dest.x, dest.y, dest.z, updateTarget);
+		
+		if(updateCluster)
 		{
 			updateCurrentCluster(true);
 //			turnToCurrentClusterOrientation();
@@ -782,7 +784,7 @@ public class WMV_Viewer
 	 */
 	public void moveToFirstPathPoint()
 	{
-		boolean teleport = ( PVector.dist( state.pathGoal, getLocation() ) > settings.farClusterTeleportDistance );
+		boolean teleport = ( PVector.dist( state.pathGoal, getLocation() ) > p.getSettings().defaultFocusDistance );
 		
 		if(debug.viewer)
 			p.ml.systemMessage("Viewer.moveToFirstPathPoint()... x:"+state.pathGoal.x+" y:"+state.pathGoal.y+" z:"+state.pathGoal.z+" teleport? "+teleport);
@@ -901,7 +903,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					setLocation( c.getLocation(), false );
+					setLocation( c.getLocation(), true, false );
 					setCurrentCluster(dest, fieldTimeSegment);
 					if(p.state.waitingToFadeInTerrainAlpha) 
 						p.fadeInTerrain(false);
@@ -2376,8 +2378,8 @@ public class WMV_Viewer
 
 			if(!state.centering)
 			{
-				state.location.add(state.velocity);			// Add velocity to location
-				setLocation(state.location, false);			// Move camera
+				state.location.add(state.velocity);				// Add velocity to location
+				setLocation(state.location, true, false);		// Move camera
 			}
 		}
 
@@ -3131,7 +3133,7 @@ public class WMV_Viewer
 				if(state.ignoreTeleportGoal)							
 					state.ignoreTeleportGoal = false;
 				else
-					setLocation(state.teleportGoal, true);					// Jump to goal
+					setLocation(state.teleportGoal, true, true);			// Jump to goal
 				
 				state.teleporting = false;								// Change the system status
 
@@ -3460,10 +3462,10 @@ public class WMV_Viewer
 	 */
 	private void updateGPSTrackFollowing()
 	{
-		if(p.ml.frameCount >= state.gpsTrackTransitionEnd)		// Reached end of transition
+		if(p.ml.frameCount >= state.gpsTrackTransitionEnd)			// Reached end of transition
 		{
 			if(state.gpsTrackLocationIdx > 0)
-				setLocation( state.gpsTrackGoal, true );				// Set location to path goal
+				setLocation( state.gpsTrackGoal, true, true );		// Set location to path goal
 			
 			if(p.ml.debug.viewer || p.ml.debug.gps || p.ml.debug.path)
 				if(p.ml.debug.detailed) 
@@ -3483,7 +3485,7 @@ public class WMV_Viewer
 			{
 				float framePosition = p.ml.frameCount - state.gpsTrackTransitionStart;				// 0 to gpsTrackTransitionLength
 				float percent = p.ml.utilities.mapValue(framePosition, 0.f, state.gpsTrackTransitionLength, 0.f, 1.f);
-				setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), false );
+				setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), true, false );
 			}
 			else p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... path index 0... not updating location...");
 		}
@@ -3581,8 +3583,8 @@ public class WMV_Viewer
 	public void setState(WMV_ViewerState newState)
 	{
 		state = newState;
-		setLocation(state.location, false);			// Update the camera location
-		setTarget(state.target);					// Update the camera target
+		setLocation(state.location, false, false);		// Update the camera location
+		setTarget(state.target);							// Update the camera target
 	}
 	
 	/**
@@ -3731,7 +3733,7 @@ public class WMV_Viewer
 	
 	private void center(PVector dest)
 	{
-		setLocation( p.utilities.lerp3D(getLocation(), dest, 1.f/state.centeringTransitionLength), false );
+		setLocation( p.utilities.lerp3D(getLocation(), dest, 1.f/state.centeringTransitionLength), true, false );
 	}
 
 	
@@ -3740,6 +3742,10 @@ public class WMV_Viewer
 		state.saveClusterOrientation(state.currentCluster, getXOrientation(), getYOrientation(), getZOrientation());
 	}
 
+	/**
+	 * Turn Orientation Mode On/Off
+	 * @param newState New Orientation Mode state
+	 */
 	public void setOrientationMode( boolean newState )
 	{
 		settings.orientationMode = newState;
@@ -3749,7 +3755,7 @@ public class WMV_Viewer
 		if(newState)		// Entering Orientation Mode
 		{
 			PVector target = new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);
-			camera.teleport(0, 0, 0);
+			camera.teleport(0, 0, 0, true);
 			
 			target = new PVector(target.x - getLocation().x, target.y - getLocation().y, target.z - getLocation().z);
 			camera.aim(target.x, target.y, target.z);
@@ -3759,7 +3765,7 @@ public class WMV_Viewer
 		}
 		else				// Exiting Orientation Mode
 		{
-			camera.teleport(state.location.x, state.location.y, state.location.z);
+			camera.teleport(state.location.x, state.location.y, state.location.z, true);
 		}
 		
 		if(p.ml.display.window.setupMediaWindow)
@@ -3985,6 +3991,8 @@ public class WMV_Viewer
 		{
 			state.followingGPSTrack = false;
 			state.gpsTrackLocationIdx = 0;
+			if(p.ml.display.window.setupNavigationWindow)
+				p.ml.display.window.chkbxPathFollowing.setSelected(false);
 		}
 	}
 	/**
@@ -4858,6 +4866,14 @@ public class WMV_Viewer
 	{
 		return state.following;
 	}
+	
+	/**
+	 * @return Whether the viewer is following a path
+	 */
+	public boolean isFollowingGPSTrack()
+	{
+		return state.followingGPSTrack;
+	}
 
 	/**
 	 * @return Whether the viewer is walking
@@ -4968,15 +4984,17 @@ public class WMV_Viewer
 	/**
 	 * Set viewer location
 	 * @param newLocation New viewer location
-	 * @param update Whether to update current cluster
+	 * @param updateCluster Whether to update current cluster
 	 */
-	public void setLocation(PVector newLocation, boolean update)
+	public void setLocation(PVector newLocation, boolean updateTarget, boolean updateCluster)
 	{
 		if(settings.orientationMode)
+		{
 			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
+		}
 		else
 		{
-			jumpTo(newLocation, update);
+			jumpTo(newLocation, updateTarget, updateCluster);
 			state.location = getLocation();										// Update to precise camera location
 		}
 	}
@@ -5238,7 +5256,7 @@ public class WMV_Viewer
 			p.ml.display.window.chkbxSelectionMode.setSelected(settings.selection);
 
 		if(p.getSettings().screenMessagesOn)
-			p.ml.display.message(p.ml, "Selection Mode "+(newSelection?"Enabled":"Disabled"));
+			p.ml.display.message(p.ml, "Selection "+(newSelection?"Enabled":"Disabled"));
 		
 		if(inSelectionMode())
 		{
@@ -5363,6 +5381,16 @@ public class WMV_Viewer
 			else
 				p.ml.display.window.chkbxPathFollowing.setEnabled(true);	// Disable GPS Path Navigation if track is selected
 		}
+	}
+	
+	public void setGPSTrackSpeed( float newSpeed )
+	{
+		settings.gpsTrackTransitionSpeedFactor = newSpeed;
+	}
+	
+	public float getGPSTrackSpeed()
+	{
+		return settings.gpsTrackTransitionSpeedFactor;
 	}
 	
 	public void setTeleportLength( int newValue )

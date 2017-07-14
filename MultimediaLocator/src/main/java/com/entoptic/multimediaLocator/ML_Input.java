@@ -122,6 +122,8 @@ public class ML_Input
 	{
 		if(display.window.setupNavigationWindow)
 		{
+			if(slider.tag == "GPSTrackSpeed")
+				world.viewer.setGPSTrackSpeed( slider.getValueF() );
 			if (slider.tag == "TeleportLength")
 				world.viewer.setTeleportLength( slider.getValueI() );
 			if (slider.tag == "PathWaitLength")
@@ -833,15 +835,19 @@ public class ML_Input
 //					world.viewer.stopFollowing();
 //				break;
 			
-			case "Following":
+			case "PathFollowing":
 				if(option.isSelected())
 				{
 					if(!world.viewer.isFollowing())
-					{
 						world.viewer.startFollowing();
-					}
 				}
-				else world.viewer.stopFollowing();
+				else 
+				{
+					if(world.viewer.isFollowing())
+						world.viewer.stopFollowing();
+					if(world.viewer.isFollowingGPSTrack())
+						world.viewer.stopFollowingGPSTrack();
+				}
 				break;
 				
 			case "FollowTeleport":

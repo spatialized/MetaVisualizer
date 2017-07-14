@@ -69,7 +69,7 @@ public class WMV_ViewerSettings
 	public float walkingAccelInc = 0.002f;					// Camera walking acceleration increment
 	public int teleportLength = 30;							// Teleport transition length 
 	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
-	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
+	public float farClusterTeleportDistance = 120.f;		// Distance at which cluster is considered far
 	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
 	public final int pathWaitLengthInit = 60;				// Initial pathWaitLength
 	public int pathWaitLength = pathWaitLengthInit;			// Time to wait once reached path location before moving to next

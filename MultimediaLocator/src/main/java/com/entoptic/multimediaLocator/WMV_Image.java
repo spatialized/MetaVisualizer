@@ -236,7 +236,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
-		float brightness = getViewerSettings().userBrightness;
+		float modelAlpha = getViewerSettings().userBrightness;
 
 		float farViewingDistance;
 		if(ml.world.viewer.getSettings().showInvisibleModels)
@@ -245,28 +245,29 @@ public class WMV_Image extends WMV_Media
 		}
 		else
 		{
-			brightness *= getFadingBrightness();
-			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorNear;
+			modelAlpha *= getFadingBrightness();
+			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorClose;
 		}
 
-		float distanceBrightnessFactor = getDistanceBrightness( ml.world.viewer, ml.world.viewer.getFarViewingDistance() +
+		float alphaDistanceFactor = getDistanceBrightness( ml.world.viewer, ml.world.viewer.getFarViewingDistance() +
 															   metadata.focusDistance, farViewingDistance ); 
-		brightness *= distanceBrightnessFactor; 					// Fade brightness based on distance to camera
+		modelAlpha *= alphaDistanceFactor; 					// Fade brightness based on distance to camera
 
-		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
+		float modelBrightness = PApplet.map(modelAlpha, 0.f, 1.f, 0.f, ml.world.getState().modelBrightness);	// Scale to setting for alpha range
+		modelAlpha = PApplet.map(modelAlpha, 0.f, 1.f, 0.f, ml.world.getState().modelAlpha);				// Scale to setting for alpha range
 
 //		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
-//			brightness *= getTimeBrightness(); 							// Fade model brightness based on time -- Disabled
+//			brightness *= getTimeBrightness(); 					// Fade model brightness based on time 	-- In progress
 
 		/* Draw frame */
 		ml.pushMatrix();
-		ml.stroke(0.f, 0.f, modelBrightness, modelBrightness);	 
+		ml.stroke(0.f, 0.f, modelBrightness, modelAlpha);	 
 		ml.strokeWeight(2.f);
 
-		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
-		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
-		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
-		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
+		ml.line( state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z );
+		ml.line( state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z );
+		ml.line( state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z );
+		ml.line( state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z );
 		ml.popMatrix();
 
 		int clusterID = getAssociatedClusterID();
@@ -403,7 +404,6 @@ public class WMV_Image extends WMV_Media
 	public float getViewingDistance(WMV_Viewer viewer)       // Find distance from camera to point in virtual space where photo appears           
 	{
 		PVector camLoc = viewer.getLocation();
-
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;

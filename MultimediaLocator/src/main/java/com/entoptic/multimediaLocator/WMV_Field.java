@@ -177,7 +177,7 @@ public class WMV_Field
 					}
 					else
 					{
-						float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactorNear;	// Distance where transparency reaches zero
+						float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactorClose;	// Distance where transparency reaches zero
 						float distance = img.getViewingDistance(ml.world.viewer); 															// Estimate image distance to camera based on capture location
 						boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 						if(inVisibleRange)
@@ -227,7 +227,7 @@ public class WMV_Field
 					}
 					else
 					{
-						float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactorNear;		// Distance where transparency reaches zero
+						float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactorClose;		// Distance where transparency reaches zero
 						float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 						boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 						if(inVisibleRange)

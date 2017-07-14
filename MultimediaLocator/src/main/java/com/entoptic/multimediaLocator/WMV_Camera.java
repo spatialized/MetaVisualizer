@@ -312,27 +312,47 @@ public class WMV_Camera
 		targetX = aTargetX;
 		targetY = aTargetY;
 		targetZ = aTargetZ;
-		update();
+		updateMovement();
 	}
 
 	/** 
 	 * Teleport camera to the specified position 
 	 */
-	public void teleport(float positionX, float positionY, float positionZ)
+	public void teleport(float positionX, float positionY, float positionZ, boolean updateTarget)
 	{
-		cameraX = positionX;
-		cameraY = positionY;
-		cameraZ = positionZ;
-		update();
+		if(updateTarget)
+		{
+			PVector lastPosition = new PVector(cameraX, cameraY, cameraZ);
+			cameraX = positionX;
+			cameraY = positionY;
+			cameraZ = positionZ;
+
+			PVector disp = new PVector(cameraX - lastPosition.x, cameraY - lastPosition.y, cameraZ - lastPosition.z);
+
+			targetX += disp.x;
+			targetY += disp.y;
+			targetZ += disp.z;
+		}
+		else
+		{
+			cameraX = positionX;
+			cameraY = positionY;
+			cameraZ = positionZ;
+		}
+		updateMovement();
 	}
 
-	/** Change the field of view between "fish-eye" and "close-up" */
+	/** 
+	 * Change the field of view between "fish-eye" and "close-up" 
+	 * */
 	public void zoom(float zoomAmount)
 	{
 		fov = PApplet.constrain(fov + zoomAmount, 0.00001f, (float) Math.PI - 0.00001f);
 	}
 
-	/** Move camera and target simultaneously along camera's X axis */
+	/** 
+	 * Move camera and target simultaneously along camera's X axis 
+	 * */
 	public void truck(float truckAmount)
 	{
 		// Calculate camera's X axis in world space
@@ -394,11 +414,10 @@ public class WMV_Camera
 	public void tilt(float elevationOffset)
 	{
 		// Calculate the new elevation for camera
-		elevation = PApplet.constrain(elevation - elevationOffset,
-				0.00001f-(float)(Math.PI * 0.5), (float)(Math.PI * 0.5)-0.00001f);
+		elevation = PApplet.constrain(elevation - elevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
+				    (float)(Math.PI * 0.5)-0.00001f);
 
-		// Update target
-		updateTarget();
+		updateTarget();		// Update target
 	}
 
 	/** 
@@ -420,14 +439,14 @@ public class WMV_Camera
 	}
 
 	/** 
-	 * Arc camera over (under) a center of interest along a set azimuth
+	 * Arc camera over a center of interest along a set azimuth
 	 */
 	public void arc(float elevationOffset)
 	{
 		elevation = PApplet.constrain(elevation + elevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
 				(float)(Math.PI * 0.5)-0.00001f);		// Calculate the new elevation for camera
 
-		updateCamera();		// Update camera
+		updateTurning();		// Update camera
 	}
 
 	/** 
@@ -436,7 +455,7 @@ public class WMV_Camera
 	public void circle(float azimuthOffset)
 	{
 		azimuth = (azimuth + azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Calculate the new azimuth for camera
-		updateCamera();		// Update camera
+		updateTurning();		// Update camera
 	}
 
 	/** 
@@ -452,8 +471,7 @@ public class WMV_Camera
 
 		azimuth = (azimuth - azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
 
-		// Update target
-		updateTarget();
+		updateTarget();		// Update target
 	}
 
 	/** 
@@ -463,16 +481,16 @@ public class WMV_Camera
 	 */
 	public void tumble(float anAzimuthOffset, float anElevationOffset)
 	{
-		elevation = PApplet.constrain(elevation + anElevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
-				(float)(Math.PI * 0.5)-0.00001f);		// Calculate new azimuth / elevation for camera
+		elevation = PApplet.constrain( elevation + anElevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
+					(float)(Math.PI * 0.5) - 0.00001f );		// Calculate new azimuth / elevation for camera
 		azimuth   = (azimuth + anAzimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
-		updateCamera();		
+		updateTurning();		
 	}
 
 	/** 
 	 * Move camera and target simultaneously in camera's X-Y plane 
-	 * @param xOffset
-	 * @param yOffset
+	 * @param xOffset X offset
+	 * @param yOffset Y Offset
 	 */
 	public void track(float xOffset, float yOffset)
 	{
@@ -480,33 +498,55 @@ public class WMV_Camera
 		boom(yOffset);		// Perform boom, if exists
 	}
 
+	/**
+	 * Get position
+	 * @return Position [x, y, z]
+	 */
 	public float[] getPosition()
 	{
 		return new float[] {cameraX, cameraY, cameraZ};
 	}
 
+	/**
+	 * Get attitude
+	 * @return Attitude [x, y, z]
+	 */
 	public float[] getAttitude()
 	{
 		return new float[] {azimuth, elevation, roll};
 	}
 
+	/**
+	 * Get target
+	 * @return Target [x, y, z]
+	 */
 	public float[] getTarget()
 	{
 		return new float[] {targetX, targetY, targetZ};
 	}
 
+	/**
+	 * Get up vector
+	 * @return Up [x, y, z]
+	 */
 	public float[] getUp()
 	{
 		return new float[] {upX, upY, upZ};
 	}
 
+	/**
+	 * Get field of view
+	 * @return Field of view in radians
+	 */
 	public float getFov()
 	{
 		return fov;
 	}
 
-	/** Update **/
-	private void update()
+	/**
+	 * Update camera movement
+	 */
+	private void updateMovement()
 	{
 		// Find new vector between camera and target
 		dX = cameraX - targetX;
@@ -521,7 +561,22 @@ public class WMV_Camera
 		updateUp();		// Update up vector
 	}
 
-	/** Update target **/
+	/** 
+	 * Update camera turning
+	 */
+	private void updateTurning()
+	{
+		// Orbit to the new orientation while maintaining the shot distance.
+		cameraX = targetX + ( shotLength * (float)Math.sin((float)(Math.PI * 0.5) + elevation) * (float)Math.sin(azimuth));
+		cameraY = targetY + (-shotLength * (float)Math.cos((float)(Math.PI * 0.5) + elevation));
+		cameraZ = targetZ + ( shotLength * (float)Math.sin((float)(Math.PI * 0.5) + elevation) * (float)Math.cos(azimuth));
+
+		updateUp();		// Update up vector
+	}
+
+	/** 
+	 * Update target 
+	 */
 	private void updateTarget()
 	{
 		// Rotate to the new orientation while maintaining the shot distance.
@@ -534,24 +589,9 @@ public class WMV_Camera
 		updateUp();		// Update up vector
 	}
 
-	/** Update camera **/
-	private void updateCamera()
-	{
-		// Orbit to the new orientation while maintaining the shot distance.
-		cameraX = targetX + ( shotLength                  *
-				(float)Math.sin((float)(Math.PI * 0.5) + elevation) *
-				(float)Math.sin(azimuth));
-		cameraY = targetY + (-shotLength                  *
-				(float)Math.cos((float)(Math.PI * 0.5) + elevation));
-		cameraZ = targetZ + ( shotLength                  *
-				(float)Math.sin((float)(Math.PI * 0.5) + elevation)    *
-				(float)Math.cos(azimuth));
-
-		// update the up vector
-		updateUp();
-	}
-
-	/** Update up vector **/
+	/** 
+	 * Update up vector
+	 */
 	private void updateUp()
 	{
 		// Describe the new vector between camera and target

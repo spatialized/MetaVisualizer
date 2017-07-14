@@ -2365,9 +2365,11 @@ public class WMV_World
 		for(WMV_Field f : fields)
 		{
 //			ml.systemMessage("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
+			
 			for(WMV_Image image : f.getImages())
 			{
 				int bmID = image.getState().blurMaskID;
+				
 				if(image.getWidth() == 640 && image.getHeight() == 480) 
 					setBlurMask(image, bmID);
 				else if(image.getWidth() == 480 && image.getHeight() == 640) 
@@ -2382,10 +2384,13 @@ public class WMV_World
 					image.setDisabled(true);
 				}
 			}
+			
 			for(WMV_Panorama panorama : f.getPanoramas())
 			{
 				if(panorama.getWidth() == 5376 && panorama.getHeight() == 2688) 
+				{
 					setPanoramaBlurMask(panorama);				// Should check width / height if possible
+				}
 				else
 				{
 					if(ml.debug.panorama)
@@ -2394,6 +2399,7 @@ public class WMV_World
 					}
 				}
 			}
+			
 			for(WMV_Video video : f.getVideos())
 			{
 				int bmID = video.getState().blurMaskID;
@@ -2481,14 +2487,14 @@ public class WMV_World
 			if(state.showModel)
 			{
 				ml.display.window.chkbxMediaToCluster.setEnabled(true);
-				ml.display.window.chkbxCaptureToMedia.setEnabled(true);
-				ml.display.window.chkbxCaptureToCluster.setEnabled(true);
+//				ml.display.window.chkbxCaptureToMedia.setEnabled(true);
+//				ml.display.window.chkbxCaptureToCluster.setEnabled(true);
 			}
 			else
 			{
 				ml.display.window.chkbxMediaToCluster.setEnabled(false);
-				ml.display.window.chkbxCaptureToMedia.setEnabled(false);
-				ml.display.window.chkbxCaptureToCluster.setEnabled(false);
+//				ml.display.window.chkbxCaptureToMedia.setEnabled(false);
+//				ml.display.window.chkbxCaptureToCluster.setEnabled(false);
 			}
 		}
 	}

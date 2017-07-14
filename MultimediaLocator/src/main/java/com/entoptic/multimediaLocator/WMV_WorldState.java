@@ -12,11 +12,11 @@ public class WMV_WorldState
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 	public int frameCount = 0;							// Frame count
-	public int timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
+	public int timeMode = 0;								// Time Mode: {0: cluster, 1: field}		(2 = media)
 
 	/* Model */
-	public final float modelDistanceVisibilityFactorFar = 75.f;		// Distance at which media model becomes invisible
-	public final float modelDistanceVisibilityFactorNear = 5.f;		// Distance at which media model becomes invisible
+	public final float modelDistanceVisibilityFactorNear = 5.f;		// Near distance at which media model becomes invisible
+	public float modelDistanceVisibilityFactorFar = 75.f;		// Far distance at which media model becomes invisible
 	
 	/* Graphics */
 	public boolean loadedMasks = false;

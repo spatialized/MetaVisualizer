@@ -215,25 +215,25 @@ public class ML_KeyboardControls
 			}			
 		}
 
-		if (key == '7')
-		{
-			if(ml.world.getState().showModel)
-			{
-				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
-				if(ml.display.window.showMediaWindow)
-					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
-			}
-		}
-
-		if (key == '8')
-		{
-			if(ml.world.getState().showModel)
-			{
-				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
-				if(ml.display.window.showMediaWindow)
-					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
-			}
-		}
+//		if (key == '7')
+//		{
+//			if(ml.world.getState().showModel)
+//			{
+//				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
+//				if(ml.display.window.showMediaWindow)
+//					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
+//			}
+//		}
+//
+//		if (key == '8')
+//		{
+//			if(ml.world.getState().showModel)
+//			{
+//				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+//				if(ml.display.window.showMediaWindow)
+//					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
+//			}
+//		}
 
 		if (key == 'M') 
 		{

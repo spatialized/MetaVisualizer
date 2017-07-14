@@ -646,15 +646,17 @@ class WMV_Metadata
 			
 			String inputPath = largeVideoFolder;
 			String outputPath = smallVideoFolder;
-			Process conversionProcess = ml.world.utilities.convertVideos(ml, inputPath, outputPath);
 			
-			try{								// Copy original videos to small_videos directory and resize	-- Move to ML class
-				conversionProcess.waitFor();
-			}
-			catch(Throwable t)
-			{
-				ml.systemMessage("Metadata.loadVideoFiles()... ERROR in process.waitFor()... t:"+t);
-			}
+			ml.world.utilities.shrinkVideos(ml, inputPath, outputPath);
+			
+//			Process conversionProcess = ml.world.utilities.shrinkVideos(ml, inputPath, outputPath);
+//			try{								// Copy original videos to small_videos directory and resize	-- Move to ML class
+//				conversionProcess.waitFor();
+//			}
+//			catch(Throwable t)
+//			{
+//				ml.systemMessage("Metadata.loadVideoFiles()... ERROR in process.waitFor()... t:"+t);
+//			}
 			
 			boolean success = true;		
 			if(success)
@@ -1730,10 +1732,6 @@ class WMV_Metadata
 //			Command:
 //			exiftool -GPSLongitude -GPSLatitude -GPSAltitude -MediaDuration -CreationDate -ImageWidth 
 //			 -ImageHeight -Keywords <fileName> 
-//			
-//			Ex. 
-//			exiftool -GPSLongitude -GPSLatitude -GPSAltitude -MediaDuration -CreationDate -ImageWidth 
-//			 -ImageHeight -Keywords IMG_7944.mov 
 
 //			Example Output:
 //			
@@ -1750,8 +1748,7 @@ class WMV_Metadata
 			WMV_Command commandExecutor;
 			ArrayList<String> command = new ArrayList<String>();
 			
-			command.add(exifToolPath);				// Use full path?
-//			command.add("exiftool");				// Use full path?
+			command.add( exifToolPath );	
 			command.add("-GPSLongitude");
 			command.add("-GPSLatitude");
 			command.add("-GPSAltitude");
@@ -1771,18 +1768,24 @@ class WMV_Metadata
 				String output = stdout.toString();
 				int length = stdout.length();
 				
-				ml.systemMessage("Metadata.readVideoMetadata()...  output: " + output);
-				ml.systemMessage("Metadata.readVideoMetadata()...  output length: " + length);
-				
+				if(ml.debug.metadata && ml.debug.video)
+				{
+					ml.systemMessage("Metadata.readVideoMetadata()...  output: " + output);
+					ml.systemMessage("		   output length: " + length);
+				}
 				String[] lines = output.split("\\n");
 				for (int i=0; i<lines.length; i++)
 				{
 					String[] parts = lines[i].split(" : ");
 					String tagName = parts[0].trim();
 					String tagString = parts[1].trim();
-					ml.systemMessage("Metadata.readVideoMetadata()... Loaded video metadata for: "+filePath);
-					ml.systemMessage(">>> tagName: " + tagName);
-					ml.systemMessage(">>> tagString: " + tagString);
+					
+					if(ml.debug.metadata && ml.debug.video)
+					{
+						ml.systemMessage(">>> Loaded video metadata for: "+filePath);
+						ml.systemMessage(">>    tagName: " + tagName);
+						ml.systemMessage(">>    tagString: " + tagString);
+					}
 					
 					result.put(tagName, tagString);
 				}

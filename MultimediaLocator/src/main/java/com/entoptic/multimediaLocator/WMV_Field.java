@@ -1045,7 +1045,7 @@ public class WMV_Field
 	 * Initialize all media locations and geometry
 	 * @param randomSeed Clustering random seed
 	 */
-	public void initialize()
+	public boolean initialize()
 	{
 		if(debugSettings.world) System.out.println("Field.initialize()... id #"+getID()+" images.size():"+images.size());
 
@@ -1063,10 +1063,15 @@ public class WMV_Field
 			calculateMediaLocations(false); 		// Set location of each media in simulation, excluding sounds
 			findVideoPlaceholders();				// Find image place holders for videos
 			calculateMediaVertices();			// Calculate vertices for all visual media
+			
+			return true;
 //			calculateImageAndSoundLocations();	// Calculate media viewing locations that are displaced from capture locations
 		}
 		else
+		{
 			System.out.println("Field #"+getID()+" has no media! Cannot initialize field...");
+			return false;
+		}
 	}
 	
 	/**
@@ -3428,7 +3433,6 @@ public class WMV_Field
 		for(WMV_Panorama n:panoramas)
 		{
 			float newRadius = n.getOrigRadius() * multiple;
-			//			n.fadeRadius(newRadius);			// --- Need to implement
 			n.setRadius(newRadius);
 		}
 

@@ -2420,6 +2420,7 @@ public class ML_Display
 				{
 					window.setMapControlsEnabled(false);
 					window.btnMapView.setEnabled(true);
+					window.btnWorldView.setEnabled(false);
 				}
 				if(window.setupTimeWindow)
 				{
@@ -2465,6 +2466,7 @@ public class ML_Display
 				{
 					window.setMapControlsEnabled(true);
 					window.btnMapView.setEnabled(false);
+					window.btnWorldView.setEnabled(true);
 				}
 				if(window.setupTimeWindow)
 				{
@@ -2490,6 +2492,7 @@ public class ML_Display
 				{
 					window.setMapControlsEnabled(false);
 					window.btnMapView.setEnabled(true);
+					window.btnWorldView.setEnabled(true);
 				}
 				if(window.setupTimeWindow)
 				{
@@ -2530,6 +2533,7 @@ public class ML_Display
 				{
 					window.setMapControlsEnabled(false);
 					window.btnMapView.setEnabled(true);
+					window.btnWorldView.setEnabled(true);
 				}
 				if(window.setupTimeWindow)
 				{

@@ -136,9 +136,10 @@ public class ML_Input
 				world.viewer.setVisibleAngle( slider.getValueF() );
 			
 			if (slider.tag == "FarClipping")
-			{
 				world.viewer.setFarViewingDistance( slider.getValueF() );
-			}
+			
+			if (slider.tag == "ModelFarClipping")
+				world.viewer.setModelFarViewingDistance( slider.getValueF() );
 			
 			if (slider.tag == "Alpha") 
 				world.state.alpha = slider.getValueF();
@@ -301,6 +302,10 @@ public class ML_Input
 					break;
 	
 					/* Navigation */
+					case "SetWorldView":
+						if(display.getDisplayView() != 0)
+							display.setDisplayView(ml.world, 0);
+						break;
 					case "OpenNavigationWindow":
 						if(!ml.display.window.showNavigationWindow)
 							ml.display.window.openNavigationWindow();
@@ -838,6 +843,7 @@ public class ML_Input
 				}
 				else world.viewer.stopFollowing();
 				break;
+				
 			case "FollowTeleport":
 				world.viewer.setFollowTeleport( option.isSelected() );
 				break;

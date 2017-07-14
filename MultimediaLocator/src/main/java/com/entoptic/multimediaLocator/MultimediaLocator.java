@@ -308,9 +308,6 @@ public class MultimediaLocator extends PApplet
 		{
 			if (!state.initializingFields) 			/* Begin initializing fields */
 			{
-//				if(!display.window.startupWindow.isVisible())
-//					display.window.startupWindow.setVisible(true);
-				
 				world.createFields(library.getFolders());		/* Create field objects for each folder */
 				state.initializingFields = true;
 				display.setupProgress(0.25f);
@@ -355,10 +352,10 @@ public class MultimediaLocator extends PApplet
 		display.display(this);
 		
 		if(!state.createdLibrary)
-			display.window.showStartupWindow(true);			// TEST
+			display.window.showStartupWindow(true);			
 
 		state.running = false;						// Stop running
-		state.inFieldInitialization = true;				// Start clustering 
+		state.inFieldInitialization = true;			// Start clustering 
 	}
 	
 	/**
@@ -455,20 +452,30 @@ public class MultimediaLocator extends PApplet
 									world.getField(fieldID).getVideoCount()+" video errors: "+
 									world.getField(fieldID).getVideoErrors() );
 
-				world.getField(fieldID).initialize();
-				world.getField(fieldID).setDataFolderLoaded(false);
+				boolean initialized = world.getField(fieldID).initialize();
+				
+				if(initialized)
+				{
+					world.getField(fieldID).setDataFolderLoaded(false);
 
-				if(debug.video) 
-					systemMessage( "ML.initializeField()... After initialize... Field videos: "+
-									world.getField(fieldID).getVideoCount()+" video errors: "+
-									world.getField(fieldID).getVideoErrors() );
+					if(debug.video) 
+						systemMessage( "ML.initializeField()... After initialize... Field videos: "+
+								world.getField(fieldID).getVideoCount()+" video errors: "+
+								world.getField(fieldID).getVideoErrors() );
 
-				if(metadata.gpsTrackFilesFound) 
-					world.getField(fieldID).setGPSTracks( metadata.loadGPSTracks(world.getField(fieldID)) );	// Load GPS tracks
+					if(metadata.gpsTrackFilesFound) 
+						world.getField(fieldID).setGPSTracks( metadata.loadGPSTracks(world.getField(fieldID)) );	// Load GPS tracks
 
-				if(setSoundGPSLocations)
-					if(world.getField(fieldID).getSounds().size() > 0)
-						metadata.setSoundLocationsFromGPSTracks(world.getField(fieldID), world.getField(fieldID).getSounds());
+					if(setSoundGPSLocations)
+						if(world.getField(fieldID).getSounds().size() > 0)
+							metadata.setSoundLocationsFromGPSTracks(world.getField(fieldID), world.getField(fieldID).getSounds());
+				}
+				else
+				{
+					systemMessage( "ML.initializeField()... ERROR initializing field #"+fieldID+"... will restart program...");
+//					display.window.closeAllWindows();
+					restart();
+				}
 			}
 
 			world.getField(fieldID).setLoadedState(success);		/* Set field loaded state flag */
@@ -594,6 +601,9 @@ public class MultimediaLocator extends PApplet
 	{
 		if(debug.ml) systemMessage("ML.restart()... Restarting...");
 
+//		display.window.hideWindows();							// Hide open windows
+		display.window.closeAllWindows();
+
 		state.reset();											// Reset to initial program state
 		display.reset();										// Initialize displays
 
@@ -608,7 +618,6 @@ public class MultimediaLocator extends PApplet
 
 //		initCubeMap();
 
-		display.window.hideWindows();							// Hide open windows
 
 		systemMessages = new ArrayList<String>();				// Clear system messages
 		world.reset(true);										// Reset world
@@ -754,19 +763,25 @@ public class MultimediaLocator extends PApplet
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-			if(debug.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
+			if(debug.ml) System.out.println("ML.createNewLibrary()... Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.create(this, library.mediaFolders);	// Set selectedLibrary to true
 
 			state.createdLibrary = true;
 			state.libraryNamed = false;
+			state.selectedNewLibraryDestination = false;
+
+			if(debug.ml)
+				systemMessage("ML.createNewLibrary()... After create()... state.selectedLibrary:"+state.selectedLibrary+"  state.inLibrarySetup:"+state.inLibrarySetup);
 
 			world.state.stitchingPath = library.getLibraryFolder() + "/stitched/";
-			System.out.println("ML.createNewLibraryFromMediaFolders()... Set stitching path:"+world.getState().stitchingPath);
+			if(debug.ml)
+				systemMessage("ML.createNewLibrary()... Set stitching path:"+world.getState().stitchingPath);
 
 			if(!state.selectedLibrary)
 			{
-				System.out.println("ML.createNewLibraryFromMediaFolders()... Error importing media to create library...");
-				exit();
+				System.out.println("ML.createNewLibrary()... Error importing media to create library...");
+//				exit();
+				restart();
 			}
 		}
 	}
@@ -931,7 +946,7 @@ public class MultimediaLocator extends PApplet
 			display.window.btnMakeLibrary.setVisible(false);
 			display.window.btnCancelCreateLibrary.setVisible(false);
 			display.window.lblImport.setVisible(false);
-			display.window.lblCreateLibraryWindowText.setVisible(true);				// Set "Please wait..." text
+			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
 			display.window.setCreateLibraryWindowText("Creating MultimediaLocator library...", "This process can take a while for large media collections...");
 		}
@@ -1564,12 +1579,14 @@ public class MultimediaLocator extends PApplet
 	public String getScriptResource(String fileName)
 	{
 		String resourcePath = "/scripts/";
+//		String resourcePath = "/src/main/resources/scripts/";
+
+		String filePath = resourcePath + fileName;
 		
 		StringBuilder result = new StringBuilder("");
 		try{
 			String line;
-
-			InputStream in = MultimediaLocator.class.getResourceAsStream(resourcePath + fileName); 
+			InputStream in = MultimediaLocator.class.getResourceAsStream(filePath); 
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			while ((line = reader.readLine()) != null) {
 				result.append(line);
@@ -1579,7 +1596,8 @@ public class MultimediaLocator extends PApplet
 		}
 		catch(Throwable t)
 		{
-			systemMessage("ERROR in getScriptResource... t:"+t);
+			systemMessage("ERROR in getScriptResource... t:"+t+" fileName:"+fileName+" filePath:"+filePath);
+			t.printStackTrace();
 		}
 
 		BufferedWriter writer = null;
@@ -1659,15 +1677,16 @@ public class MultimediaLocator extends PApplet
 				state.fieldsNamed = true;
 				state.inFieldNaming = false;
 				library.updateFolderNames(world);		// Update library folder names to match fields
+				delay(basicDelay);
 			}
 		}
 		else
 		{
-			updateFieldFolderName(state.namingField);
+			updateFieldFolderName(state.namingField);	// Update field folder name in case necessary
 			state.namingField++;
 			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
 			{
-				String curName = world.getField(state.namingField).getName();
+				String curName = world.getField(state.namingField).getName();		// Get current field folder name
 				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
 			}
 		}

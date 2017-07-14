@@ -4738,6 +4738,16 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Set model far viewing distance
+	 * @param newModelDistanceVisibilityFactorFar New far viewing distance
+	 */
+	public void setModelFarViewingDistance( float newModelDistanceVisibilityFactorFar )
+	{
+		p.state.modelDistanceVisibilityFactorFar = newModelDistanceVisibilityFactorFar;
+//		settings.farViewingDistance = newFarViewingDistance;
+	}
+	
+	/**
 	 * Set near clipping distance
 	 * @param newFarViewingDistance New near clipping distance
 	 */

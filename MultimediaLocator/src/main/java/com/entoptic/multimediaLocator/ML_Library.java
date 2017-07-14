@@ -242,20 +242,25 @@ public class ML_Library
 			if(ml.debug.library)
 				ml.systemMessage("Library.sortVideosBySize()... Shrinking "+filesToShrink.size()+" videos...");
 
+			int count = 0;
 			for(String largeVideoPath : filesToShrink)
 			{
 //				File file = new File(largeVideoPath);
 //				String largeVideoName = file.getName();
 //				ml.systemMessage("Library.sortVideosBySize()... Shrinking video: "+file.getName()+" largeVideoPath:"+largeVideoPath);
 
+				boolean quitAfter = (count == filesToShrink.size() - 1);
+				
 				try{
-					Process conversionProcess = ml.world.utilities.convertVideo(ml, largeVideoPath, smallVideosFolder + "/");
+					Process conversionProcess = ml.world.utilities.shrinkVideo(ml, largeVideoPath, smallVideosFolder + "/", quitAfter);
 					conversionProcess.waitFor();
 				}
 				catch(Throwable t)
 				{
 					ml.systemMessage("Library.sortVideosBySize()... ERROR in process.waitFor()... t:"+t);
 				}
+				
+				count++;
 			}
 		}
 	}

@@ -320,7 +320,7 @@ public class WMV_Panorama extends WMV_Media
 	public PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
 		PImage result = ml.createImage(state.getMetadata().imageWidth, state.getMetadata().imageHeight, PApplet.RGB);
-
+		
 		try
 		{
 			result = source.copy();

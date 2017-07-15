@@ -45,7 +45,7 @@ public class WMV_VideoState
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 5.f;					// Selection outline line width
 	public float outlineHue = 90.f;					// Selection outline hue
-	public float outlineSaturation = 160.f;			// Selection outline saturation
+	public float outlineSaturation = 215.f;			// Selection outline saturation
 	public float outlineBrightness = 255.f;			// Selection outline brightness
 	public float outlineAlpha = 180.f;				// Selection outline alpha
 	public final float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance

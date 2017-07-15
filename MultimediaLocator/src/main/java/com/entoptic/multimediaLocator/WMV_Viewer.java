@@ -4644,7 +4644,7 @@ public class WMV_Viewer
 		p.ml.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		
-//		if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
+//		if(debug.viewer && debug.detailed) p.ml.systemMessage("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
 		
 		if(updateTimelinesSegment)
 		{
@@ -4680,7 +4680,7 @@ public class WMV_Viewer
 		{
 			if(p.getCurrentField().getTimelines().size() > 0 && p.getCurrentField().getTimelines().size() > state.currentFieldDate)
 			{
-//				if(debugSettings.viewer && debugSettings.detailed)
+//				if(debug.viewer && debug.detailed)
 //					p.ml.systemMessage("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+getField());
 			}
 			else 
@@ -5817,7 +5817,7 @@ public class WMV_Viewer
 //			}
 //			else
 //			{
-//				if(debugSettings.viewer && debugSettings.detailed)
+//				if(debug.viewer && debug.detailed)
 //					p.ml.systemMessage("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
 //			}
 //		}
@@ -5829,7 +5829,7 @@ public class WMV_Viewer
 //		{
 //			PVector cPos = getLocation();
 //			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
-//			if(debugSettings.viewer && debugSettings.detailed)
+//			if(debug.viewer && debug.detailed)
 //				p.ml.systemMessage("Checking Centered Cluster... "+c.getID());
 //		
 //			float dist = PVector.dist(cPos, c.getLocation());
@@ -5844,7 +5844,7 @@ public class WMV_Viewer
 //			return smallestIdx;
 //		else
 //		{
-//			if(debugSettings.viewer && debugSettings.detailed)
+//			if(debug.viewer && debug.detailed)
 //				p.ml.systemMessage("No clusters found along vector!");
 //			return state.currentCluster;
 //		}

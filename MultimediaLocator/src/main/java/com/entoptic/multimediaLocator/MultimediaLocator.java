@@ -21,12 +21,21 @@ import java.awt.Toolkit;
 import java.awt.color.ColorSpace;
 import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+//import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+//import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.awt.Frame;
 import java.awt.Image;
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.time.LocalDateTime;
@@ -52,6 +61,10 @@ import processing.opengl.PShader;
 import processing.video.Movie;
 
 import com.apple.eawt.Application;
+import com.jogamp.newt.event.WindowEvent;
+import com.jogamp.newt.event.WindowListener;
+import com.jogamp.newt.event.WindowUpdateEvent;
+import com.jogamp.newt.opengl.GLWindow;
 
 import ddf.minim.Minim;
 
@@ -83,6 +96,9 @@ public class MultimediaLocator extends PApplet
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 60;	
 	
+	/* Main Window */
+	private boolean mainWindowLostFocus = true;		// Flag for Main Window losing focus
+
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
 	public boolean createNewLibrary = false;
@@ -150,8 +166,56 @@ public class MultimediaLocator extends PApplet
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
 
-		Toolkit.getDefaultToolkit().addAWTEventListener(
-				new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | AWTEvent.FOCUS_EVENT_MASK);
+		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.FOCUS_EVENT_MASK );
+		
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.FOCUS_EVENT_MASK | 
+//											AWTEvent.WINDOW_EVENT_MASK | AWTEvent.WINDOW_FOCUS_EVENT_MASK );
+
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.KEY_EVENT_MASK );
+
+		GLWindow glFrame = (GLWindow) surface.getNative();
+		glFrame.addWindowListener( new WMV_WindowListener() );
+		
+//		glFrame.addWindowListener(new WindowListener() 
+//		{
+//	        public void windowGainedFocus(WindowEvent e) {
+//	        			System.out.println("Main frame windowGainedFocus...");
+//	        }
+//
+//	        public void windowLostFocus(WindowEvent e) {
+//	        	System.out.println("Main frame windowLostFocus...");
+//	        }
+//
+//	        public void windowDestroyNotify(WindowEvent e) {
+//	        	System.out.println("Main frame windowDestroyNotify...");
+//	        }
+//
+//	        public void windowRepaint(WindowUpdateEvent e) {
+//	        	System.out.println("Main frame windowRepaint...");
+//	        }
+//
+//	        public void windowResized(WindowEvent e) {
+//	        	System.out.println("Main frame windowRepaint...");
+//	        }
+//	        
+//	        public void windowMoved(WindowEvent e) {
+//	        	System.out.println("Main frame windowRepaint...");
+//	        }
+//
+//	        public void windowDestroyed(WindowEvent e) {
+//	        	System.out.println("Main frame windowDestroyed...");
+//	        }
+//		});
+//
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
+//														AWTEvent.FOCUS_EVENT_MASK);
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
+//					AWTEvent.FOCUS_EVENT_MASK | AWTEvent.WINDOW_EVENT_MASK | AWTEvent.WINDOW_FOCUS_EVENT_MASK);
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
+//														AWTEvent.FOCUS_EVENT_MASK | AWTEvent.WINDOW_EVENT_MASK);
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
+//														AWTEvent.WINDOW_FOCUS_EVENT_MASK);
+//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK );
 
 		/* Panoramic Stitching */
 		stitcher = new ML_Stitcher(world);
@@ -602,6 +666,7 @@ public class MultimediaLocator extends PApplet
 		if(debug.ml) systemMessage("ML.restart()... Restarting...");
 
 //		display.window.hideWindows();							// Hide open windows
+		display.disableLostFocusHook = true;
 		display.window.closeAllWindows();
 
 		state.reset();											// Reset to initial program state
@@ -1377,7 +1442,7 @@ public class MultimediaLocator extends PApplet
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
 		
-		if(debug.mouse && debug.detailed)
+		if(debug.mouse)
 			systemMessage("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
 		
 		display.map2D.mousePressedFrame = frameCount;
@@ -1391,7 +1456,7 @@ public class MultimediaLocator extends PApplet
 		if(display.getDisplayView() != 0)				// Mouse not used in World View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 		
-		if(debug.mouse && debug.detailed)
+		if(debug.mouse)
 			systemMessage("ML.mouseReleased()... Mouse x:"+mouseX+" y:"+mouseY);
 
 //		if(world.viewer.mouseNavigation)
@@ -1406,7 +1471,7 @@ public class MultimediaLocator extends PApplet
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseClicked(mouseX, mouseY);
 
-		if(debug.mouse && debug.detailed)
+		if(debug.mouse)
 			systemMessage("ML.mouseClicked()... Mouse x:"+mouseX+" y:"+mouseY);
 	}
 	
@@ -1415,7 +1480,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mouseDragged() {
 		display.map2D.mouseDraggedFrame = frameCount;
-		if(debug.mouse && debug.detailed)
+		if(debug.mouse)
 		{
 			systemMessage("ML.mouseDragged()... pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
 			systemMessage("mouseX:"+mouseX+" mouseY:"+mouseY);
@@ -1875,23 +1940,81 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Mouse listener class for detecting when windows lose focus
+	 * Window listener for handling Main Window lost / gained focus
 	 * @author davidgordon
 	 */
-	private class WMV_MouseListener implements AWTEventListener
+	private class WMV_WindowListener implements WindowListener
 	{
+		/**
+		 * Constructor for window listener
+		 */
+		public WMV_WindowListener(){}
+
+		public void windowGainedFocus(WindowEvent e) {
+//			systemMessage("Main Window windowGainedFocus...");
+			if(mainWindowLostFocus)
+			{
+				systemMessage("Main Window gained focus after losing focus...");
+				if(!display.disableLostFocusHook)
+				{
+					if(display.window.showStartupWindow)
+					{
+						display.window.handleWindowLostFocus(state.running, " ");
+					}
+					if(display.window.showTextEntryWindow)
+					{
+						display.window.handleWindowLostFocus(state.running, "  ");
+					}
+					if(display.window.showListItemWindow)
+					{
+						display.window.handleWindowLostFocus(state.running, "   ");
+					}
+				}
+			}
+		}
+
+		public void windowLostFocus(WindowEvent e) {
+			systemMessage("Main Window windowLostFocus...");
+			mainWindowLostFocus = true;
+		}
+
+		public void windowDestroyNotify(WindowEvent e) 
+		{
+			systemMessage("Main Window windowDestroyNotify...");
+		}
+
+		public void windowRepaint(WindowUpdateEvent e) 
+		{
+			systemMessage("Main Window windowRepaint...");
+		}
+
+		public void windowResized(WindowEvent e) 
+		{
+			systemMessage("Main Window windowRepaint...");
+		}
+
+		public void windowMoved(WindowEvent e) 
+		{
+			systemMessage("Main Window windowRepaint...");
+		}
+
+		public void windowDestroyed(WindowEvent e) 
+		{
+			systemMessage("Main Window windowDestroyed...");
+        }
+	}
+
+	/**
+	 * Event listener for detecting when secondary windows gain / lose focus
+	 * @author davidgordon
+	 */
+	private class WMV_EventListener implements AWTEventListener
+	{
+		/**
+		 * Called when a window event is dispatched
+		 */
 		public void eventDispatched(AWTEvent event) 
 		{
-//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
-//			System.out.println(">> event:"+event);
-//			System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
-//
-//			JFrame jFrame;
-//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
-//			{
-//				jFrame = (JFrame)event.getSource();
-//			}
-
 			if (event.getSource().getClass().toString().equals("class processing.awt.PSurfaceAWT$SmoothCanvas"))
 			{
 				PSurfaceAWT.SmoothCanvas pSurface = (PSurfaceAWT.SmoothCanvas)event.getSource();
@@ -1905,7 +2028,77 @@ public class MultimediaLocator extends PApplet
 					if(!display.disableLostFocusHook)
 						display.window.handleWindowLostFocus(state.running, windowTitle);
 				}
+				else if(event.getID() == FocusEvent.FOCUS_GAINED)
+				{
+					String windowTitle = nativeFrame.getTitle();
+					display.window.handleWindowGainedFocus(state.running, windowTitle);
+				}
+//				else if(event.getID() == java.awt.event.WindowEvent.WINDOW_DEACTIVATED)
+//				{
+//					String windowTitle = nativeFrame.getTitle();
+//					display.window.handleWindowDeactivated(state.running, windowTitle);
+//				}
+//				else if(event.getID() == java.awt.event.WindowEvent.WINDOW_ACTIVATED)
+//				{
+//					String windowTitle = nativeFrame.getTitle();
+//					display.window.handleWindowActivated(state.running, windowTitle);
+//				}
+				else
+				{
+//					String windowTitle = nativeFrame.getTitle();
+//					System.out.println("Unknown Window Event... windowTitle:"+windowTitle+" event.getID():"+event.getID()+ " ... " + event.toString());
+				}
 			}
+			
+//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
+//			System.out.println(">>> event:"+event);
+//			System.out.println(">> source:"+event.getSource()+" type:"+event.getSource().getClass());
+//
+//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
+//			{
+//				JFrame jFrame;
+//				jFrame = (JFrame)event.getSource();
+////				if(jFrame.getName().equals("frame0"))
+//				{
+//					if(event.getID() == FocusEvent.FOCUS_LOST)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  lost focus...");
+//					}
+//					else if(event.getID() == FocusEvent.FOCUS_GAINED)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  gained focus...");
+//					}
+//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_GAINED_FOCUS)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  window gained focus...");
+//					}
+//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_LOST_FOCUS)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  lost focus...");
+//					}
+//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_ACTIVATED)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  activated...");
+//					}
+//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_DEACTIVATED)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  deactivated...");
+//					}
+//					else if(event.getID() == sun.awt.TimedWindowEvent.WINDOW_GAINED_FOCUS)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  timed window gained focus...");
+//					}
+//					else if(event.getID() == sun.awt.TimedWindowEvent.WINDOW_LOST_FOCUS)
+//					{
+//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  timed window lost focus...");
+//					}
+//					else
+//					{
+//						systemMessage(">>>>>>>> WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  changed... event.getID():"+event.getID()+" focus lost == "+FocusEvent.FOCUS_LOST);
+//						systemMessage("     event class name :"+event.getClass().getName()+"..."+event.getClass().toString());
+//					}
+//				}
+//			}
 		}
 	}
 

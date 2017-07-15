@@ -2084,7 +2084,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
 		int topEdge = world.ml.displayHeight / 2 - startupWindowHeight / 2;
 		
-		startupWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, startupWindowHeight, PApplet.JAVA2D);
+		startupWindow = GWindow.getWindow( world.ml, " ", leftEdge, topEdge, windowWidth * 2, startupWindowHeight, PApplet.JAVA2D);
 		
 		startupWindow.addData(new ML_WinData());
 		startupWindow.addDrawHandler(this, "startupWindowDraw");
@@ -2233,7 +2233,7 @@ public class ML_Window
 			int leftEdge = world.ml.displayWidth / 2 - windowWidth;
 			int topEdge = world.ml.displayHeight / 2 - listItemWindowHeight / 2;
 
-			listItemWindow = GWindow.getWindow( world.ml, "  ", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
+			listItemWindow = GWindow.getWindow( world.ml, "   ", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
 
 			listItemWindow.addData(new ML_WinData());
 			listItemWindow.addDrawHandler(this, "listItemWindowDraw");
@@ -2277,7 +2277,7 @@ public class ML_Window
 		String saveText = "";
 		if(setupTextEntryWindow) saveText = txfInputText.getText();
 		
-		textEntryWindow = GWindow.getWindow( world.ml, " ", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
+		textEntryWindow = GWindow.getWindow( world.ml, "  ", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
 
 		textEntryWindow.addData(new ML_WinData());
 		textEntryWindow.addDrawHandler(this, "textEntryWindowDraw");
@@ -2321,24 +2321,44 @@ public class ML_Window
 	{
 		switch(windowTitle)
 		{
-			case "":					// Startup Window
-				System.out.println("handleWindowLostFocus()... Startup Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+			case "":					// Main Window
+//				System.out.println("Window.handleWindowLostFocus()... Main Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				break;
+			case " ":				// Startup Window
+//				System.out.println("Window.handleWindowLostFocus()... Startup Window ... running? "+running+" showStartupWindow: "+showStartupWindow+" closeStartupWindow:"+closeStartupWindow);
+//				System.out.println("    showListItemWindow: "+showListItemWindow);
 				if(closeStartupWindow)
+				{
 					closeStartupWindow = false;
+					showStartupWindow = false;
+				}
 				else if(showStartupWindow && !showCreateLibraryWindow)
+				{
 					showStartupWindow(true);
+				}
 				break;
-			case " ":				// Text Entry Window
+			case "  ":				// Text Entry Window
 				if(closeTextEntryWindow) 
+				{
 					closeTextEntryWindow = false;
+					showTextEntryWindow = false;
+				}
 				else if(showTextEntryWindow)
+				{
 					showTextEntryWindow(true);
+				}
 				break;
-			case "  ":				// List Item Window
+			case "   ":				// List Item Window
+//				System.out.println("Window.handleWindowLostFocus()... List Item Window lost focus... closeListItemWindow:"+closeListItemWindow);
 				if(closeListItemWindow)
+				{
 					closeListItemWindow = false;
+					showListItemWindow = false;
+				}
 				else if(showListItemWindow)
+				{
 					showListItemWindow(true);
+				}
 				break;
 			case "Main Menu":
 				hideMainMenu();
@@ -2353,20 +2373,69 @@ public class ML_Window
 				hideTimeWindow();
 				break;
 			case "Library":
+//				System.out.println("Window.handleWindowLostFocus()... Library View window lost focus. Hiding window...");
 				hideLibraryViewWindow();
 				break;
 			case "Help":
 				hideHelpWindow();
 				break;
+			default:
+//				System.out.println("handleWindowLostFocus()... Unknown windowTitle: "+windowTitle);
+				break;
 		}
 	}
 	
+	
+	/**
+	 * Handle window with gained focus
+	 * @param windowTitle Window title
+	 */
+	public void handleWindowGainedFocus(boolean running, String windowTitle)
+	{
+		switch(windowTitle)
+		{
+			case "":					// Main Window
+				if(showStartupWindow && !showCreateLibraryWindow)
+					showStartupWindow(true);							// Keep Startup Window on top
+				if(showCreateLibraryWindow)
+					showCreateLibraryWindow(true);					// Keep Create Library Window on top
+				if(showTextEntryWindow)
+					showTextEntryWindow(true);						// Keep Text Entry Window on top
+				if(showListItemWindow)
+					showListItemWindow(true);						// Keep List Item Window on top
+				break;
+			case " ":				// Startup Window
+				System.out.println("handleWindowGainedFocus()... Startup Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				break;
+			case "  ":				// Text Entry Window
+				System.out.println("handleWindowGainedFocus()... Text Entry Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				break;
+			case "   ":				// List Item Window
+				System.out.println("handleWindowGainedFocus()... Text Entry Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				break;
+			case "Main Menu":
+				break;
+			case "Navigation":
+				break;
+			case "Media":
+				break;
+			case "Time":
+				break;
+			case "Library":
+				break;
+			case "Help":
+				break;
+			default:
+				System.out.println("handleWindowGainedFocus()... Unknown windowTitle: "+windowTitle);
+				break;
+		}
+	}
+
 	/**
 	 * Update secondary windows
 	 */
 	public void update()
 	{
-//		if(world.ml.frameCount % closeWindowWaitTime == 0)							/* Close hidden windows after ~3 seconds */
 		if(world.ml.frameCount - lastWindowHiddenFrame > closeWindowWaitTime)		/* Close hidden window(s) after a few seconds */
 		{
 			if(setupMainMenu && !showMainMenu)
@@ -3083,7 +3152,7 @@ public class ML_Window
 			showMediaWindow = true;
 		}
 	}
-	public void showStatisticsWindow()
+	public void showLibraryViewWindow()
 	{
 		if(setupLibraryViewWindow)
 		{
@@ -3172,6 +3241,27 @@ public class ML_Window
 			{
 				listItemWindow.setVisible(true);
 				showListItemWindow = true;
+			}
+		}
+	}
+
+
+	public void showCreateLibraryWindow(boolean force)
+	{
+		hideWindows();
+		if(force)
+		{
+			showCreateLibraryWindow = false;
+			createLibraryWindow.setVisible(false);
+			createLibraryWindow.setVisible(true);
+			showCreateLibraryWindow = true;
+		}
+		else
+		{
+			if(setupCreateLibraryWindow)
+			{
+				createLibraryWindow.setVisible(true);
+				showCreateLibraryWindow = true;
 			}
 		}
 	}
@@ -3423,6 +3513,7 @@ public class ML_Window
 		showCreateLibraryWindow = false;
 		if(setupCreateLibraryWindow)
 		{
+//			closeCreateLibraryWindow = true;
 			createLibraryWindow.setVisible(false);
 			createLibraryWindow.close();
 			createLibraryWindow.dispose();
@@ -3466,7 +3557,7 @@ public class ML_Window
 	{
 		if(!setupLibraryViewWindow)
 			setupLibraryViewWindow();
-		showStatisticsWindow();
+		showLibraryViewWindow();
 	}
 	public void openHelpWindow()
 	{

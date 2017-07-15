@@ -1036,6 +1036,7 @@ public class ML_KeyboardControls
 			}
 			
 			ml.display.window.closeListItemWindow();
+//			ml.display.window.closeListItemWindow(false);
 		}
 		
 		if (key == PApplet.CODED) 

@@ -123,7 +123,7 @@ public class ML_Display
 	private final float linePadding = 20.f;
 	private final float lineWidth = smallTextSize + linePadding;			
 //	private final float lineWidthWide = largeTextSize + linePadding;			
-	private final float lineWidthVeryWide = largeTextSize * 2.f;			
+	private final float lineWidthWide = largeTextSize * 2.f;			
 
 	/* Text (HUD No 3D Overlay) */
 	private float hudVeryLargeTextSize = 32.f;
@@ -1596,20 +1596,19 @@ public class ML_Display
 		dataFolderFound = false;
 		setupProgress = 0.f;
 
+		/* Windows */
+		disableLostFocusHook = false;
+		
 		/* Graphics */
-//		private float currentFieldOfView;
-//		
-		drawGrid = false; 							/* Draw 3D grid */   			// -- Unused
-//
 		messageHUDDistance = hudDistanceInit * 6.f;
 		blendMode = 0;									/* Alpha blending mode */
-//		
-//		/* Map View */
-		mapViewMode = 1;									// 0: World, 1: Field, (2: Cluster  -- In progress)
+
+		/* Map View */
+		mapViewMode = 1;									// {0: World, 1: Field, (2: Cluster  -- In progress)}
 		initializedMaps = false;
 		initializedSatelliteMap = false;
-//
-//		/* Time View */
+
+		/* Time View */
 		timelineStart = 0.f; timelineEnd = 0.f;
 		datelineStart = 0.f; datelineEnd = 0.f;
 		displayDate = -1;
@@ -1933,19 +1932,22 @@ public class ML_Display
 				ml.textSize(hudLargeTextSize);
 				if(ml.world.getFieldCount() == 1)
 				{
-					ml.text("No Current Library", x, y += lineWidthVeryWide * 1.5f);
+					ml.text(ml.world.getCurrentField().getName(), x, y += lineWidthWide * 1.5f);
+					ml.textSize(hudMediumTextSize);
+					ml.text("(Single Field)", x, y += lineWidth );
+//					ml.text("No Current Library", x, y += lineWidthWide * 1.5f);
 				}
 				else
 				{
 					ml.textSize(hudLargeTextSize);
 					if(ml.library.getName(false) != null && ml.library.getName(false) != "")
-						ml.text(ml.library.getName(false), x, y += lineWidthVeryWide * 1.5f);
+						ml.text(ml.library.getName(false), x, y += lineWidthWide * 1.5f);
 					else
-						ml.text("Untitled Library", x, y += lineWidthVeryWide * 1.5f);
+						ml.text("Untitled Library", x, y += lineWidthWide * 1.5f);
 				}
 				
 				ml.textSize(hudMediumTextSize);
-				ml.text(" Output Folder:"+ml.world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
+				ml.text(" Output Folder:"+ml.world.outputFolder, x, y += lineWidthWide * 1.5f);
 				
 				if(ml.debug.ml && ml.debug.print)
 				{

@@ -12,13 +12,13 @@ import processing.core.PVector;
 public class WMV_Cluster implements Comparable<WMV_Cluster>
 {
 	/* Classes */
-	private ML_DebugSettings debugSettings;		// Debug settings
 	private WMV_WorldSettings worldSettings;	// World settings
 	private WMV_WorldState worldState;			// World state
 	private WMV_ViewerSettings viewerSettings;	// Viewer settings
 	private WMV_ViewerState viewerState;		// Viewer state
 	private WMV_Utilities utilities;			// Utility methods
 	private WMV_ClusterState state;				// Cluster state
+	private ML_DebugSettings debug;		// Debug settings
 
 	/* Segmentation */
 	public ArrayList<WMV_MediaSegment> segments;			// List of overlapping segments of images or videos
@@ -49,7 +49,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		if(newWorldState != null) worldState = newWorldState;	// Update world settings
 		if(newViewerSettings != null) viewerSettings = newViewerSettings;	// Update viewer settings
 		if(newViewerState != null) viewerState = newViewerState;	// Update viewer settings
-		if(newDebugSettings != null) debugSettings = newDebugSettings;
+		if(newDebugSettings != null) debug = newDebugSettings;
 		
 		state.images = new ArrayList<Integer>();
 		state.panoramas = new ArrayList<Integer>();
@@ -523,7 +523,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				newTimeline.finish();			// Calculate upper and lower time segment bounds
 				state.timelines.add( newTimeline );		// Calculate and add timeline to list
 
-				if(debugSettings.cluster && debugSettings.detailed)
+				if(debug.cluster && debug.detailed)
 					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.timeline.size()+" points...");
 			}
 			
@@ -645,7 +645,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			newSegment.findImageBorders(imageList);
 			segments.add( newSegment );
 
-			if(debugSettings.cluster && debugSettings.detailed)
+			if(debug.cluster && debug.detailed)
 				System.out.println("Added media segment in cluster: "+getID()+" with single image...");
 
 			done = true;
@@ -660,7 +660,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			List<Integer> added = new ArrayList<Integer>();		// Images added to current segment 
 
-			if(debugSettings.cluster && debugSettings.detailed)
+			if(debug.cluster && debug.detailed)
 				System.out.println("Finding media segments in cluster: "+getID()+" images.size():"+state.images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
@@ -700,7 +700,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 									if(elevation < bottom) bottom = elevation;
 									if(elevation > top) top = elevation;
 
-									if(debugSettings.cluster && debugSettings.detailed)
+									if(debug.cluster && debug.detailed)
 										System.out.println("Added image:"+img.getID()+" to segment...");
 
 									if(!curImages.contains(img.getID()))
@@ -762,7 +762,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			newSegment.findImageBorders(imageList);				// Find image borders in segment
 			segments.add( newSegment );							// Add segment
 
-			if((debugSettings.cluster && debugSettings.detailed))
+			if((debug.cluster && debug.detailed))
 				System.out.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
@@ -771,10 +771,10 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		state.numSegments = segments.size();						// Number of media segments in the cluster
 		if(state.numSegments > 0)
 		{
-			if(debugSettings.cluster && debugSettings.detailed) System.out.println(" Created "+state.numSegments+" media segments...");
+			if(debug.cluster && debug.detailed) System.out.println(" Created "+state.numSegments+" media segments...");
 
 		}
-		else if(debugSettings.cluster && debugSettings.detailed) System.out.println(" No media segments added... cluster "+getID()+" has no images!");
+		else if(debug.cluster && debug.detailed) System.out.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**
@@ -1076,7 +1076,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
-		if(debugSettings.cluster && debugSettings.detailed)
+		if(debug.cluster && debug.detailed)
 			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
@@ -1155,7 +1155,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				state.currentTime = 0;
 				state.currentDate++;															// Increment cluster date
 
-				if(debugSettings.cluster || debugSettings.time)
+				if(debug.cluster || debug.time)
 					System.out.println("Reached end of day at p.frameCount:"+worldState.frameCount);
 
 				if(state.dateline != null)
@@ -1163,11 +1163,11 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 					if(state.currentDate > state.dateline.size())
 					{
 						state.currentDate = 0;
-						if(debugSettings.cluster || debugSettings.time)
+						if(debug.cluster || debug.time)
 							System.out.println("Reached end of dateline at p.frameCount:"+worldState.frameCount);
 					}
 				}
-				else if(debugSettings.cluster || debugSettings.time)
+				else if(debug.cluster || debug.time)
 				{
 					System.out.println("dateline is NULL for cluster "+getID());
 				}
@@ -1238,7 +1238,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		}
 		else 
 		{
-			if(debugSettings.cluster || debugSettings.time)
+			if(debug.cluster || debug.time)
 			{
 				System.out.println("Cluster #"+getID()+" has no dateline but has "+state.mediaCount+" media points!!");
 			}
@@ -1303,7 +1303,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public WMV_Field getClusterAsField(String newName, int newID, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
-		WMV_Field newField = new WMV_Field(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newName, newID);
+		WMV_Field newField = new WMV_Field(worldSettings, worldState, viewerSettings, viewerState, debug, newName, newID);
 
 		for(int i : state.images)
 		{
@@ -2146,7 +2146,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			if(pano != null)
 			{
-				if(debugSettings.panorama || debugSettings.stitching)
+				if(debug.panorama || debug.stitching)
 					System.out.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere();

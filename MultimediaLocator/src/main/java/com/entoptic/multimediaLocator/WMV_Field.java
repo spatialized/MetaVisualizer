@@ -1192,8 +1192,108 @@ public class WMV_Field
 
 		model.update( currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState );	// Update model
 
-		for(WMV_Cluster c : clusters)			// Update all clusters / inform associated media about world state
-			c.update(this, currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState);
+		updateClusterMediaStates();
+//		for(WMV_Cluster c : clusters)			// Update all clusters / inform associated media about world state
+//			c.update(this, currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState);
+	}
+	
+	/**
+	 * Inform media associated with each cluster about world state
+	 */
+	private void updateClusterMediaStates()
+	{
+		for(WMV_Cluster c : clusters)			
+		{
+			if(c.getID() != -1)
+			{
+				ArrayList<WMV_Image> cImages = getImagesInCluster(c.getID(), getImages());				// Get images in cluster
+				ArrayList<WMV_Panorama> cPanoramas = getPanoramasInCluster(c.getID(), getPanoramas());	// Get panoramas in cluster
+				ArrayList<WMV_Video> cVideos = getVideosInCluster(c.getID(), getVideos());				// Get videos in cluster
+				ArrayList<WMV_Sound> cSounds = getSoundsInCluster(c.getID(), getSounds());				// Get sounds in cluster
+
+				updateMediaStates( cImages, cPanoramas, cVideos, cSounds, worldSettings, 			// Update cluster + media world states
+								   worldState, viewerSettings, viewerState );	
+			}
+		}
+	}
+
+	/**
+	 * Update media states for given media
+	 * @param imageList Images to update
+	 * @param panoramaList Panoramas to update
+	 * @param videoList Videos to update
+	 * @param soundList Sounds to update
+	 * @param newWorldSettings Current world settings
+	 * @param newWorldState Current world state
+	 * @param newViewerSettings Current viewer settings
+	 * @param newViewerState Current viewer state
+	 */
+	private void updateMediaStates(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
+			ArrayList<WMV_Sound> soundList, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, 
+			WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState)
+	{
+		if(imageList != null)
+		{
+			for (WMV_Image img : imageList)  			// Update images
+			{
+				if(!img.isDisabled())
+					img.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
+			}
+		}
+
+		if(panoramaList != null)
+		{
+			for (WMV_Panorama pano : panoramaList)  		// Update panoramas
+			{
+				if(!pano.isDisabled())
+					pano.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
+			}
+		}
+		
+		if(videoList != null)
+		{
+			for (WMV_Video vid : videoList)  		// Update videos
+			{
+				if(!vid.isDisabled())
+					vid.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
+			}
+		}
+
+		if(soundList != null)
+		{
+			for (WMV_Sound snd : soundList)  		// Update sounds
+			{
+				if(!snd.isDisabled())
+					snd.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
+			}
+		}
+	}
+	
+	/**
+	 * Update current world state and settings
+	 * @param currentWorldSettings
+	 * @param currentWorldState
+	 * @param currentViewerSettings
+	 * @param currentViewerState
+	 */
+	public void updateX( WMV_Field f, WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
+						WMV_ViewerState currentViewerState )
+	{
+//		worldSettings = currentWorldSettings;		// Update world settings
+//		worldState = currentWorldState;				// Update world settings
+//		viewerSettings = currentViewerSettings;		// Update viewer settings
+//		viewerState = currentViewerState;			// Update viewer state
+//		
+//		if(getID() != -1)
+//		{
+//			ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
+//			ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
+//			ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
+//			ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
+//
+//			updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
+//					currentWorldState, currentViewerSettings, currentViewerState );	
+//		}
 	}
 
 	/**
@@ -3939,7 +4039,7 @@ public class WMV_Field
 			}
 			catch(Throwable t)
 			{
-				System.out.println("setState()... Field: "+state.name+" Error 1 in setState():"+t);
+				System.out.println("Field.setState()...  Field: "+state.name+" Error 1 in setState():"+t);
 				error = true;
 			}
 
@@ -3947,7 +4047,7 @@ public class WMV_Field
 				
 			try{
 				if(debug.cluster) 
-					System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
+					System.out.println("Field.setState()...   Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
 				{
 					WMV_Cluster newCluster = getClusterFromClusterState(cs);
@@ -3956,7 +4056,7 @@ public class WMV_Field
 			}
 			catch(Throwable t)
 			{
-				System.out.println("setState()... Field: "+state.name+" Error loading clusters in setState()... "+t);
+				System.out.println("Field.setState()... Field: "+state.name+" Error loading clusters in setState()... "+t);
 				clusterError = true;
 			}
 
@@ -3993,7 +4093,7 @@ public class WMV_Field
 				{
 					if(newPanoramaStateList.panoramas != null)
 					{
-						if(debug.panorama) System.out.println(" Adding Panoramas... "+newPanoramaStateList.panoramas.size());
+						if(debug.panorama) System.out.println("Field.setState()...   Adding Panoramas... "+newPanoramaStateList.panoramas.size());
 						for(WMV_PanoramaState ps : newPanoramaStateList.panoramas)
 						{
 							WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
@@ -4025,7 +4125,7 @@ public class WMV_Field
 				{
 					if(newVideoStateList.videos != null)
 					{
-						if(debug.video) System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
+						if(debug.video) System.out.println("Field.setState()...   Adding Videos... "+newVideoStateList.videos.size());
 						for(WMV_VideoState vs : newVideoStateList.videos)
 						{
 							WMV_Video newVideo = getVideoFromVideoState(vs, ml.world.getState().aspectWidthRatioFactor);
@@ -4051,7 +4151,7 @@ public class WMV_Field
 			}
 			catch(Throwable t)
 			{
-				System.out.println("Field: "+state.name+" Media error 3 in setState()... "+t);
+				System.out.println("Field.setState()...  Field: "+state.name+" Media error 3 in setState()... "+t);
 				error = true;
 			}
 
@@ -4060,7 +4160,7 @@ public class WMV_Field
 				{
 					if(newSoundStateList.sounds != null)
 					{
-						if(debug.sound) System.out.println(" Adding Sounds... "+newSoundStateList.sounds.size()); 
+						if(debug.sound) System.out.println("Field.setState()...   Adding Sounds... "+newSoundStateList.sounds.size()); 
 						for(WMV_SoundState ss : newSoundStateList.sounds)
 						{
 							WMV_Sound newSound = getSoundFromSoundState(ss);
@@ -4139,25 +4239,15 @@ public class WMV_Field
 		}
 	}
 	
-//	private void checkClusters()
-//	{
-//		for(WMV_Cluster c : clusters)
-//		{
-//			for(int i:c.getImageIDs())
-//			{
-//				if()
-//			}
-//		}
-//	}
-
-	
 	/**
+	 * Get images in cluster
 	 * @param imageList Image List
 	 * @return Images associated with cluster
 	 */
 	public ArrayList<WMV_Image> getImagesInCluster(int clusterID, ArrayList<WMV_Image> imageList)
 	{
-		List<Integer> clusterImages = getCluster(clusterID).getImageIDs();
+		List<Integer> clusterImages = new ArrayList<Integer>( getCluster(clusterID).getImageIDs() );	// Added 7-14-17
+//		List<Integer> clusterImages = getCluster(clusterID).getImageIDs();
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		
 		for(int i:clusterImages)
@@ -4172,6 +4262,7 @@ public class WMV_Field
 	}
 
 	/**
+	 * Get panoramas in cluster
 	 * @param panoramaList Panorama List
 	 * @return Panoramas associated with cluster
 	 */
@@ -4192,6 +4283,7 @@ public class WMV_Field
 	}
 	
 	/**
+	 * Get videos in cluster
 	 * @param videoList Video list
 	 * @return Videos associated with cluster
 	 */
@@ -4212,6 +4304,7 @@ public class WMV_Field
 	}
 	
 	/**
+	 * Get sounds in cluster
 	 * @param soundList Sound list
 	 * @return Sounds associated with cluster
 	 */

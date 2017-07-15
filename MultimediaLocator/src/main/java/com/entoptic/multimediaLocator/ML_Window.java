@@ -627,7 +627,7 @@ public class ML_Window
 		
 		x = 70;
 		y += iMediumBoxHeight;
-		btnStopViewer = new GButton(navigationWindow, x, y, 160, iVerySmallBoxHeight + 2, "Stop Viewer (.)");
+		btnStopViewer = new GButton(navigationWindow, x, y, 160, iVerySmallBoxHeight + 2, "Stop (.)");
 		btnStopViewer.tag = "StopViewer";
 		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
@@ -638,12 +638,6 @@ public class ML_Window
 		{
 			if(world.getFieldCount() > 1)
 			{
-				x = 85;
-				y += iMediumBoxHeight;
-				btnChooseField = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Choose Field  ⇧C");
-				btnChooseField.tag = "ChooseField";
-				btnChooseField.setLocalColorScheme(G4P.ORANGE_SCHEME);
-
 				x = 40;
 				y += iMediumBoxHeight;
 				btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Previous Field  ⇧[");
@@ -653,6 +647,12 @@ public class ML_Window
 				btnGoToNextField = new GButton(navigationWindow, x+=125, y, 100, iVerySmallBoxHeight, "Next Field  ⇧]");
 				btnGoToNextField.tag = "NextField";
 				btnGoToNextField.setLocalColorScheme(G4P.CYAN_SCHEME);
+				
+				x = 85;
+				y += iMediumBoxHeight;
+				btnChooseField = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Select Field  ⇧C");
+				btnChooseField.tag = "ChooseField";
+				btnChooseField.setLocalColorScheme(G4P.CYAN_SCHEME);
 			}
 		}
 

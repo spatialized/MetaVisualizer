@@ -1590,9 +1590,9 @@ class WMV_Metadata
 				yCoord = parseVideoAltitude(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
 				zCoord = parseVideoLatitude(sLatitude, sLatitudeRef);
 
-				ml.systemMessage("xCoord:"+xCoord);
-				ml.systemMessage("yCoord:"+yCoord);
-				ml.systemMessage("zCoord:"+zCoord);
+//				ml.systemMessage("xCoord:"+xCoord);
+//				ml.systemMessage("yCoord:"+yCoord);
+//				ml.systemMessage("zCoord:"+zCoord);
 				
 				/* WORKED WITH ExifToolWrapper */
 //				xCoord = parseFloatLongitude(sLongitude);			// Get longitude decimal value without sign

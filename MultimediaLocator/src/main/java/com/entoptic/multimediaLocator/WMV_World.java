@@ -2062,7 +2062,8 @@ public class WMV_World
 				if(c.isActive() && !c.isEmpty())
 				{
 					boolean visible = true;
-
+					boolean error = false;
+					
 					if(state.timeFading)		// Time fading in Field Time Mode
 					{
 						if(settings.clusterLength < 1.f)
@@ -2078,17 +2079,44 @@ public class WMV_World
 									float first; 			// First visible point in time cycle
 									float last;				// Last visible point in time cycle
 									float center;			// Center of visibility interval
-	
-									first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
-									last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
-	
+									
+									int firstID = c.getFirstTimeSegmentFieldTimelineID(true);
+									int lastID = c.getLastTimeSegmentFieldTimelineID(true);
+									
+									if(firstID >= 0 && firstID < c.getTimeline().timeline.size())
+									{
+										first = c.getTimeline().timeline.get( firstID ).getLower().getTime();
+									}
+									else
+									{
+										if(ml.debug.ml)
+										{
+											ml.systemMessage("World.getVisibleClusters()... ERROR: firstID: "+firstID+" > timeline.size():"+c.getTimeline().timeline.size());
+											if(lastID >= 0 && lastID < c.getTimeline().timeline.size())
+												ml.systemMessage("World.getVisibleClusters()... ERROR: lastID: "+lastID+" > timeline.size():"+c.getTimeline().timeline.size());
+										}
+										error = true;
+										break;
+									}
+									
+									if(lastID >= 0 && lastID < c.getTimeline().timeline.size())
+									{
+										last = c.getTimeline().timeline.get( lastID ).getUpper().getTime();
+									}
+									else
+									{
+										if(ml.debug.ml)
+											ml.systemMessage("World.getVisibleClusters()... ERROR: lastID: "+lastID+" > timeline.size():"+c.getTimeline().timeline.size());
+										error = true;
+										break;
+									}
 									if(first == last)
 										center = first;
 									else
 										center = first + last * 0.5f;
 	
 									float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-									float timeDiff = (float)Math.abs(current-center);		// Find time offset from center
+									float timeDiff = (float)Math.abs(current-center);			// Find time offset from center
 									if(timeDiff <= settings.clusterLength) 					// Compare offset to cluster length
 										visible = true;
 									break;
@@ -2096,6 +2124,11 @@ public class WMV_World
 								case 2:
 									visible = true;
 									break;
+							}
+							if(error)
+							{
+								if(ml.debug.ml)
+									ml.systemMessage("World.getVisibleClusters()... Cluster timeline Error 1... timeline.size():"+c.getTimeline().timeline.size());
 							}
 						}
 
@@ -2140,16 +2173,20 @@ public class WMV_World
 	 */
 	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
 	{
+		if(ml.debug.time)
+			ml.systemMessage("World.setAllClustersTimeCycleLength()... newTimeCycleLength: "+newTimeCycleLength);
+		
 		for(WMV_Cluster c : getCurrentField().getClusters())
 		{
 			if(!c.getState().empty)
 			{
 				c.setTimeCycleLength( newTimeCycleLength );
-
-				c.updateAllMediaStates( getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-										getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState() );
+//				c.updateAllMediaStates( getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
+//										getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState() );
 			}
 		}
+		
+		getCurrentField().updateAllMediaStates();
 	}
 
 	/**

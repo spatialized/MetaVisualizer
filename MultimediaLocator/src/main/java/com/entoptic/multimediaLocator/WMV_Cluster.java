@@ -337,33 +337,6 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			}
 		}
 	}
-	
-	/**
-	 * Update current world state and settings
-	 * @param currentWorldSettings
-	 * @param currentWorldState
-	 * @param currentViewerSettings
-	 * @param currentViewerState
-	 */
-	public void update( WMV_Field f, WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
-						WMV_ViewerState currentViewerState )
-	{
-		worldSettings = currentWorldSettings;		// Update world settings
-		worldState = currentWorldState;				// Update world settings
-		viewerSettings = currentViewerSettings;		// Update viewer settings
-		viewerState = currentViewerState;			// Update viewer state
-		
-		if(getID() != -1)
-		{
-			ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
-			ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
-			ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
-			ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
-
-			updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
-					currentWorldState, currentViewerSettings, currentViewerState );	
-		}
-	}
 
 	/**
 	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
@@ -1824,44 +1797,21 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		return state.timelines;
 	}
 
-	/**
-	 * Update cluster media settings
-	 * @param imageList Image list
-	 * @param panoramaList Panorama list
-	 * @param videoList Video list
-	 * @param soundList Sound list
-	 * @param newWorldSettings Current world settings
-	 * @param newWorldState Current world state
-	 * @param newViewerSettings Current viewer settings
-	 * @param newViewerState Current viewer state
-	 */
-	public void updateAllMediaStates(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
-			ArrayList<WMV_Sound> soundList, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, 
-			WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState )
-	{
-		for (WMV_Image img : imageList)  			// Update images
-		{
-			if(!img.isDisabled())
-				img.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-		}
 	
-		for (WMV_Panorama pano : panoramaList)  	// Update panoramas
-		{
-			if(!pano.isDisabled())
-				pano.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-		}
-
-		for (WMV_Video vid : videoList)  		// Update videos
-		{
-			if(!vid.isDisabled())
-				vid.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-		}
-
-		for (WMV_Sound snd : soundList)  		// Update sounds
-		{
-			if(!snd.isDisabled())
-				snd.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-		}
+	/**
+	 * Update current world state and settings
+	 * @param currentWorldSettings
+	 * @param currentWorldState
+	 * @param currentViewerSettings
+	 * @param currentViewerState
+	 */
+	public void update( WMV_Field f, WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
+						WMV_ViewerState currentViewerState )
+	{
+		worldSettings = currentWorldSettings;		// Update world settings
+		worldState = currentWorldState;				// Update world settings
+		viewerSettings = currentViewerSettings;		// Update viewer settings
+		viewerState = currentViewerState;			// Update viewer state
 	}
 
 	/**

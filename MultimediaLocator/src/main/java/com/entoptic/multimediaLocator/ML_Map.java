@@ -749,7 +749,7 @@ public class ML_Map
 	}
 
 	/**
-	 * Handle map mouse released event
+	 * Handle mouse released event on satellite map
 	 * @param world Parent world
 	 * @param mouseX Mouse x screen position
 	 * @param mouseY Mouse y screen position
@@ -767,8 +767,7 @@ public class ML_Map
 						if(selectedCluster >= 0 && selectedCluster < world.getCurrentField().getClusters().size())
 						{
 							zoomToCluster(world, world.getCurrentField().getCluster(selectedCluster), true);
-							if(world.ml.input.shiftKey)									// Shift key moves viewer to selected cluster
-								world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
+							world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
 						}
 					}
 				}

@@ -1938,11 +1938,11 @@ public class WMV_Viewer
 		setOrientation();
 		
 		if(attractorPoint != null) 
-			attractorPoint.update(p.getCurrentField(), worldSettings, worldState, settings, state);
+			attractorPoint.update( p.getCurrentField(), worldSettings, worldState, settings, state );
 	}
 
 	/**
-	 * Update Orientation (Static) Mode parameters
+	 * Update Orientation Mode parameters
 	 */
 	private void updateOrientationMode()
 	{

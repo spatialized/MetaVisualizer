@@ -1671,10 +1671,14 @@ public class WMV_World
 			
 			for(WMV_Cluster c : cl)
 			{
-				settings.timeCycleLength += getCurrentField().getImagesInCluster( c.getID(), getCurrentField().getImages() ).size() * settings.defaultMediaLength;
-				settings.timeCycleLength += getCurrentField().getPanoramasInCluster( c.getID(), getCurrentField().getPanoramas() ).size() * settings.defaultMediaLength;
+				ArrayList<WMV_Image> imageList = getCurrentField().getImagesInCluster( c.getID(), getCurrentField().getImages() );
+				if(imageList != null) settings.timeCycleLength += imageList.size() * settings.defaultMediaLength;
+				ArrayList<WMV_Panorama> panoramaList = getCurrentField().getPanoramasInCluster( c.getID(), getCurrentField().getPanoramas() );
+				if(panoramaList != null) settings.timeCycleLength += panoramaList.size() * settings.defaultMediaLength;
+				
 				for(WMV_Video v: getCurrentField().getVideosInCluster( c.getID(), getCurrentField().getVideos()) )
 					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );		// Add videos' actual (approx.) lengths
+				
 //				for(WMV_Sound s: c.getSounds( getCurrentField().getSounds() )
 //					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );		// Add sounds' actual (approx.) lengths -- Obsolete??
 			}

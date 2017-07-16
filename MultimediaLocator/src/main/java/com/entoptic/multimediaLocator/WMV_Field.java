@@ -1270,33 +1270,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Update current world state and settings
-	 * @param currentWorldSettings
-	 * @param currentWorldState
-	 * @param currentViewerSettings
-	 * @param currentViewerState
-	 */
-	public void updateX( WMV_Field f, WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
-						WMV_ViewerState currentViewerState )
-	{
-//		worldSettings = currentWorldSettings;		// Update world settings
-//		worldState = currentWorldState;				// Update world settings
-//		viewerSettings = currentViewerSettings;		// Update viewer settings
-//		viewerState = currentViewerState;			// Update viewer state
-//		
-//		if(getID() != -1)
-//		{
-//			ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
-//			ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
-//			ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
-//			ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
-//
-//			updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
-//					currentWorldState, currentViewerSettings, currentViewerState );	
-//		}
-	}
-
-	/**
 	 * Calculate location of each media file in virtual space from GPS, orientation metadata
 	 * @param inclSounds Whether to include sounds
 	 */
@@ -1398,31 +1371,45 @@ public class WMV_Field
 		{
 			if(!c.isEmpty())
 			{
-				for(WMV_Image i : getImagesInCluster(c.getID(), images))
+				ArrayList<WMV_Image> imageList = getImagesInCluster(c.getID(), images);
+				if(imageList != null)
 				{
-					i.setClusterTimes(c);
-					i.setClusterDates(c);
+					for(WMV_Image i : imageList)
+					{
+						i.setClusterTimes(c);
+						i.setClusterDates(c);
+					}
 				}
 
-				for(WMV_Panorama n : getPanoramasInCluster(c.getID(), panoramas))
+				ArrayList<WMV_Panorama> panoramaList = getPanoramasInCluster(c.getID(), panoramas);
+				if(panoramaList != null)
 				{
-					n.setClusterTimes(c);
-					n.setClusterDates(c);
+					for(WMV_Panorama n : panoramaList)
+					{
+						n.setClusterTimes(c);
+						n.setClusterDates(c);
+					}
 				}
 
-				for(WMV_Video v : getVideosInCluster(c.getID(), videos))
+				ArrayList<WMV_Video> videoList = getVideosInCluster(c.getID(), videos);
+				if(videoList != null)
 				{
-					v.setClusterTimes(c);
-					v.setClusterDates(c);
+					for(WMV_Video v : videoList)
+					{
+						v.setClusterTimes(c);
+						v.setClusterDates(c);
+					}
 				}
 
-				for(WMV_Sound s : getSoundsInCluster(c.getID(), sounds))		// Added 6-26
+				ArrayList<WMV_Sound> soundList = getSoundsInCluster(c.getID(), sounds);
+				if(soundList != null)
 				{
-					s.setClusterTimes(c);
-					s.setClusterDates(c);
+					for(WMV_Sound s : getSoundsInCluster(c.getID(), sounds))		// Added 6-26
+					{
+						s.setClusterTimes(c);
+						s.setClusterDates(c);
+					}
 				}
-
-//				c.findMediaSegments(images);
 			}
 		}
 	}
@@ -4246,8 +4233,12 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Image> getImagesInCluster(int clusterID, ArrayList<WMV_Image> imageList)
 	{
-		List<Integer> clusterImages = new ArrayList<Integer>( getCluster(clusterID).getImageIDs() );	// Added 7-14-17
-//		List<Integer> clusterImages = getCluster(clusterID).getImageIDs();
+		List<Integer> clusterImages = new ArrayList<Integer>();
+		if(getCluster(clusterID).getImageIDs().size() > 0)
+			clusterImages = new ArrayList<Integer>( getCluster(clusterID).getImageIDs() );	// Added 7-14-17
+		else
+			return null;
+		
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		
 		for(int i:clusterImages)
@@ -4268,9 +4259,16 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Panorama> getPanoramasInCluster(int clusterID, ArrayList<WMV_Panorama> panoramaList)
 	{
-		List<Integer> clusterPanoramas = getCluster(clusterID).getPanoramaIDs();
-		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
+//		List<Integer> clusterPanoramas = getCluster(clusterID).getPanoramaIDs();
 		
+		List<Integer> clusterPanoramas = new ArrayList<Integer>();
+		if(getCluster(clusterID).getPanoramaIDs().size() > 0)
+			clusterPanoramas = new ArrayList<Integer>( getCluster(clusterID).getPanoramaIDs() );	// Added 7-14-17
+		else
+			return null;
+
+		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
+
 		for(int i:clusterPanoramas)
 		{
 			WMV_Panorama panorama = panoramaList.get(i);
@@ -4289,7 +4287,13 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Video> getVideosInCluster(int clusterID, ArrayList<WMV_Video> videoList)
 	{
-		List<Integer> clusterVideos = getCluster(clusterID).getVideoIDs();
+//		List<Integer> clusterVideos = getCluster(clusterID).getVideoIDs();
+		List<Integer> clusterVideos = new ArrayList<Integer>();
+		if(getCluster(clusterID).getVideoIDs().size() > 0)
+			clusterVideos = new ArrayList<Integer>( getCluster(clusterID).getVideoIDs() );	// Added 7-14-17
+		else
+			return null;
+
 		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
 		
 		for(int i:clusterVideos)
@@ -4310,7 +4314,14 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Sound> getSoundsInCluster(int clusterID, ArrayList<WMV_Sound> soundList)
 	{
-		List<Integer> clusterSounds = getCluster(clusterID).getSoundIDs();
+//		List<Integer> clusterSounds = getCluster(clusterID).getSoundIDs();
+		
+		List<Integer> clusterSounds = new ArrayList<Integer>();
+		if(getCluster(clusterID).getSoundIDs().size() > 0)
+			clusterSounds = new ArrayList<Integer>( getCluster(clusterID).getSoundIDs() );	
+		else
+			return null;
+
 		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
 		
 		for(int i:clusterSounds)

@@ -411,7 +411,10 @@ public class ML_Display
 		{
 			WMV_Field f = p.getCurrentField();
 			WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
-			createClusterSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
+			
+			ArrayList<WMV_Image> imageList = f.getImagesInCluster(c.getID(), p.getCurrentField().getImages());
+			if(imageList != null)
+				createClusterSelectableMedia(p, imageList);
 			updateSelectableMedia = false;
 		}
 	}
@@ -2098,7 +2101,11 @@ public class ML_Display
 					updateLibraryMouse(p);
 				}
 				else
-					createClusterSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
+				{
+					ArrayList<WMV_Image> imageList = f.getImagesInCluster(c.getID(), p.getCurrentField().getImages());
+					if(imageList != null)
+						createClusterSelectableMedia(p, imageList);
+				}
 				
 				ml.popMatrix();
 				

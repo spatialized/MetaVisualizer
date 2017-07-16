@@ -28,15 +28,15 @@ public class ML_DebugSettings
 	public boolean mouse = false;				// Debug mouse interaction
 	
 	/* Model */
-	public boolean metadata = false;				// Debug WMV_Metadata class
+	public boolean metadata = true;				// Debug WMV_Metadata class
 	public boolean cluster = true;				// Debug WMV_Cluster class
 	public boolean time = false;					// Debug time behavior
 	
 	/* Media */
 	public boolean media = true;				// Debug WMV_Viewable class
 	public boolean image = true;				// Debug WMV_Image class
-	public boolean panorama = false;				// Debug WMV_Panorama class
-	public boolean video = false;				// Debug WMV_Video class
+	public boolean panorama = true;				// Debug WMV_Panorama class
+	public boolean video = true;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */

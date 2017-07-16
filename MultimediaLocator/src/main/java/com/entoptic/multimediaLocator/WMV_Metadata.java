@@ -919,7 +919,7 @@ class WMV_Metadata
 		
 		String sDateTime = null;										// Time
 		
-		String sLatitude = null, sLongitude = null, sAltitude = null;	// GPS Location
+		String sLatitude = null, sLongitude = null, sAltitude = null, sAltitudeRef = null;	// GPS Location
 		String sLatitudeRef = null, sLongitudeRef = null;
 
 		String sOrientation = null, sDirection = null;
@@ -1027,6 +1027,12 @@ class WMV_Metadata
 						sAltitude = tagString;
 						if (debug.metadata && debug.detailed && debug.image) 
 							ml.systemMessage("Found Altitude..." + sAltitude);
+					}
+					if (tagName.equals("GPS Altitude Ref")) 			// Altitude
+					{
+						sAltitudeRef = tagString;
+						if (debug.metadata && debug.detailed && debug.image) 
+							ml.systemMessage("Found Altitude Ref..." + sAltitudeRef);
 					}
 					if (tagName.equals("Focal Length"))			// Focal Length
 					{
@@ -1146,18 +1152,31 @@ class WMV_Metadata
 				float xCoord, yCoord, zCoord;
 				sLongitudeRef = parseLongitudeRef(sLongitudeRef);
 				sLatitudeRef = parseLatitudeRef(sLatitudeRef);
+				sAltitudeRef = parseAltitudeRef(sAltitudeRef);
 				
-				if(ml.debug.gps && ml.debug.detailed)
+				if((ml.debug.image || ml.debug.gps) && ml.debug.detailed)
 				{
 					ml.systemMessage(" Parsed image longitude Ref:"+sLongitudeRef);
 					ml.systemMessage(" Parsed image latitude Ref:"+sLatitudeRef);
 				}
 				
+				if(sAltitudeRef != null)
+					ml.systemMessage(" Found image altitude Ref:"+sAltitudeRef);
+				else
+					ml.systemMessage(" Metadata.loadImageMetadata()... ERROR: No altitude Ref found!:"+sAltitudeRef);
+				
 				xCoord = parseLongitude(sLongitude, sLongitudeRef);
-				yCoord = parseAltitude(sAltitude);
+				yCoord = parseAltitude(sAltitude, sAltitudeRef);
 				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
+				ml.systemMessage("Called Metadata.parseAltitude()... sAltitudeRef:"+sAltitudeRef+" sAltitude:"+sAltitude+" yCoord:"+yCoord);
+
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+				{
+					gpsLoc = new PVector(0, 0, 0);
+					if(!dataMissing) dataMissing = true;
+				}
+				else if (yCoord == -1000000.f)
 				{
 					gpsLoc = new PVector(0, 0, 0);
 					if(!dataMissing) dataMissing = true;
@@ -1236,7 +1255,7 @@ class WMV_Metadata
 		
 		String sDateTime = null;										// Time
 		
-		String sLatitude = null, sLongitude = null, sAltitude = null;	// GPS Location
+		String sLatitude = null, sLongitude = null, sAltitude = null, sAltitudeRef = null;	// GPS Location
 		String sLatitudeRef = null, sLongitudeRef = null;
 		
 		String sOrientation = null, sDirection = null;					// Orientation / Direction
@@ -1344,19 +1363,18 @@ class WMV_Metadata
 						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) ) 
 							ml.systemMessage("Found Altitude..." + sAltitude);
 					}
+					if (tagName.equals("GPS Altitude Ref")) 			// Altitude
+					{
+						sAltitudeRef = tagString;
+						if (debug.metadata && debug.detailed && debug.panorama) 
+							ml.systemMessage("Found Altitude Ref..." + sAltitudeRef);
+					}
 					if (tagName.equals("Focal Length")) // Focal Length
 					{
 						sFocalLength = tagString;
 						if ((debug.metadata && debug.detailed && debug.panorama) || (debug.gps && debug.detailed) )
 							ml.systemMessage("Found Focal Length..." + sFocalLength);
 					}
-
-//					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
-//					{
-//						sFocalLength35mm = tagString;
-//						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
-//							ml.systemMessage("Found Focal Length 35mm Equivalent..." + sFocalLength);
-//					}
 					if (tagName.equals("GPS Img Direction")) // Image Direction
 					{
 						sDirection = tagString;
@@ -1432,8 +1450,10 @@ class WMV_Metadata
 				float xCoord, yCoord, zCoord;
 				sLongitudeRef = parseLongitudeRef(sLongitudeRef);
 				sLatitudeRef = parseLatitudeRef(sLatitudeRef);
+				sAltitudeRef = parseAltitudeRef(sAltitudeRef);
+				
 				xCoord = parseLongitude(sLongitude, sLongitudeRef);
-				yCoord = parseAltitude(sAltitude);
+				yCoord = parseAltitude(sAltitude, sAltitudeRef);
 				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
 				if(ml.debug.gps && ml.debug.detailed)
@@ -1443,6 +1463,11 @@ class WMV_Metadata
 				}
 				
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+				{
+					gpsLoc = new PVector(0, 0, 0);
+					if(!dataMissing) dataMissing = true;
+				}
+				else if (yCoord == -1000000.f)
 				{
 					gpsLoc = new PVector(0, 0, 0);
 					if(!dataMissing) dataMissing = true;
@@ -1514,7 +1539,7 @@ class WMV_Metadata
 
 		String sDateTime = null;										// Time
 		
-		String sLatitude = null, sLongitude = null, altitude = null;	// GPS Location
+		String sLatitude = null, sLongitude = null, sAltitude = null, sAltitudeRef = null;	// GPS Location
 		String sLatitudeRef = null, sLongitudeRef = null;
 		
 		String duration = null;										
@@ -1549,7 +1574,8 @@ class WMV_Metadata
 //			sLatitudeRef = videoMetadata.get("GPSLatitudeRef");
 			sLongitude = videoMetadata.get("GPS Longitude");
 			sLatitude = videoMetadata.get("GPS Latitude");
-			altitude = videoMetadata.get("GPS Altitude");
+			sAltitude = videoMetadata.get("GPS Altitude");
+			sAltitudeRef = videoMetadata.get("GPS Altitude Ref");
 			duration = videoMetadata.get("Media Duration");
 			sDateTime = videoMetadata.get("Creation Date");
 			sWidth = videoMetadata.get("Image Width");
@@ -1561,11 +1587,11 @@ class WMV_Metadata
 
 			if(debug.metadata && debug.video && debug.detailed)
 			{
-				ml.systemMessage("  Latitude:"+sLatitude+"  Longitude:"+sLongitude+"  Altitude:"+altitude);
+				ml.systemMessage("  Latitude:"+sLatitude+"  Longitude:"+sLongitude+"  Altitude:"+sAltitude);
 				ml.systemMessage("  Date:"+sDateTime+"  duration:"+duration+"  width:"+sWidth+"  height:"+sHeight);
-				ml.systemMessage("  Longitude Ref:"+sLongitudeRef);
-				ml.systemMessage("  Latitude Ref:"+sLatitudeRef);
-				ml.systemMessage("  keywords:"+sKeywords);
+				ml.systemMessage("  Longitude Ref:"+sLongitudeRef+"  Latitude Ref:"+sLatitudeRef);
+				ml.systemMessage("  Altitude Ref:"+sAltitudeRef);
+				ml.systemMessage("  Keywords: "+sKeywords);
 			}
 
 			try {
@@ -1586,8 +1612,10 @@ class WMV_Metadata
 
 				sLongitudeRef = getLongitudeRef(sLongitude);		// Get reference direction of longitude sign of longitude
 				sLatitudeRef = getLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
+//				sAltitudeRef = parseVideoAltitudeRef(sAltitudeRef);
+
 				xCoord = parseVideoLongitude(sLongitude, sLongitudeRef);
-				yCoord = parseVideoAltitude(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
+				yCoord = parseVideoAltitude(sAltitude, sAltitudeRef);					// Get altitude in m. (Altitude ref. assumed to be sea level)
 				zCoord = parseVideoLatitude(sLatitude, sLatitudeRef);
 
 //				ml.systemMessage("xCoord:"+xCoord);
@@ -1752,6 +1780,7 @@ class WMV_Metadata
 			command.add("-GPSLongitude");
 			command.add("-GPSLatitude");
 			command.add("-GPSAltitude");
+			command.add("-GPSAltitudeRef");
 			command.add("-MediaDuration");
 			command.add("-CreationDate");
 			command.add("-ImageWidth");
@@ -1938,7 +1967,39 @@ class WMV_Metadata
 			ml.systemMessage("Metadata.parseLatitudeRef()... ERROR: >>>"+inputLatitudeRef+"<<< not recognized...");
 		return "";
 	}
-	
+
+	/**
+	 * Parse altitude reference metadata string
+	 * @param inputAltitudeRef
+	 * @return Altitude reference string {"N" or "S"}
+	 */
+	public String parseAltitudeRef(String inputAltitudeRef)
+	{
+//		Ex. "[GPS] GPS Altitude Ref - Below sea level"
+		
+		String[] parts = inputAltitudeRef.split("-");
+		String altRef = parts[1].trim();
+		
+		return altRef;
+	}
+
+	/**
+	 * Parse altitude reference metadata string
+	 * @param inputAltitudeRef
+	 * @return Altitude reference string {"N" or "S"}
+	 */
+//	public String parseVideoAltitudeRef(String inputAltitudeRef)
+//	{
+////		Ex. "[GPS] GPS Altitude Ref - Below sea level"
+//		
+//		ml.systemMessage("Metadata.parseVideoAltitudeRef()... inputAltitudeRef:"+inputAltitudeRef);
+//		String[] parts = inputAltitudeRef.split("-");
+//		String altRef = parts[1].trim();
+//		ml.systemMessage("			... altRef:"+altRef);
+//		
+//		return altRef;
+//	}
+
 	/**
 	 * Parse metadata input for GPS longitude in D/M/S format
 	 * @param input String input
@@ -1987,7 +2048,7 @@ class WMV_Metadata
 	 * @return GPS decimal longitude
 	 */
 	public float parseVideoLongitude(String input, String direction) {
-//		GPS Longitude=118 deg 41' 7.08" W, 
+//		Ex GPS Longitude "118 deg 41' 7.08" W" 
 
 //		String[] parts = input.split("Longitude -");
 //		input = parts[1];
@@ -2241,13 +2302,26 @@ class WMV_Metadata
 	 * @param input String input
 	 * @return Altitude in meters
 	 */
-	public float parseAltitude(String input) {
+	public float parseAltitude(String input, String altitudeRef) 
+	{
 		String[] parts = input.split("-");
-		input = parts[1];
-		parts = input.split("metres");
+		String alt = parts[1];
+		parts = alt.split("metres");
 		float altitude = Float.valueOf(parts[0]);
 
-		return altitude;
+//		parts = altitudeRef.split(":");			// ex:"GPS Altitude Ref                : Above Sea Level"
+//		String altRef = parts[1].trim();
+		
+//		System.out.println("Metadata.parseAltitude()... altRef:"+altRef+"...");
+		
+		if(altitudeRef.equals("Above sea level") || altitudeRef.equals("Above Sea Level"))
+			return altitude;
+		else if(altitudeRef.equals("Below sea level") || altitudeRef.equals("Below Sea Level"))
+			return -altitude;							// Flip sign if Below sea level
+		else
+			ml.systemMessage("Metadata.parseAltitude()... Unrecognized altitude ref:"+altitudeRef);
+		
+		return -1000000.f;
 	}
 
 	/**
@@ -2255,13 +2329,25 @@ class WMV_Metadata
 	 * @param input String input
 	 * @return Altitude in meters
 	 */
-	public float parseVideoAltitude(String input) {
-//		GPS Altitude=1.372 m, 
+	public float parseVideoAltitude(String input, String altitudeRef) 
+	{
+//		GPS Altitude Ex: "1.372 m"
+//		GPS Altitude Ref Ex: "Below Sea Level"
 
 		String[] parts = input.split("m");
 		input = parts[0];
 //		parts = input.split("metres");
 		float altitude = Float.valueOf(parts[0]);
+
+//		parts = altitudeRef.split(":");			// ex:"GPS Altitude Ref                : Above Sea Level"
+//		String altRef = parts[1].trim();
+		
+		if(altitudeRef.equals("Above sea level") || altitudeRef.equals("Above Sea Level"))
+			return altitude;
+		else if(altitudeRef.equals("Below sea level") || altitudeRef.equals("Below Sea Level"))
+			return -altitude;							// Flip sign if Below Sea Level
+		else
+			ml.systemMessage("Metadata.parseVideoAltitude()... Unrecognized altitude ref:"+altitudeRef);
 
 		return altitude;
 	}

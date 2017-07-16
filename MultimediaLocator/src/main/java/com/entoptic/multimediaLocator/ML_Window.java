@@ -1147,7 +1147,7 @@ public class ML_Window
 		world.ml.delay(delayAmount);
 		sdrAltitudeFactor = new GSlider(mediaWindow, x, y, 160, 80, 20);
 		sdrAltitudeFactor.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrAltitudeFactor.setLimits(0.f, 0.f, 1.f);
+		sdrAltitudeFactor.setLimits(world.settings.altitudeScalingFactor, 0.f, world.settings.altitudeScalingFactorMax);
 		sdrAltitudeFactor.setValue(world.settings.altitudeScalingFactor);					// -- Shouldn't be needed! Calls handler
 		sdrAltitudeFactor.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrAltitudeFactor.setEasing(0);

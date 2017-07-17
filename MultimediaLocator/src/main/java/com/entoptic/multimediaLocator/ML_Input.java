@@ -179,8 +179,8 @@ public class ML_Input
 				}
 			}
 
-			if (slider.tag == "CurrentTime") 
-				world.setCurrentTime(slider.getValueF(), false, false);
+			if (slider.tag == "SetCurrentTime") 
+				world.setCurrentTime(slider.getValueF(), world.state.getTimeMode() == 1, false);
 			
 			if (slider.tag == "ClusterLength") 
 				world.settings.clusterLength = slider.getValueF();

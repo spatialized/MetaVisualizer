@@ -445,6 +445,7 @@ public class WMV_World
 		settings.timeInc = settings.timeCycleLength / 30.f;			
 
 	}
+	
 	/**
 	 * Set time cycle length for all clusters in current field
 	 * @param newTimeCycleLength New time cycle length

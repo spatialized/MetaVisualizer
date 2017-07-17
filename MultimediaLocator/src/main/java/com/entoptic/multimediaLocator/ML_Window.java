@@ -1620,7 +1620,7 @@ public class ML_Window
 		sdrCurrentTime.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrCurrentTime.setEasing(0);
 		sdrCurrentTime.setShowValue(true);
-		sdrCurrentTime.tag = "CurrentTime";
+		sdrCurrentTime.tag = "SetCurrentTime";
 
 		x = 35;
 		y += iVeryLargeBoxHeight;

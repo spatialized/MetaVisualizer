@@ -7,7 +7,7 @@ package main.java.com.entoptic.multimediaLocator;
 public class ML_DebugSettings 
 {
 	/* Debug Mode */
-	public boolean detailed = true;				// Verbose Debug Mode On/Off
+	public boolean detailed = false;				// Verbose Debug Mode On/Off
 	
 	/* Output Methods */
 	public boolean print = true;					// Print all user messages
@@ -35,7 +35,7 @@ public class ML_DebugSettings
 	/* Media */
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
-	public boolean panorama = true;				// Debug WMV_Panorama class
+	public boolean panorama = false;				// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	

@@ -1172,6 +1172,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				{
 					nearestID = t.getID();
 					nearestDist = dist;
+					nearest = t;
 				}
 			}
 		}
@@ -1179,6 +1180,11 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		if(nearestDist == 100.f || nearestID == -1)
 		{
 			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
+			return null;
+		}
+		else if(nearest == null)
+		{
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" result is NULL... ");
 			return null;
 		}
 		else

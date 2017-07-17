@@ -1256,8 +1256,8 @@ public class ML_Display
 	{
 		if(currentSelectableTimeSegmentID >= 0)
 		{
-			float first = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getLower().getTime();
-			float last = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getUpper().getTime();
+			float first = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getLower().getAbsoluteTime();
+			float last = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getUpper().getAbsoluteTime();
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
@@ -1293,8 +1293,8 @@ public class ML_Display
 		{
 			WMV_Field f = p.getCurrentField();
 			int curDate = selectableDates.get(currentSelectableDate).getID();
-			float first = f.getTimelines().get(curDate).timeline.get(0).getLower().getTime();
-			float last = f.getTimelines().get(curDate).timeline.get(f.getTimelines().get(curDate).timeline.size()-1).getUpper().getTime();
+			float first = f.getTimelines().get(curDate).timeline.get(0).getLower().getAbsoluteTime();
+			float last = f.getTimelines().get(curDate).timeline.get(f.getTimelines().get(curDate).timeline.size()-1).getUpper().getAbsoluteTime();
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
@@ -1328,8 +1328,8 @@ public class ML_Display
 	{
 		WMV_Field f = p.getCurrentField();
 		
-		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-		float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+		float first = f.getTimeSegment(0).getLower().getAbsoluteTime();						// First field media time, normalized
+		float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getAbsoluteTime();		// Last field media time, normalized
 		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 		first *= day;					// Convert from normalized value to seconds
@@ -1430,8 +1430,8 @@ public class ML_Display
 		{
 			WMV_Field f = p.getCurrentField();
 			
-			float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+			float first = f.getTimeSegment(0).getLower().getAbsoluteTime();						// First field media time, normalized
+			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getAbsoluteTime();		// Last field media time, normalized
 
 			if(transitionZoomDirection == 1)
 			{
@@ -1471,7 +1471,7 @@ public class ML_Display
 		if(result < utilities.getTimePVectorSeconds(new PVector(24,0,0)))
 		{
 			WMV_Field f = p.getCurrentField();
-			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getAbsoluteTime();		// Last field media time, normalized
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			float newTimelineEnd;

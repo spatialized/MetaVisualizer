@@ -55,7 +55,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		
 		for(WMV_Time t : timeline)
 		{
-			if(t.getTime() > upper.getTime())
+			if(t.getAbsoluteTime() > upper.getAbsoluteTime())
 			{
 				upper = t;
 				System.out.println("-----| Fixed upper bound for time segment "+clusterTimelineID+" in cluster:"+clusterID);
@@ -65,7 +65,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 
 	private void calculateCenterTime()
 	{
-		if(upper.getTime() == lower.getTime())
+		if(upper.getAbsoluteTime() == lower.getAbsoluteTime())
 		{
 			center = upper;								// If upper and lower are same, set center to that value
 		}
@@ -372,7 +372,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 */
 	public int compareTo(WMV_TimeSegment t)
 	{
-		return Float.compare(this.center.getTime(), t.center.getTime());		
+		return Float.compare(this.center.getAbsoluteTime(), t.center.getAbsoluteTime());		
 	}
 
 	public static Comparator<WMV_TimeSegment> WMV_TimeMidpointComparator = new Comparator<WMV_TimeSegment>() 
@@ -380,8 +380,8 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
-			float time1 = t1.center.getTime();
-			float time2 = t2.center.getTime();
+			float time1 = t1.center.getAbsoluteTime();
+			float time2 = t2.center.getAbsoluteTime();
 
 			time1 *= 1000000.f;
 			time2 *= 1000000.f;
@@ -395,8 +395,8 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
-			float lower1 = t1.lower.getTime();
-			float lower2 = t2.lower.getTime();
+			float lower1 = t1.lower.getAbsoluteTime();
+			float lower2 = t2.lower.getAbsoluteTime();
 
 			lower1 *= 1000000.f;
 			lower2 *= 1000000.f;
@@ -410,8 +410,8 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
-			float upper1 = t1.upper.getTime();
-			float upper2 = t2.upper.getTime();
+			float upper1 = t1.upper.getAbsoluteTime();
+			float upper2 = t2.upper.getAbsoluteTime();
 
 			upper1 *= 1000000.f;
 			upper2 *= 1000000.f;

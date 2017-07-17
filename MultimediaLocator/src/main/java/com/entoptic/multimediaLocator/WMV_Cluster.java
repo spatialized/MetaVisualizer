@@ -430,7 +430,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 		if(mediaTimes.size() > 0)
 		{
-			state.timeline.timeline = utilities.createTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			state.timeline.timeline = buildTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			state.timeline.finish();			// Finish timeline / set bounds
 
 			int count = 0;
@@ -462,6 +462,152 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		}
 	}
 	
+	/**
+	 * Find cluster time segments from given media's capture times
+	 * @param times List of times
+	 * @param timePrecision Number of histogram bins
+	 * @return Time segments
+	 */
+	ArrayList<WMV_TimeSegment> buildTimeline(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
+	{
+		boolean finished = false;
+		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
+
+		if(mediaTimes.size() > 0)
+		{
+			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
+			
+			int count = 0, startCount = 0;
+			WMV_Time curLower, curUpper, last;
+
+			curLower = mediaTimes.get(0);
+			curUpper = mediaTimes.get(0);
+			last = mediaTimes.get(0);
+
+			for(WMV_Time t : mediaTimes)									// Find time segments for cluster
+			{
+				if(t.getClusterID() != clusterID)							// Set cluster ID if incorrect value
+					t.setClusterID(clusterID);	
+				
+				if(t.getAbsoluteTime() != last.getAbsoluteTime())
+				{
+					if(t.getAbsoluteTime() - last.getAbsoluteTime() < timePrecision)		// Extend segment if moved by less than precision amount
+					{
+						curUpper = t;										// Move curUpper to new value
+						last = t;
+
+//						System.out.println("Cluster.buildTimeline()... Extending segment...");
+						if(count == mediaTimes.size() - 1)					// Reached end while extending segment
+						{
+//							System.out.println("---> Extending segment at end...");
+							ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+							for(int i=startCount; i<=count; i++)
+								tl.add(mediaTimes.get(i));
+							tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+
+//							System.out.println("Cluster.buildTimeline()... (1) Finishing time segment... ");
+							segments.add(createSegment(clusterID, tl));		// Add time segment
+							finished = true;
+						}
+					}
+					else
+					{
+						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+						for(int i=startCount; i<count; i++)
+							tl.add(mediaTimes.get(i));
+						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+						
+						if(tl.get(tl.size()-1).getAbsoluteTime() - tl.get(0).getAbsoluteTime() > 0.002f)
+						{
+							System.out.println("(1) Finishing time segment... startCount:"+startCount+" count:"+count);
+							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getAbsoluteTime())+" tl lower:"+(tl.get(0).getAbsoluteTime()));
+							System.out.println("           			         curUpper:"+(curUpper.getAbsoluteTime())+" curLower:"+(curLower.getAbsoluteTime()));
+						}
+
+						segments.add(createSegment(clusterID, tl));	// Add time segment
+
+						curLower = t;
+						curUpper = t;
+						last = t;
+						startCount = count;
+						
+						if(count == mediaTimes.size() - 1)			// Create single segment at end
+						{
+							tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+							tl.add(mediaTimes.get(count));
+//							System.out.println("Cluster.buildTimeline()... Finishing single segment at end...");
+//							System.out.println("Cluster.buildTimeline()... (2) Finishing time segment...");
+							segments.add(createSegment(clusterID, tl));		// Add time segment
+						}
+					}
+				}
+				else																// Same time as last
+				{
+					if(count == mediaTimes.size() - 1)								// Reached end
+					{
+//						System.out.println("--> Same as last at end...");
+						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+						for(int i=startCount; i<=count; i++)
+							tl.add(mediaTimes.get(i));
+
+						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+						if(tl.get(tl.size()-1).getAbsoluteTime() - tl.get(0).getAbsoluteTime() > 0.002f)
+						{
+							System.out.println("(3) Finishing time segment...");
+							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getAbsoluteTime())+" tl lower:"+(tl.get(0).getAbsoluteTime()));
+							System.out.println("           			         curUpper:"+(curUpper.getAbsoluteTime())+" curLower:"+(curLower.getAbsoluteTime()));
+						}
+
+						segments.add(createSegment(clusterID, tl));	// Add time segment
+						finished = true;
+					}
+				}
+				
+				count++;
+			}
+			
+			if(startCount == 0 && !finished)									// Single time segment
+			{
+//				System.out.println("--> Single time segment...");
+				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();				// Create timeline for segment
+				for(WMV_Time t : mediaTimes)
+					tl.add(t);
+				tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+
+//				System.out.println("(4) Finishing time segment...");
+				if(tl.get(tl.size()-1).getAbsoluteTime() - tl.get(0).getAbsoluteTime() > 0.002f)
+				{
+					System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getAbsoluteTime())+" tl lower:"+(tl.get(0).getAbsoluteTime()));
+					System.out.println("           			         curUpper:"+(curUpper.getAbsoluteTime())+" curLower:"+(curLower.getAbsoluteTime()));
+				}
+
+				segments.add(createSegment(clusterID, tl));	// Add time segment
+			}
+			
+			return segments;			
+		}
+		else
+		{
+//			if(p.p.p.debug.time) System.out.println("cluster:"+id+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
+			return null;		
+		}
+	}
+
+	/**
+	 * Create time segment from timeline
+	 * @param clusterID
+	 * @param timeline
+	 * @return
+	 */
+	public WMV_TimeSegment createSegment(int clusterID, ArrayList<WMV_Time> timeline)
+	{
+		WMV_TimeSegment ts = new WMV_TimeSegment();
+		ts.initialize(clusterID, -1, -1, -1, -1, -1, -1, timeline);
+		
+		utilities.checkTimeSegment(ts);
+		return ts;
+	}
+
 	/**
 	 * Create timeline for each date on dateline, where index of a date in dateline matches index of corresponding timeline in timelines array
 	 */
@@ -996,32 +1142,32 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	
 	/**
 	 * Get associated media time closest to given cluster time point
-	 * @param timePoint Cluster time point 
+	 * @param clusterTimePoint Cluster time point 
 	 * @param withinTimeline If true, return null if time point lies outside cluster timeline. If false, return closest time even if outside cluster timeline.
 	 * @return Closest time to given time point
 	 */
-	public WMV_Time getClosestTimeToClusterTime( float timePoint )
+	public WMV_Time getClosestTimeToClusterTime( float clusterTimePoint )
 	{
 		float nearestDist = 100.f;
 		int nearestID = -1;
 		WMV_Time nearest = null;
 
-		if(timePoint < 0.f)
+		if(clusterTimePoint < 0.f)
 			return null;
-		if(timePoint > 1.f)
+		if(clusterTimePoint > 1.f)
 			return null;
 		
-		float lower = state.timeline.getLower().getLower().getTime();
-		float upper = state.timeline.getUpper().getUpper().getTime();
-		float absoluteTime = utilities.mapValue(timePoint, 0.f, 1.f, lower, upper);		// Cluster time as absolute time
+		float lower = state.timeline.getLower().getLower().getAbsoluteTime();
+		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
+		float absoluteTime = utilities.mapValue(clusterTimePoint, 0.f, 1.f, lower, upper);		// Cluster time as absolute time
 
-		System.out.println("Cluster.getClosestTimeToClusterTime()... timePoint:"+timePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
+		System.out.println("Cluster.getClosestTimeToClusterTime()... timePoint:"+clusterTimePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
 		
 		for(WMV_TimeSegment ts : state.timeline.timeline)			// Find closest cluster time to given cluster time
 		{
 			for(WMV_Time t : ts.getTimeline())
 			{
-				float dist = Math.abs(t.getTime() - absoluteTime);
+				float dist = Math.abs(t.getAbsoluteTime() - absoluteTime);
 				if(dist < nearestDist)
 				{
 					nearestID = t.getID();
@@ -1032,14 +1178,12 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		
 		if(nearestDist == 100.f || nearestID == -1)
 		{
-			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
 			return null;
 		}
 		else
 		{
-			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
 			return nearest;
 		}
 	}
@@ -1056,8 +1200,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		int nearestID = -1;
 		WMV_Time nearest = null;
 
-		float lower = state.timeline.getLower().getLower().getTime();
-		float upper = state.timeline.getUpper().getUpper().getTime();
+		float lower = state.timeline.getLower().getLower().getAbsoluteTime();
+		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
 
 		if(withinTimeline)
 		{
@@ -1071,7 +1215,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		{
 			for(WMV_Time t : ts.getTimeline())
 			{
-				float dist = Math.abs(t.getTime() - timePoint);
+				float dist = Math.abs(t.getAbsoluteTime() - timePoint);
 				if(dist < nearestDist)
 				{
 					nearestID = t.getID();
@@ -1083,13 +1227,13 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		if(nearestDist == 100.f || nearestID == -1)
 		{
 			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getAbsoluteTime());
 			return null;
 		}
 		else
 		{
 			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getAbsoluteTime());
 			return nearest;
 		}
 	}
@@ -1204,23 +1348,22 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	}
 
 	/**
-	 * Set cluster time from given field time 
-	 * @param newFieldTimePoint
+	 * Set current cluster time from given absolute time 
+	 * @param newAbsoluteTimePoint Absolute time point {0.f: midnight, 1.f: midnight the next day}
 	 */
-	public void setCurrentTimeFromFieldTime(float newFieldTimePoint)
+	public void setCurrentTimeFromAbsoluteTime(float newAbsoluteTimePoint)
 	{
 		float newTimePoint;
-		float lower = state.timeline.getLower().getLower().getTime();
-		float upper = state.timeline.getUpper().getUpper().getTime();
+		float lower = state.timeline.getLower().getLower().getAbsoluteTime();
+		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
 		
-		if(newFieldTimePoint > lower && newFieldTimePoint < upper)
+		if(newAbsoluteTimePoint > lower && newAbsoluteTimePoint < upper)
 		{
-			newTimePoint = (int) utilities.mapValue(newFieldTimePoint, lower, upper, 0.f, state.timeCycleLength);
+			newTimePoint = (int) utilities.mapValue(newAbsoluteTimePoint, lower, upper, 0.f, state.timeCycleLength);
 			setCurrentTime( newTimePoint );
+			
 			if(debug.cluster || debug.time)
-			{
-				System.out.println("Cluster.setCurrentTimeFromFieldTime()... id #"+getID()+" newFieldTimePoint:"+newFieldTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTime()+" lower:"+lower+" upper:"+upper);
-			}
+				System.out.println("Cluster.setCurrentTimeFromFieldTime()... id #"+getID()+" newFieldTimePoint:"+newAbsoluteTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTime()+" lower:"+lower+" upper:"+upper);
 		}
 		else
 		{
@@ -1230,7 +1373,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 	/**
 	 * Set time point within cluster time cycle
-	 * @param newTimePoint New time point
+	 * @param newTimePoint New time point {0.f: first associated media time, 1.f: last associated media time}
 	 */
 	public void setCurrentTime(float newTimePoint)
 	{
@@ -1470,8 +1613,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			if (initImageTime) 	// Calculate most recent and oldest image time
 			{		
-				state.highImageTime = i.time.getTime();
-				state.lowImageTime = i.time.getTime();
+				state.highImageTime = i.time.getAbsoluteTime();
+				state.lowImageTime = i.time.getAbsoluteTime();
 				initImageTime = false;
 			}
 
@@ -1482,10 +1625,10 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				initImageDate = false;
 			}
 
-			if (i.time.getTime() > state.highImageTime)
-				state.highImageTime = i.time.getTime();
-			if (i.time.getTime() < state.lowImageTime)
-				state.lowImageTime = i.time.getTime();
+			if (i.time.getAbsoluteTime() > state.highImageTime)
+				state.highImageTime = i.time.getAbsoluteTime();
+			if (i.time.getAbsoluteTime() < state.lowImageTime)
+				state.lowImageTime = i.time.getAbsoluteTime();
 
 			if (i.time.asDate().getDaysSince1980() > state.highImageDate)
 				state.highImageDate = i.time.asDate().getDaysSince1980();
@@ -1503,8 +1646,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			if (initPanoramaTime) 		// Calculate most recent and oldest panorama time
 			{		
-				state.highPanoramaTime = n.time.getTime();
-				state.lowPanoramaTime = n.time.getTime();
+				state.highPanoramaTime = n.time.getAbsoluteTime();
+				state.lowPanoramaTime = n.time.getAbsoluteTime();
 				initPanoramaTime = false;
 			}
 
@@ -1515,10 +1658,10 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				initPanoramaDate = false;
 			}
 
-			if (n.time.getTime() > state.highPanoramaTime)
-				state.highPanoramaTime = n.time.getTime();
-			if (n.time.getTime() < state.lowPanoramaTime)
-				state.lowPanoramaTime = n.time.getTime();
+			if (n.time.getAbsoluteTime() > state.highPanoramaTime)
+				state.highPanoramaTime = n.time.getAbsoluteTime();
+			if (n.time.getAbsoluteTime() < state.lowPanoramaTime)
+				state.lowPanoramaTime = n.time.getAbsoluteTime();
 
 			if (n.time.asDate().getDaysSince1980() > state.highPanoramaDate)
 				state.highPanoramaDate = n.time.asDate().getDaysSince1980();
@@ -1535,8 +1678,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			if (initVideoTime) 		// Calculate most recent and oldest video time
 			{		
-				state.highVideoTime = v.time.getTime();
-				state.lowVideoTime = v.time.getTime();
+				state.highVideoTime = v.time.getAbsoluteTime();
+				state.lowVideoTime = v.time.getAbsoluteTime();
 				initVideoTime = false;
 			}
 
@@ -1547,10 +1690,10 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				initImageDate = false;
 			}
 
-			if (v.time.getTime() > state.highVideoTime)
-				state.highVideoTime = v.time.getTime();
-			if (v.time.getTime() < state.lowVideoTime)
-				state.lowVideoTime = v.time.getTime();
+			if (v.time.getAbsoluteTime() > state.highVideoTime)
+				state.highVideoTime = v.time.getAbsoluteTime();
+			if (v.time.getAbsoluteTime() < state.lowVideoTime)
+				state.lowVideoTime = v.time.getAbsoluteTime();
 
 			if (v.time.asDate().getDaysSince1980() > state.highVideoDate)
 				state.highVideoDate = v.time.asDate().getDaysSince1980();
@@ -1567,8 +1710,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 
 			if (initSoundTime) 		// Calculate most recent and oldest video time
 			{		
-				state.highSoundTime = s.time.getTime();
-				state.lowSoundTime = s.time.getTime();
+				state.highSoundTime = s.time.getAbsoluteTime();
+				state.lowSoundTime = s.time.getAbsoluteTime();
 				initSoundTime = false;
 			}
 
@@ -1579,10 +1722,10 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 				initImageDate = false;
 			}
 
-			if (s.time.getTime() > state.highSoundTime)
-				state.highSoundTime = s.time.getTime();
-			if (s.time.getTime() < state.lowSoundTime)
-				state.lowSoundTime = s.time.getTime();
+			if (s.time.getAbsoluteTime() > state.highSoundTime)
+				state.highSoundTime = s.time.getAbsoluteTime();
+			if (s.time.getAbsoluteTime() < state.lowSoundTime)
+				state.lowSoundTime = s.time.getAbsoluteTime();
 
 			if (s.time.asDate().getDaysSince1980() > state.highSoundDate)
 				state.highSoundDate = s.time.asDate().getDaysSince1980();

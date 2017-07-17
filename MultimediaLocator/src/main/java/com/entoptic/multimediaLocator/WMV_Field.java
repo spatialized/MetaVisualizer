@@ -4449,7 +4449,7 @@ public class WMV_Field
 
 	private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
 	{
-		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, viewerState, debug, clusterState.id, clusterState.location);
+		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, viewerState, debug, clusterState.id, clusterState.location );
 
 		newCluster.setState( (WMV_ClusterState) clusterState );
 		newCluster.initializeTime();
@@ -4502,8 +4502,6 @@ public class WMV_Field
 
 		newSound.initializeTime();
 //		System.out.println("getSoundFromSoundState()... will set sound location...");
-		
-//		setSoundLocation(newSound);
 		
 		if(newSound.getMediaState().gpsLocation == null) System.out.println(" newSound.getMediaState().gpsLocation == null...");
 		else System.out.println("newSound.getMediaState().gpsLocation:"+newSound.getMediaState().gpsLocation);

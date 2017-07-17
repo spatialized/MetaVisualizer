@@ -16,7 +16,9 @@ import processing.core.PVector;
 public class WMV_Time implements Comparable<WMV_Time>
 {
 	private int id, clusterID;
-	private float time;	 				/* Normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day */
+	private float absoluteTime;	 		/* Normalized hour/min/sec value {0.f: midnight on calendar date, 1.f: is midnight the following day } */
+	private float fieldTime;	 			/* {0.f: lowest (earliest) field time, 1.f: highest (latest) field time} */
+	private float clusterTime;	 		/* {0.f: lowest (earliest) cluster time, 1.f: highest (latest) cluster time} */
 	private int mediaType;				/* Media Types  0: image 1: panorama 2: video 3: sound */
 	private int year, month, day, hour, minute, second, millisecond;
 
@@ -58,9 +60,9 @@ public class WMV_Time implements Comparable<WMV_Time>
 		second = dateTime.getSecond();
 		millisecond = dateTime.getNano();
 	
-		time = getSimulationTime( dateTime ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
+		absoluteTime = setAbsoluteTimePoint( dateTime ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
 	}
-	
+
 	/**
 	 * @return Year
 	 */
@@ -163,9 +165,9 @@ public class WMV_Time implements Comparable<WMV_Time>
 	/**
 	 * @return Time as normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day
 	 */
-	public float getTime()
+	public float getAbsoluteTime()
 	{
-		return time;
+		return absoluteTime;
 	}
 
 	/**
@@ -183,15 +185,15 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public int compareTo(WMV_Time t)
 	{
-		return Float.compare(this.time, t.time);		
+		return Float.compare(this.absoluteTime, t.absoluteTime);		
 	}
 
 	public static Comparator<WMV_Time> WMV_SimulationTimeComparator = new Comparator<WMV_Time>() 
 	{
 		public int compare(WMV_Time t1, WMV_Time t2) 
 		{
-			float time1 = t1.getTime();
-			float time2 = t2.getTime();
+			float time1 = t1.getAbsoluteTime();
+			float time2 = t2.getAbsoluteTime();
 
 			time1 *= 1000000.f;
 			time2 *= 1000000.f;
@@ -201,33 +203,76 @@ public class WMV_Time implements Comparable<WMV_Time>
 	};
 	
 	/**
-	 * Calculate date, time and dayLength for given Calendar date
-	 * @param c Calendar date
+	 * Get absolute representation of for given zoned date/time {0.f to 1.f, where 0.f is midnight and 1.f is midnight the next day}
+	 * @param z Zoned date/time
 	 * @return PVector containing (date, time, dayLength)
 	 */
-	public float getSimulationTime(ZonedDateTime c) 	
+	public float setAbsoluteTimePoint(ZonedDateTime z) 	
 	{		
-//		Location location = new Location("39.9522222", "-75.1641667");
-//		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
-
-//		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);		// Get sunrise time
-//		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
-
-//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;		/* Adjust for sunset time */
-//		int cDay, cMonth, cYear;
-
 		int cHour, cMin, cSec;
 
-		cHour = c.getHour();
-		cMin = c.getMinute();
-		cSec = c.getSecond();
+		cHour = z.getHour();
+		cMin = z.getMinute();
+		cSec = z.getSecond();
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
-		float time = mapValue(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken	(1440 == 24 * 60)		
+		float time = mapValue( cTime, 0.f, 1439.f, 0.f, 1.f ); 		// Time of day when photo was taken	(1440 == 24 * 60)		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1.
 	}
 	
+	/**
+	 * Calculate date, time and dayLength for given Calendar date
+	 * @param z Calendar date
+	 * @param low Low range {0.f to 1.f}
+	 * @param high High range {0.f to 1.f} 
+	 * @return PVector containing (date, time, dayLength)
+	 */
+	public float getRelativeTime(float low, float high) 	
+	{		
+//		int cHour, cMin, cSec;
+//
+//		cHour = z.getHour();
+//		cMin = z.getMinute();
+//		cSec = z.getSecond();
+//
+//		float cTime = cHour * 60 + cMin + cSec/60.f;
+//		float time = mapValue( cTime, 0.f, 1439.f, low, high ); 		// Time of day when photo was taken	(1440 == 24 * 60)		
+//
+//		return time;				// Date between 0.f and 1.f, time between 0. and 1.
+		
+		float result = mapValue(absoluteTime, 0.f, 1.f, low, high);
+		return result;
+	}
+	
+	/**
+	 * Get absolute representation of for given zoned date/time {0.f to 1.f, where 0.f is midnight and 1.f is midnight the next day}
+	 * @param z Zoned date/time
+	 * @return PVector containing (date, time, dayLength)
+	 */
+//	public float getSunsetAdjustedAbsoluteTime(ZonedDateTime z) 				// -- In progress
+//	{		
+//		Location location = new Location("39.9522222", "-75.1641667");
+//		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
+//
+//		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);	// Get sunrise time
+//		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
+//
+//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;					/* Adjust for sunset time */
+//		int cDay, cMonth, cYear;
+//
+//		int cHour, cMin, cSec;
+//
+//		cHour = z.getHour();
+//		cMin = z.getMinute();
+//		cSec = z.getSecond();
+//
+//		float cTime = cHour * 60 + cMin + cSec/60.f;
+//		float time = mapValue( cTime, 0.f, 1439.f, 0.f, 1.f ); 		// Time of day when photo was taken	(1440 == 24 * 60)		
+//
+//		return time;				// Date between 0.f and 1.f, time between 0. and 1.
+//	}
+
 	/**
 	 * Set spatial cluster ID associated with this time
 	 * @param newClusterID New cluster ID

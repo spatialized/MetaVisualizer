@@ -42,7 +42,7 @@ public class WMV_Timeline
 
 			for(WMV_TimeSegment ts : timeline)							// Find upper bound
 				for(WMV_Time t : ts.timeline)
-					if(t.getTime() > upper.getUpper().getTime())
+					if(t.getAbsoluteTime() > upper.getUpper().getAbsoluteTime())
 						upper = ts;
 		}
 	}

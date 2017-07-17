@@ -364,8 +364,8 @@ public class WMV_Model
 		 {
 			 if (initImageTime) 	// Calculate most recent and oldest image time
 			 {		
-				 state.highImageTime = i.time.getTime();
-				 state.lowImageTime = i.time.getTime();
+				 state.highImageTime = i.time.getAbsoluteTime();
+				 state.lowImageTime = i.time.getAbsoluteTime();
 				 initImageTime = false;
 			 }
 
@@ -376,10 +376,10 @@ public class WMV_Model
 				 initImageDate = false;
 			 }
 
-			 if (i.time.getTime() > state.highImageTime)
-				 state.highImageTime = i.time.getTime();
-			 if (i.time.getTime() < state.lowImageTime)
-				 state.lowImageTime = i.time.getTime();
+			 if (i.time.getAbsoluteTime() > state.highImageTime)
+				 state.highImageTime = i.time.getAbsoluteTime();
+			 if (i.time.getAbsoluteTime() < state.lowImageTime)
+				 state.lowImageTime = i.time.getAbsoluteTime();
 
 			 if (i.time.asDate().getDaysSince1980() > state.highImageDate)
 				 state.highImageDate = i.time.asDate().getDaysSince1980();
@@ -391,8 +391,8 @@ public class WMV_Model
 		 {
 			 if (initPanoTime) 	// Calculate most recent and oldest Pano time
 			 {		
-				 state.highPanoTime = n.time.getTime();
-				 state.lowPanoTime = n.time.getTime();
+				 state.highPanoTime = n.time.getAbsoluteTime();
+				 state.lowPanoTime = n.time.getAbsoluteTime();
 				 initPanoTime = false;
 			 }
 
@@ -403,10 +403,10 @@ public class WMV_Model
 				 initPanoDate = false;
 			 }
 
-			 if (n.time.getTime() > state.highPanoTime)
-				 state.highPanoTime = n.time.getTime();
-			 if (n.time.getTime() < state.lowPanoTime)
-				 state.lowPanoTime = n.time.getTime();
+			 if (n.time.getAbsoluteTime() > state.highPanoTime)
+				 state.highPanoTime = n.time.getAbsoluteTime();
+			 if (n.time.getAbsoluteTime() < state.lowPanoTime)
+				 state.lowPanoTime = n.time.getAbsoluteTime();
 
 			 if (n.time.asDate().getDaysSince1980() > state.highPanoDate)
 				 state.highPanoDate = n.time.asDate().getDaysSince1980();
@@ -418,8 +418,8 @@ public class WMV_Model
 		 {
 			 if (initVideoTime) 		// Calculate most recent and oldest video time
 			 {		
-				 state.highVideoTime = v.time.getTime();
-				 state.lowVideoTime = v.time.getTime();
+				 state.highVideoTime = v.time.getAbsoluteTime();
+				 state.lowVideoTime = v.time.getAbsoluteTime();
 				 initVideoTime = false;
 			 }
 
@@ -430,10 +430,10 @@ public class WMV_Model
 				 initVideoDate = false;
 			 }
 
-			 if (v.time.getTime() > state.highVideoTime)
-				 state.highVideoTime = v.time.getTime();
-			 if (v.time.getTime() < state.lowVideoTime)
-				 state.lowVideoTime = v.time.getTime();
+			 if (v.time.getAbsoluteTime() > state.highVideoTime)
+				 state.highVideoTime = v.time.getAbsoluteTime();
+			 if (v.time.getAbsoluteTime() < state.lowVideoTime)
+				 state.lowVideoTime = v.time.getAbsoluteTime();
 
 			 if (v.time.asDate().getDaysSince1980() > state.highVideoDate)
 				 state.highVideoDate = v.time.asDate().getDaysSince1980();
@@ -445,8 +445,8 @@ public class WMV_Model
 		 {
 			 if (initSoundTime) 		// Calculate most recent and oldest video time
 			 {		
-				 state.highSoundTime = s.time.getTime();
-				 state.lowSoundTime = s.time.getTime();
+				 state.highSoundTime = s.time.getAbsoluteTime();
+				 state.lowSoundTime = s.time.getAbsoluteTime();
 				 initSoundTime = false;
 			 }
 
@@ -457,10 +457,10 @@ public class WMV_Model
 				 initSoundDate = false;
 			 }
 
-			 if (s.time.getTime() > state.highSoundTime)
-				 state.highSoundTime = s.time.getTime();
-			 if (s.time.getTime() < state.lowSoundTime)
-				 state.lowSoundTime = s.time.getTime();
+			 if (s.time.getAbsoluteTime() > state.highSoundTime)
+				 state.highSoundTime = s.time.getAbsoluteTime();
+			 if (s.time.getAbsoluteTime() < state.lowSoundTime)
+				 state.lowSoundTime = s.time.getAbsoluteTime();
 
 			 if (s.time.asDate().getDaysSince1980() > state.highSoundDate)
 				 state.highSoundDate = s.time.asDate().getDaysSince1980();

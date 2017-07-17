@@ -742,30 +742,6 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * Initialize time and date from metadata
-	 */
-	public void initializeTime()
-	{
-		if(metadata.dateTime == null)
-		{
-			try {
-				metadata.dateTime = parseDateTime(metadata.dateTimeString);
-				time = new WMV_Time();
-				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
-			} 
-			catch (Throwable t) 
-			{
-				System.out.println("Error in image date / time... " + t);
-			}
-		}
-		else
-		{
-			time = new WMV_Time();
-			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
-		}
-	}
-
-	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
 	public void displayMetadata(MultimediaLocator ml)
@@ -849,6 +825,30 @@ public class WMV_Image extends WMV_Media
 		setFilePath(newFilePath);
 	}
 	
+	/**
+	 * Initialize time and date from metadata
+	 */
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in image date / time... " + t);
+			}
+		}
+		else
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
+		}
+	}
+
 	/**
 	 * @return Average color across all pixels  
 	 */	

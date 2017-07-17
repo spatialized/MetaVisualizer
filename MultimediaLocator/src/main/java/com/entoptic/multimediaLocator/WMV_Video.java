@@ -992,7 +992,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		for( int i : candidates )							// Compare distances of the candidates
 		{
-			float timeDiff = time.getTime() - images.get(i).time.getTime();
+			float timeDiff = time.getAbsoluteTime() - images.get(i).time.getAbsoluteTime();
 
 			if( timeDiff > 0.f && timeDiff < state.assocVideoTimeTolerance )			// If in very close succession with an image
 			{
@@ -1008,7 +1008,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if(debugSettings.video && debugSettings.detailed)
 				System.out.println("--> Found image placeholder:"+images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
-			boolean success = associateImagePlaceholder(images.get(closestIdx), closestDist, PApplet.abs(time.getTime() - images.get(closestIdx).time.getTime()));
+			boolean success = associateImagePlaceholder(images.get(closestIdx), closestDist, PApplet.abs(time.getAbsoluteTime() - images.get(closestIdx).time.getAbsoluteTime()));
 			
 			if(success)
 			{

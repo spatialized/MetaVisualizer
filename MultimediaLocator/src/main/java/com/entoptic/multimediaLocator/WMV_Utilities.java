@@ -1146,170 +1146,30 @@ public class WMV_Utilities
 		return days;
 	}
 
-	/**
-	 * Find cluster time segments from given media's capture times
-	 * @param times List of times
-	 * @param timePrecision Number of histogram bins
-	 * @return Time segments
-	 */
-	ArrayList<WMV_TimeSegment> createTimeline(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
-	{
-		boolean finished = false;
-		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
-
-		if(mediaTimes.size() > 0)
-		{
-			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
-			
-			int count = 0, startCount = 0;
-			WMV_Time curLower, curUpper, last;
-
-			curLower = mediaTimes.get(0);
-			curUpper = mediaTimes.get(0);
-			last = mediaTimes.get(0);
-
-			for(WMV_Time t : mediaTimes)									// Find time segments for cluster
-			{
-				if(t.getClusterID() != clusterID)							// Set cluster ID if incorrect value
-					t.setClusterID(clusterID);	
-				
-				if(t.getTime() != last.getTime())
-				{
-					if(t.getTime() - last.getTime() < timePrecision)		// Extend segment if moved by less than precision amount
-					{
-						curUpper = t;										// Move curUpper to new value
-						last = t;
-
-//						System.out.println("Extending segment...");
-						if(count == mediaTimes.size() - 1)					// Reached end while extending segment
-						{
-//							System.out.println("---> Extending segment at end...");
-							ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-							for(int i=startCount; i<=count; i++)
-								tl.add(mediaTimes.get(i));
-							tl.sort(WMV_Time.WMV_SimulationTimeComparator);
-
-//							System.out.println("(0) Finishing time segment... ");
-							segments.add(createSegment(clusterID, tl));		// Add time segment
-							finished = true;
-						}
-					}
-					else
-					{
-						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-						for(int i=startCount; i<count; i++)
-							tl.add(mediaTimes.get(i));
-						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
-						
-						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
-						{
-							System.out.println("(1) Finishing time segment... startCount:"+startCount+" count:"+count);
-							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
-							System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-						}
-
-						segments.add(createSegment(clusterID, tl));	// Add time segment
-
-						curLower = t;
-						curUpper = t;
-						last = t;
-						startCount = count;
-						
-						if(count == mediaTimes.size() - 1)			// Create single segment at end
-						{
-							tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-							tl.add(mediaTimes.get(count));
-//							System.out.println("Finishing single segment at end...");
-//							System.out.println("(2) Finishing time segment...");
-							segments.add(createSegment(clusterID, tl));		// Add time segment
-						}
-					}
-				}
-				else																// Same time as last
-				{
-					if(count == mediaTimes.size() - 1)								// Reached end
-					{
-//						System.out.println("--> Same as last at end...");
-						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-						for(int i=startCount; i<=count; i++)
-							tl.add(mediaTimes.get(i));
-
-						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
-						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
-						{
-							System.out.println("(3) Finishing time segment...");
-							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
-							System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-						}
-
-						segments.add(createSegment(clusterID, tl));	// Add time segment
-						finished = true;
-					}
-				}
-				
-				count++;
-			}
-			
-			if(startCount == 0 && !finished)									// Single time segment
-			{
-//				System.out.println("--> Single time segment...");
-				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();				// Create timeline for segment
-				for(WMV_Time t : mediaTimes)
-					tl.add(t);
-				tl.sort(WMV_Time.WMV_SimulationTimeComparator);
-
-//				System.out.println("(4) Finishing time segment...");
-				if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
-				{
-					System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
-					System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-				}
-
-				segments.add(createSegment(clusterID, tl));	// Add time segment
-			}
-			
-			return segments;			
-		}
-		else
-		{
-//			if(p.p.p.debug.time) System.out.println("cluster:"+id+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
-			return null;		
-		}
-	}
-	
-	public WMV_TimeSegment createSegment(int clusterID, ArrayList<WMV_Time> timeline)
-	{
-		WMV_TimeSegment ts = new WMV_TimeSegment();
-		ts.initialize(clusterID, -1, -1, -1, -1, -1, -1, timeline);
-		
-		checkTimeSegment(ts);
-		return ts;
-	}
-
 	public void checkTimeSegment(WMV_TimeSegment ts)
 	{
-		float upper = ts.getUpper().getTime();
-		float lower = ts.getLower().getTime();
+		float upper = ts.getUpper().getAbsoluteTime();
+		float lower = ts.getLower().getAbsoluteTime();
 		
 //		System.out.println("checkTimeSegment()...");
 		for(WMV_Time t : ts.timeline)
 		{
 //			System.out.println(" checkTimeSegment()... t.getTime():"+t.getTime());
-			if(t.getTime() < lower)
+			if(t.getAbsoluteTime() < lower)
 			{
-				System.out.println("  t.getTime() < lower... t.getTime():"+t.getTime()+" lower:"+lower);
+				System.out.println("  t.getTime() < lower... t.getTime():"+t.getAbsoluteTime()+" lower:"+lower);
 			}
-			if(t.getTime() > upper)
+			if(t.getAbsoluteTime() > upper)
 			{
-				System.out.println("  t.getTime() < lower... t.getTime():"+t.getTime()+" upper:"+upper);
+				System.out.println("  t.getTime() < lower... t.getTime():"+t.getAbsoluteTime()+" upper:"+upper);
 			}
 		}
 	}
 
 	public float getTimelineLength(ArrayList<WMV_TimeSegment> timeline)
 	{
-		float start = timeline.get(0).getLower().getTime();
-		float end = timeline.get(timeline.size()-1).getUpper().getTime();
+		float start = timeline.get(0).getLower().getAbsoluteTime();
+		float end = timeline.get(timeline.size()-1).getUpper().getAbsoluteTime();
 		float length = (end - start) * getTimePVectorSeconds(new PVector(24,0,0));
 		return length;
 	}

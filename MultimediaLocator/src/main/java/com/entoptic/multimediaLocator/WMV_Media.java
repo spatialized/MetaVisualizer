@@ -20,16 +20,16 @@ public abstract class WMV_Media
 {
 	/* Classes */
 	private WMV_MediaState mState;				// Media state
-	private WMV_WorldSettings worldSettings;	// World settings
+	private WMV_WorldSettings worldSettings;		// World settings
 	private WMV_WorldState worldState;			// World State
 	private WMV_ViewerSettings viewerSettings;	// Viewer settings
-	private WMV_ViewerState viewerState;		// Viewer state
+	private WMV_ViewerState viewerState;			// Viewer state
 	private ML_DebugSettings debugSettings;		// Debug settings
 	
 	/* Time */
 	private ScaleMap timeLogMap;
 	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
-	public WMV_Time time;						// Media time						
+	public WMV_Time time;						// Media time and date 
 
 	/**
 	 * Constructor for abstract media object
@@ -116,18 +116,18 @@ public abstract class WMV_Media
 		{
 			case 0:															// Time Mode: Cluster
 				curTime = c.getState().currentTime;									// Set image time from cluster
-				lower = c.getTimeline().getLower().getLower().getTime();			// Get cluster timeline lower bound
-				upper = c.getTimeline().getUpper().getUpper().getTime();			// Get cluster timeline upper bound
+				lower = c.getTimeline().getLower().getLower().getAbsoluteTime();			// Get cluster timeline lower bound
+				upper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();			// Get cluster timeline upper bound
 			break;
 		
 			case 1:															// Time Mode: Field
-				curTime = worldState.currentTime;
-				lower = fieldTimeline.getLower().getLower().getTime();		// Check division					// Get cluster timeline lower bound
-				upper = fieldTimeline.getUpper().getUpper().getTime();		// Get cluster timeline upper bound
+				curTime = worldState.getCurrentTimeCycleFrame();
+				lower = fieldTimeline.getLower().getLower().getAbsoluteTime();		// Check division					// Get cluster timeline lower bound
+				upper = fieldTimeline.getUpper().getUpper().getAbsoluteTime();		// Get cluster timeline upper bound
 				break;
 				
 			case 2:															// Time Mode: (Single) Media
-				curTime = worldState.currentTime;
+				curTime = worldState.getCurrentTimeCycleFrame();
 				break;
 		}
 		
@@ -139,7 +139,7 @@ public abstract class WMV_Media
 				length = worldSettings.timeCycleLength;						 
 
 				if(debugSettings.video && getType() == 2 && debugSettings.detailed)
-					System.out.println("Only one cluster time segment, full length:"+length+" -- time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+worldSettings.timeCycleLength);
+					System.out.println("Only one cluster time segment, full length:"+length+" -- time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" dayLength:"+worldSettings.timeCycleLength);
 
 				fadeInStart = 0;											// Frame media starts fading in
 				fadeInEnd = Math.round(centerTime - length / 4.f);			// Frame media reaches full state.brightness
@@ -151,7 +151,7 @@ public abstract class WMV_Media
 				if(time == null)
 					System.out.println("time == null!!");
 				
-				float mediaTime = time.getTime();							// Get media time 
+				float mediaTime = time.getAbsoluteTime();							// Get media time 
 				
 				if(mediaTime < lower)
 				{
@@ -181,9 +181,9 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.ml)
 				{
-					System.out.println(">>> Error: fadeInStart before cycle start-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
+					System.out.println(">>> Error: fadeInStart before cycle start-----time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println(" ------ fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-					System.out.println(" ----- cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper+" ----- media length:"+length);
+					System.out.println(" ----- cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getAbsoluteTime()+" lower:"+lower+" upper:"+upper+" ----- media length:"+length);
 				}
 			}
 
@@ -192,9 +192,9 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.ml)
 				{
-					System.out.println(">>> Error: fadeInStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
+					System.out.println(">>> Error: fadeInStart after cycle end-----time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("----- fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+" worldState.getTimeMode():"+worldState.getTimeMode());
-					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper+" media length:"+length);
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getAbsoluteTime()+" lower:"+lower+" upper:"+upper+" media length:"+length);
 				}
 			}
 
@@ -203,7 +203,7 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.ml)
 				{
-					System.out.println(">>> Error: fadeInEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
+					System.out.println(">>> Error: fadeInEnd after cycle end-----time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode()+" media length:"+length);
 				}
 			}
@@ -213,7 +213,7 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.ml)
 				{
-					System.out.println(">>> Error: fadeOutStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
+					System.out.println(">>> Error: fadeOutStart after cycle end-----time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode()+" media length:"+length);
 				}
 			}
@@ -223,7 +223,7 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.ml)
 				{
-					System.out.println(">>> Error: fadeOutEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength+" media type:"+getType());
+					System.out.println(">>> Error: fadeOutEnd after cycle end-----time:"+time.getAbsoluteTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength+" media type:"+getType());
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
 				}
 			}
@@ -312,7 +312,6 @@ public abstract class WMV_Media
 
 		setTimeBrightness( (float)timeLogMap.getMappedValueFor(mState.timeBrightness) );   		// Logarithmic scaling
 		if(isSelected() && debugSettings.time) System.out.println("Media id:" + getID()+" state.timeBrightness"+mState.timeBrightness);
-
 	}
 
 	/**
@@ -323,7 +322,7 @@ public abstract class WMV_Media
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 			stopFading();
 
-		startFading(1.f);					// Fade in
+		startFadingTransition(1.f);					// Fade in
 		switch(mState.mediaType)			// Media Type,  0: image 1: panorama 2: video 3: sound 
 		{
 			case 0:
@@ -358,14 +357,28 @@ public abstract class WMV_Media
 		if(isSeen()) setSeen(false);
 		
 		if(hide) mState.hideAfterFadingOut = true;	// Hide after fading out
-		startFading(0.f);					// Fade out
+		startFadingTransition(0.f);					// Fade out
 	}
+
+	/**
+	 * Stop fading in or out
+	 */
+	public void stopFading()
+	{
+		mState.fadingEndFrame = worldState.frameCount;
+		mState.fadingStart = mState.fadingBrightness;
+		mState.fading = false;
+
+		if(isFadingOut()) mState.isFadingOut = false;
+		if(isFadingIn()) mState.isFadingIn = false;
+	}
+	
 
 	/**
 	 * Start alpha transition from current to given value
 	 * @param target Target alpha value
 	 */
-	void startFading(float target)
+	private void startFadingTransition(float target)
 	{
 		if(target != mState.fadingBrightness)			// Check if already at brightness target
 		{
@@ -383,19 +396,6 @@ public abstract class WMV_Media
 		}
 		else
 			mState.fading = false;
-	}
-
-	/**
-	 * Stop fading in or out
-	 */
-	public void stopFading()
-	{
-		mState.fadingEndFrame = worldState.frameCount;
-		mState.fadingStart = mState.fadingBrightness;
-		mState.fading = false;
-
-		if(isFadingOut()) mState.isFadingOut = false;
-		if(isFadingIn()) mState.isFadingIn = false;
 	}
 	
 	/**
@@ -559,16 +559,6 @@ public abstract class WMV_Media
 		else
 			mState.disabled = true;
 	}
-
-	/**
-	 * @return Distance from the image capture state.location to the camera
-	 */
-//	public float getCaptureDistance()       // Find distance from camera to media capture location
-//	{
-//		PVector camLoc = viewerState.getLocation();
-//		float distance = PVector.dist(mState.captureLocation, camLoc);     
-//		return distance;
-//	}
 
 	/**
 	 * @return How far the image capture state.location is from a point
@@ -904,7 +894,7 @@ public abstract class WMV_Media
 	 */
 	public float getTime()
 	{
-		return time.getTime();
+		return time.getAbsoluteTime();
 	}
 
 	public ZonedDateTime getUTCZonedDateTime()

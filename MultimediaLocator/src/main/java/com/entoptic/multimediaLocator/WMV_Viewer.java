@@ -3611,9 +3611,9 @@ public class WMV_Viewer
 		{
 			state.fadingToTime = true;
 			state.timeTransitionStartID = startID;		// Distance covered over one frame during GPS track transition 
-			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getLower().getTime();
+			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getLower().getAbsoluteTime();
 			state.timeTransitionGoalID = goalID;								// Distance covered over one frame during GPS track transition 
-			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getLower().getTime();
+			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getLower().getAbsoluteTime();
 			state.timeTransitionStartFrame = p.ml.frameCount;
 			state.timeTransitionEndFrame = p.ml.frameCount + state.timeTransitionLength;
 		}
@@ -4795,7 +4795,7 @@ public class WMV_Viewer
 						}
 						else if(state.currentFieldTimeSegment != -1)
 						{
-							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getTime();
+							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getAbsoluteTime();
 							p.setCurrentTime(goalTime, true, true);
 						}
 						else
@@ -4808,7 +4808,7 @@ public class WMV_Viewer
 					{
 						if(state.currentFieldTimeSegment != -1)
 						{
-							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getTime();
+							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getAbsoluteTime();
 							p.setCurrentTime(goalTime, true, true);
 						}
 					}

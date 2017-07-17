@@ -582,7 +582,7 @@ public class WMV_Sound extends WMV_Media
 		{
 			time = new WMV_Time();
 			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 3, getAssociatedClusterID(), metadata.timeZone );
-			System.out.println("Sound.initializeTime()... Initialized #"+getID()+" date / time from metadata dateTime... Hour:" + time.getHour()+" Min.:" + time.getMinute()+" Norm: "+time.getTime());
+			System.out.println("Sound.initializeTime()... Initialized #"+getID()+" date / time from metadata dateTime... Hour:" + time.getHour()+" Min.:" + time.getMinute()+" Norm: "+time.getAbsoluteTime());
 		}
 	}
 

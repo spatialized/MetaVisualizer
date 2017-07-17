@@ -165,11 +165,12 @@ public class ML_Input
 				switch(world.state.timeMode)
 				{
 					case 0:														// Cluster
-						world.setAllClustersTimeCycleLength(slider.getValueI());
+						world.setClusterTimeCycleLength(slider.getValueI());
 						break;
 					case 1:														// Field
-						world.settings.timeCycleLength = slider.getValueI();
-						world.settings.timeInc = world.settings.timeCycleLength / 30.f;			
+						world.setFieldTimeCycleLength(slider.getValueI());
+//						world.settings.timeCycleLength = slider.getValueI();
+//						world.settings.timeInc = world.settings.timeCycleLength / 30.f;			
 						break;
 					case 2:														// Media
 						break;
@@ -179,7 +180,7 @@ public class ML_Input
 			}
 
 			if (slider.tag == "CurrentTime") 
-				world.setCurrentTime(slider.getValueF());
+				world.setCurrentTime(slider.getValueF(), false, false);
 			
 			if (slider.tag == "ClusterLength") 
 				world.settings.clusterLength = slider.getValueF();
@@ -383,10 +384,10 @@ public class ML_Input
 	
 					/* Model */
 					case "SubjectDistanceDown":
-						ml.world.getCurrentField().fadeObjectDistances(1.176f);
+						ml.world.getCurrentField().fadeObjectDistances(0.85f);
 						break;
 					case "SubjectDistanceUp":
-						ml.world.getCurrentField().fadeObjectDistances(0.85f);
+						ml.world.getCurrentField().fadeObjectDistances(1.176f);
 						break;
 		
 					/* Help */

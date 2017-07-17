@@ -369,10 +369,12 @@ public class ML_KeyboardControls
 			ml.world.viewer.lookAtNearestMedia();
 
 		if (key == '_') 
-			ml.world.getCurrentField().fadeObjectDistances(1.176f);
+			ml.world.getCurrentField().fadeObjectDistances(0.85f);
+//			ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
 		if (key == '+')
-			ml.world.getCurrentField().fadeObjectDistances(0.85f);
+			ml.world.getCurrentField().fadeObjectDistances(1.176f);
+//			ml.world.getCurrentField().fadeObjectDistances(0.85f);
 		
 		if (!input.optionKey && key == ']') {
 			float value = ml.world.settings.altitudeScalingFactor * 1.052f;

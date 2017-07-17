@@ -7,16 +7,19 @@ package main.java.com.entoptic.multimediaLocator;
  */
 public class ML_SystemState 
 {
+	/* Advanced Mode */
+	public boolean advanced = true;				// Advanced Mode
+	
 	/* General */
 	public boolean startup = true;				// Startup frame
 	public boolean running = false;				// Whether simulation is running
 	public boolean startedRunning = false;		// Program just started running
-	public int framesSinceStart = 0;			// Frames since simulation start
+	public int framesSinceStart = 0;				// Frames since simulation start
 	public boolean singleField = false;							// Loaded single field of a library
 
 	public boolean reset = false;				// Whether program was recently reset
-	public boolean exit = false;				// System message to exit the program
-	public boolean hints = true;				// Whether to show hints		-- Used?
+	public boolean exit = false;					// System message to exit the program
+	public boolean hints = true;					// Whether to show hints		-- Used?
 
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder

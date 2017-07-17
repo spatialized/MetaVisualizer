@@ -1,6 +1,6 @@
 package main.java.com.entoptic.multimediaLocator;
 
-import processing.core.PVector;
+//import processing.core.PVector;
 
 /*********************************
  * Viewer settings
@@ -21,7 +21,7 @@ public class WMV_ViewerSettings
 	public float userBrightness = 1.f;								// User brightness
 
 	/* Media */
-	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
+	public final float defaultFocusDistance = 10.0f;			// Default focus distance for images and videos (m.)
 	public boolean orientationMode = false;					// Viewer "moves" by standing still (images fade in and out across space)
 	public boolean angleFading = true;						// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible

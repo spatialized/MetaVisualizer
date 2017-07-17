@@ -12,14 +12,14 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 {
 	public int cameraModel;                 	// Camera model
 	public float brightness;					// Image brightness
-	public float theta = 0;                		// Compass direction (in Degrees N)
+	public float theta = 0;                	// Compass direction (in Degrees N)
 
-	public int imageWidth, imageHeight;			// Image width and height
+	public int imageWidth, imageHeight;		// Image width and height
 	public float phi;			        		// Image elevation angle (Y-axis rotation in degrees N)
-	public float orientation;              		// Image orientation  {0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped]}
+	public float orientation;              	// Image orientation  {0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped]}
 	public float rotation;				    	// Image rotation angle (Z-axis rotation in degrees)
-	public float focusDistance; 	 			// Image viewing distance (rarely given in metadata)
-	public float focalLength = 0; 				// Camera focal length (Zoom Level)
+	public float focusDistance; 	 			// Image focus (viewing) distance 	-- Absent in fixed focal length lenses, i.e. iPhones
+	public float focalLength = 0; 			// Camera focal length (Zoom Level)
 	public float sensorSize;					// Approx. size of sensor in mm.
 	
 	/**

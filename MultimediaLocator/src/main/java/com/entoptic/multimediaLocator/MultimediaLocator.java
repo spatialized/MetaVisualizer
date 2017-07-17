@@ -657,7 +657,6 @@ public class MultimediaLocator extends PApplet
 	{
 		if(debug.ml) systemMessage("ML.restart()... Restarting...");
 
-//		display.window.hideWindows();							// Hide open windows
 		display.disableLostFocusHook = true;
 		display.window.closeAllWindows();
 

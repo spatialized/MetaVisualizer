@@ -17,7 +17,7 @@ public class WMV_ViewerState
 	/* Time */
 	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
-	public int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
+	public int currentFieldTimeSegmentWithDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline
 	
 	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
@@ -26,6 +26,14 @@ public class WMV_ViewerState
 	public boolean followCurrentMediaInTime = false;	// In Single Time Mode, whether to turn and look at current media  -- bugs
 	public int nearbyClusterTimelineMediaCount = 0;		// Number of media in nearbyClusterTimeline
 	
+	public boolean fadingToTime = false;							// Whether in time fading transition
+	public int timeTransitionStartID = -1;						// Time transition start segment ID
+	public float timeTransitionStartTimePoint = 0.f;						// Time transition goal segment ID
+	public int timeTransitionGoalID = -1;						// Time transition goal segment ID
+	public float timeTransitionGoalTimePoint = 0.f;						// Time transition goal segment ID
+	public final int timeTransitionLength = 30;					// Frame length of time transition
+	public int timeTransitionStartFrame, timeTransitionEndFrame;	// Time transition start / end frame
+
 	/* Navigation */
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	public boolean movingToCluster = false;				// Moving to cluster 
@@ -177,7 +185,7 @@ public class WMV_ViewerState
 		clusterOrientations = new ArrayList<WMV_Orientation>();
 
 		currentFieldTimeSegment = 0;			// Current time segment in field timeline
-		currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
+		currentFieldTimeSegmentWithDate = 0;		// Current time segment in field timelines
 		currentFieldDate = 0;					// Current date in field dateline
 		
 		currentMedia = -1;						// In Single Time Mode, media index currently visible
@@ -185,6 +193,12 @@ public class WMV_ViewerState
 		nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
 		followCurrentMediaInTime = false;				// In Single Time Mode, whether to turn and look at current media  -- bugs
 		nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
+		
+		fadingToTime = false;						// Whether in time fading transition
+		timeTransitionStartID = -1;						// Time transition start segment ID
+		timeTransitionGoalID = -1;							// Time transition goal segment ID
+		timeTransitionStartFrame = -1; 
+		timeTransitionEndFrame = -1;			// Time transition start / end frame
 	}
 
 	/**

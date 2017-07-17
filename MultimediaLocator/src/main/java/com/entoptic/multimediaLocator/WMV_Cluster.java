@@ -993,6 +993,106 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		}
 		return force; 								// Return force to be applied
 	}
+	
+	/**
+	 * Get associated media time closest to given cluster time point
+	 * @param timePoint Cluster time point 
+	 * @param withinTimeline If true, return null if time point lies outside cluster timeline. If false, return closest time even if outside cluster timeline.
+	 * @return Closest time to given time point
+	 */
+	public WMV_Time getClosestTimeToClusterTime( float timePoint )
+	{
+		float nearestDist = 100.f;
+		int nearestID = -1;
+		WMV_Time nearest = null;
+
+		if(timePoint < 0.f)
+			return null;
+		if(timePoint > 1.f)
+			return null;
+		
+		float lower = state.timeline.getLower().getLower().getTime();
+		float upper = state.timeline.getUpper().getUpper().getTime();
+		float absoluteTime = utilities.mapValue(timePoint, 0.f, 1.f, lower, upper);		// Cluster time as absolute time
+
+		System.out.println("Cluster.getClosestTimeToClusterTime()... timePoint:"+timePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
+		
+		for(WMV_TimeSegment ts : state.timeline.timeline)			// Find closest cluster time to given cluster time
+		{
+			for(WMV_Time t : ts.getTimeline())
+			{
+				float dist = Math.abs(t.getTime() - absoluteTime);
+				if(dist < nearestDist)
+				{
+					nearestID = t.getID();
+					nearestDist = dist;
+				}
+			}
+		}
+		
+		if(nearestDist == 100.f || nearestID == -1)
+		{
+			if(debug.time)
+				System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			return null;
+		}
+		else
+		{
+			if(debug.time)
+				System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			return nearest;
+		}
+	}
+
+	/**
+	 * Get associated media time closest to given field time point
+	 * @param timePoint Field time point 
+	 * @param withinTimeline If true, return null if time point lies outside cluster timeline. If false, return closest time even if outside cluster timeline.
+	 * @return Closest time to given time point
+	 */
+	public WMV_Time getClosestTimeToFieldTime( float timePoint, boolean withinTimeline )
+	{
+		float nearestDist = 100.f;
+		int nearestID = -1;
+		WMV_Time nearest = null;
+
+		float lower = state.timeline.getLower().getLower().getTime();
+		float upper = state.timeline.getUpper().getUpper().getTime();
+
+		if(withinTimeline)
+		{
+			if(timePoint < lower)
+				return null;
+			if(timePoint > upper)
+				return null;
+		}
+		
+		for(WMV_TimeSegment ts : state.timeline.timeline)				// Find closest cluster time to given field time
+		{
+			for(WMV_Time t : ts.getTimeline())
+			{
+				float dist = Math.abs(t.getTime() - timePoint);
+				if(dist < nearestDist)
+				{
+					nearestID = t.getID();
+					nearestDist = dist;
+				}
+			}
+		}
+		
+		if(nearestDist == 100.f || nearestID == -1)
+		{
+			if(debug.time)
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			return null;
+		}
+		else
+		{
+			if(debug.time)
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getTime());
+			return nearest;
+		}
+	}
 
 	/**
 	 * @param anyDate Whether to use date-independent timeline (true) or last date (false)
@@ -1103,9 +1203,47 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		cluster.empty();																/* Empty merged cluster */
 	}
 
-	public void setTimePoint(float newTimePoint)
+	/**
+	 * Set cluster time from given field time 
+	 * @param newFieldTimePoint
+	 */
+	public void setCurrentTimeFromFieldTime(float newFieldTimePoint)
+	{
+		float newTimePoint;
+		float lower = state.timeline.getLower().getLower().getTime();
+		float upper = state.timeline.getUpper().getUpper().getTime();
+		
+		if(newFieldTimePoint > lower && newFieldTimePoint < upper)
+		{
+			newTimePoint = (int) utilities.mapValue(newFieldTimePoint, lower, upper, 0.f, state.timeCycleLength);
+			setCurrentTime( newTimePoint );
+			if(debug.cluster || debug.time)
+			{
+				System.out.println("Cluster.setCurrentTimeFromFieldTime()... id #"+getID()+" newFieldTimePoint:"+newFieldTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTime()+" lower:"+lower+" upper:"+upper);
+			}
+		}
+		else
+		{
+			setCurrentTime( 0.f );
+		}
+	}
+
+	/**
+	 * Set time point within cluster time cycle
+	 * @param newTimePoint New time point
+	 */
+	public void setCurrentTime(float newTimePoint)
 	{
 		state.currentTime = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, state.timeCycleLength);
+	}
+
+	/**
+	 * Get current time point
+	 * @return
+	 */
+	public float getCurrentTime()
+	{
+		return state.currentTime;
 	}
 	
 	/** 

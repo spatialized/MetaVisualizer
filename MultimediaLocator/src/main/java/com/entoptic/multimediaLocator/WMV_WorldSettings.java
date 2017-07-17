@@ -10,21 +10,20 @@ public class WMV_WorldSettings
 	public boolean screenMessagesOn = true;						// Show screen messages
 	
 	/* Model */
-	public boolean divideFields = false;						// Attempt to divide fields when loading?
+	public boolean divideFields = false;							// Whether to attempt to divide fields when loading
 	
 	public boolean copyLargeImageFiles = false;
 	public boolean copyLargeVideoFiles = false;
 	
-	public final float defaultFocusDistance = 9.0f;				// Default focus distance for images and videos (m.)
-	public final float defaultAltitudeScalingFactor = 0.33f;	// Adjust altitude for ease of viewing
+	public final float defaultFocusDistance = 10.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
+	public final float defaultAltitudeScalingFactor = 1.5f;		// Adjust altitude for ease of viewing
 	public float subjectSizeRatio = 0.18f;						// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public final float panoramaFocusDistanceFactor = 1.1f;		// Scaling from defaultFocusDistance to panorama radius
 	public final float videoFocusDistanceFactor = 0.8f;			// Scaling from defaultFocusDistance to video focus distance
 
-	public boolean altitudeScaling = true;						// Scale media height by altitude (m.) EXIF field 
+	public boolean altitudeScaling = true;								// Scale media height by altitude (m.) EXIF field 
 	public final float altitudeScalingFactorMax = 4.f;					// Adjust altitude for ease of viewing
-	public float altitudeScalingFactor = 2.f;					// Adjust altitude for ease of viewing
-	public final float altitudeScalingFactorInit = 0.33f;		
+	public float altitudeScalingFactor = defaultAltitudeScalingFactor;	// Adjust altitude for ease of viewing
 
 	public float kMeansClusteringEpsilon = 0.005f;				// If no clusters move farther than this threshold, stop cluster refinement
 	public final float clusterCenterSize = 1.f;					// Size of cluster center, where autoNavigation stops
@@ -63,7 +62,6 @@ public class WMV_WorldSettings
 	public boolean depthTesting = false;						// Enable depth testing		-- Not recommended
 	
 	/* Time */
-	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API
 	public int timeCycleLength = 250;						// Length of main time loop in frames
 	final public int defaultTimeCycleLength = 250;			// Default length of main time loop in frames
 	
@@ -79,6 +77,7 @@ public class WMV_WorldSettings
 	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
 	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
+	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled
 
 	/* Video */
 	public final float videoMaxVolume = 0.85f;				// Maximum video volume

@@ -1158,18 +1158,18 @@ class WMV_Metadata
 				{
 					ml.systemMessage(" Parsed image longitude Ref:"+sLongitudeRef);
 					ml.systemMessage(" Parsed image latitude Ref:"+sLatitudeRef);
+					if(sAltitudeRef != null)
+						ml.systemMessage(" Found image altitude Ref:"+sAltitudeRef);
+					else
+						ml.systemMessage(" Metadata.loadImageMetadata()... ERROR: No altitude Ref found!:"+sAltitudeRef);
 				}
 				
-				if(sAltitudeRef != null)
-					ml.systemMessage(" Found image altitude Ref:"+sAltitudeRef);
-				else
-					ml.systemMessage(" Metadata.loadImageMetadata()... ERROR: No altitude Ref found!:"+sAltitudeRef);
 				
 				xCoord = parseLongitude(sLongitude, sLongitudeRef);
 				yCoord = parseAltitude(sAltitude, sAltitudeRef);
 				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
-				ml.systemMessage("Called Metadata.parseAltitude()... sAltitudeRef:"+sAltitudeRef+" sAltitude:"+sAltitude+" yCoord:"+yCoord);
+//				ml.systemMessage("Called Metadata.parseAltitude()... sAltitudeRef:"+sAltitudeRef+" sAltitude:"+sAltitude+" yCoord:"+yCoord);
 
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
@@ -1456,10 +1456,11 @@ class WMV_Metadata
 				yCoord = parseAltitude(sAltitude, sAltitudeRef);
 				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
-				if(ml.debug.gps && ml.debug.detailed)
+				if((ml.debug.gps || ml.debug.panorama) && ml.debug.detailed)
 				{
-					ml.systemMessage("  Parsed longitude Ref:"+sLongitudeRef);
-					ml.systemMessage("  Parsed latitude Ref:"+sLatitudeRef);
+					ml.systemMessage(">  Parsed panorama longitude Ref:"+sLongitudeRef);
+					ml.systemMessage(">  Parsed panorama latitude Ref:"+sLatitudeRef);
+					ml.systemMessage(">  Parsed panorama altitude Ref:"+sAltitudeRef);
 				}
 				
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
@@ -1980,7 +1981,10 @@ class WMV_Metadata
 		String[] parts = inputAltitudeRef.split("-");
 		String altRef = parts[1].trim();
 		
-		return altRef;
+		if(altRef.equals("Sea level") || altRef.equals("Sea Level") || altRef.equals("sea level"))
+			return "Above sea level";
+		else
+			return altRef;
 	}
 
 	/**
@@ -2314,9 +2318,9 @@ class WMV_Metadata
 		
 //		System.out.println("Metadata.parseAltitude()... altRef:"+altRef+"...");
 		
-		if(altitudeRef.equals("Above sea level") || altitudeRef.equals("Above Sea Level"))
+		if(altitudeRef.equals("Above sea level") || altitudeRef.equals("Above Sea Level") || altitudeRef.equals("Above Sea level"))
 			return altitude;
-		else if(altitudeRef.equals("Below sea level") || altitudeRef.equals("Below Sea Level"))
+		else if(altitudeRef.equals("Below sea level") || altitudeRef.equals("Below Sea Level") || altitudeRef.equals("Below Sea level"))
 			return -altitude;							// Flip sign if Below sea level
 		else
 			ml.systemMessage("Metadata.parseAltitude()... Unrecognized altitude ref:"+altitudeRef);

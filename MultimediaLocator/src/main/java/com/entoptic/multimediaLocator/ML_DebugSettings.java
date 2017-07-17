@@ -7,7 +7,7 @@ package main.java.com.entoptic.multimediaLocator;
 public class ML_DebugSettings 
 {
 	/* Debug Mode */
-	public boolean detailed = false;				// Verbose Debug Mode On/Off
+	public boolean detailed = true;				// Verbose Debug Mode On/Off
 	
 	/* Output Methods */
 	public boolean print = true;					// Print all user messages
@@ -17,8 +17,9 @@ public class ML_DebugSettings
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
 	public boolean world = true;				// Debug WMV_World and WMV_Field classes
-	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean library = false;				// Debug library and file handling
+	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean time = true;					// Debug time behavior
 	public boolean gps = false;					// Debug WMV_Viewer class
 	
 	/* Memory */
@@ -28,14 +29,13 @@ public class ML_DebugSettings
 	public boolean mouse = false;				// Debug mouse interaction
 	
 	/* Model */
-	public boolean metadata = false;				// Debug WMV_Metadata class
+	public boolean metadata = true;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
-	public boolean time = false;					// Debug time behavior
 	
 	/* Media */
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
-	public boolean panorama = false;				// Debug WMV_Panorama class
+	public boolean panorama = true;				// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	

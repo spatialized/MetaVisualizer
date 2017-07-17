@@ -207,6 +207,75 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Update transition from one field time segment to another
+	 */
+	public void updateTimeTransition()
+	{
+		if(p.ml.frameCount >= state.timeTransitionEndFrame)
+		{
+
+			state.fadingToTime = false;
+			state.currentFieldTimeSegment = state.timeTransitionGoalID;
+			
+			if(p.ml.debug.time) 
+				p.ml.systemMessage("Viewer.updateTimeTransition()... Reached End Time Point: "+state.timeTransitionGoalTimePoint);
+			
+			p.setCurrentTime(state.timeTransitionGoalTimePoint, true, true);
+			
+			if(p.ml.debug.time)
+				p.ml.systemMessage("Viewer.updateTimeTransition()... New Current Time: "+p.getCurrentTime());
+
+			state.timeTransitionStartID = -1;		 
+			state.timeTransitionStartTimePoint = 0.f;		 
+			state.timeTransitionGoalID = -1;				 
+			state.timeTransitionGoalTimePoint = 0.f;				 
+			state.timeTransitionStartFrame = -1;
+		}
+		else
+		{
+			float startTimePoint, endTimePoint;
+			
+			startTimePoint = state.timeTransitionStartTimePoint;
+			endTimePoint = state.timeTransitionGoalTimePoint;
+			
+			float timePoint = p.utilities.mapValue( p.ml.frameCount, state.timeTransitionStartFrame, state.timeTransitionEndFrame, 
+												   startTimePoint, endTimePoint );	
+			
+//			if(p.ml.debug.time) p.ml.systemMessage("Viewer.updateTimeTransition()... timePoint:"+timePoint);
+			
+			p.setCurrentTime(timePoint, true, true);
+		}
+			
+//		state.timeTransitionEndFrame = p.ml.frameCount + state.timeTransitionLength;
+	}
+	
+	/**
+	 * Set time point based on current Time Mode
+	 * @param newTimePoint
+	 */
+//	public void setCurrentTime(float newTimePoint)
+//	{
+//		switch(state.timeMode)
+//		{
+//			case 0:													// Cluster Time Mode
+//				for(WMV_Cluster c : getVisibleClusters())
+//					if(c.getState().timeFading)
+//						c.setTimePoint(newTimePoint);
+//				break;
+//			
+//			case 1:													// Field Time Mode
+//				setFieldTimePoint(newTimePoint);
+//				break;
+//
+//			case 2:													// (Single) Media Time Mode
+//				break;
+//				
+//			case 3:													// Flexible Time Mode -- In progress
+//				break;
+//		}
+//	}
+	
+	/**
 	 * Move to the given image capture location
 	 * @imageID Specified image
 	 * @param teleport  Whether to teleport (true) or navigate (false)
@@ -678,7 +747,7 @@ public class WMV_Viewer
 	 * @param fieldTimeSegment Index of time segment in field timeline to move to
 	 * @param teleport Whether to teleport or move
 	 */
-	void moveToTimeSegmentInField(int fieldID, int fieldTimeSegment, boolean teleport, boolean fade)
+	public void moveToTimeSegmentInField(int fieldID, int fieldTimeSegment, boolean teleport, boolean fade)
 	{
 		WMV_Field f = p.getField(fieldID);
 
@@ -686,16 +755,17 @@ public class WMV_Viewer
 		{
 			if(debug.viewer && debug.detailed)
 				p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
+			
 			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
 			
 			if(debug.viewer)
 				p.ml.systemMessage("Viewer.moveToTimeSegmentInField()...  Found clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
-
-			if(clusterID >= 0)
+			
+			if( clusterID >= 0 && clusterID < f.getClusters().size() )
 			{
 				if(clusterID == state.currentCluster && p.getCurrentField().getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 				{
-					setCurrentFieldTimeSegment(fieldTimeSegment, true);
+					setCurrentFieldTimeSegment(fieldTimeSegment, true, true, true);
 					if(debug.viewer && debug.detailed)
 						p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 				}
@@ -727,8 +797,8 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(debug.viewer)
-					p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is "+clusterID+"!! Will move to cluster 0...");
+				if(debug.viewer) p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is "+clusterID+"!! Will move to cluster 0...");
+
 				teleportToCluster(0, fade, 0);
 			}
 		}
@@ -876,10 +946,9 @@ public class WMV_Viewer
 	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
 	{
 		chooseNextTimeSegment(currentDate);
-		moveToTimeSegmentInField(getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade);
+		moveToTimeSegmentInField( getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade );
 	}
 	
-
 	/**
 	 * Teleport viewer to the given cluster ID
 	 * @param dest Destination cluster ID
@@ -917,7 +986,6 @@ public class WMV_Viewer
 	/**
 	 * Teleport to field by offset from current
 	 * @param offset Field index offset
-	 * @param moveToFirstTimeSegment Whether to move to first time segment in field
 	 * @param fade Whether to fade smoothly or jump
 	 */
 	public void teleportToFieldOffset(int offset, boolean fade) 
@@ -929,7 +997,6 @@ public class WMV_Viewer
 	/**
 	 * Teleport to given field ID
 	 * @param newField Field ID
-	 * @param moveToFirstTimeSegment Whether to move to first time segment in field
 	 * @param fade Whether to fade smoothly or jump
 	 */
 	public void teleportToField(int newField, boolean fade) 
@@ -1052,17 +1119,17 @@ public class WMV_Viewer
 	 */
 	private void chooseNextTimeSegment(boolean currentDate)
 	{
-		if(currentDate)
+		if(currentDate)		// On current date
 		{
-			int newValue = state.currentFieldTimeSegmentOnDate+1;
+			int newValue = state.currentFieldTimeSegmentWithDate+1;
 			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())								// Past dateline end
 			{
 				state.currentFieldDate = 0;
-				state.currentFieldTimeSegmentOnDate = 0;
+				state.currentFieldTimeSegmentWithDate = 0;
 				p.ml.systemMessage( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
 									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
 			}
-			else
+			else				
 			{
 				if(newValue >= p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()) 	// Reached end of day
 				{
@@ -1072,7 +1139,7 @@ public class WMV_Viewer
 					{
 						if(debug.viewer) p.ml.systemMessage("Reached end of year...");
 						state.currentFieldDate = 0;
-						setCurrentFieldTimeSegmentOnDate(0, true);												// Return to first segment
+						setCurrentFieldTimeSegmentWithDate(0, true, true, true);											// Return to first segment
 					}
 					else
 					{
@@ -1083,18 +1150,20 @@ public class WMV_Viewer
 								state.currentFieldDate = 0;
 						}
 						if(debug.viewer) p.ml.systemMessage("Moved to next date: "+state.currentFieldDate);
-						setCurrentFieldTimeSegmentOnDate(0, true);												// Start at first segment
+						setCurrentFieldTimeSegmentWithDate(0, true, true, true);											// Start at first segment
 					}
 				}
 				else
-					setCurrentFieldTimeSegmentOnDate(newValue, true);
+				{
+					setCurrentFieldTimeSegmentWithDate(newValue, true, true, true);
+				}
 			}
 		}
-		else
+		else				// On any date
 		{
-			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
+			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true, true, true);
 			if(state.currentFieldTimeSegment >= p.getCurrentField().getTimeline().timeline.size())
-				setCurrentFieldTimeSegment(0, true);									// Return to first segment
+				setCurrentFieldTimeSegment(0, true, true, true);									// Return to first segment
 		}
 	}
 	
@@ -1117,13 +1186,13 @@ public class WMV_Viewer
 	 */
 	private void choosePreviousTimeSegment(boolean currentDate)
 	{
-		if(currentDate)
+		if(currentDate)			// On current date
 		{
-			int newValue = state.currentFieldTimeSegmentOnDate-1;
+			int newValue = state.currentFieldTimeSegmentWithDate-1;
 			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())
 			{
 				state.currentFieldDate = 0;
-				state.currentFieldTimeSegmentOnDate = 0;
+				state.currentFieldTimeSegmentWithDate = 0;
 				p.ml.systemMessage("--> Current field date reset!... was greater than timelines.size(): "
 								+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
 			}
@@ -1135,24 +1204,26 @@ public class WMV_Viewer
 					if(state.currentFieldDate < 0) 
 					{
 						state.currentFieldDate = p.getCurrentField().getDateline().size()-1;			// Go to last date
-						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
+						setCurrentFieldTimeSegmentWithDate( p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1,
+														 true, true, true );		// Go to last segment
 					}
 					else
 					{
-						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
+						setCurrentFieldTimeSegmentWithDate( p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, 
+														 true, true, true );		// Start at last segment
 					}
 				}	
 				else
 				{
-					setCurrentFieldTimeSegmentOnDate(newValue, true);
+					setCurrentFieldTimeSegmentWithDate( newValue, true, true, true );
 				}
 			}
 		}
-		else
+		else					// On any date
 		{
-			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
+			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true, true, true);
 			if(state.currentFieldTimeSegment < 0)
-				setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().timeline.size()-1, true);
+				setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().timeline.size()-1, true, true, true);
 		}
 	}
 
@@ -2439,8 +2510,11 @@ public class WMV_Viewer
 					if(state.attractorCluster != getNearestCluster(true))		// -- Check if attractor cluster is nearest cluster
 						p.ml.systemMessage("Viewer.handleReachedAttractor()... WARNING: attractor cluster is: "+state.attractorCluster+" but nearest cluster is different:"+getNearestCluster(true));
 
-				if(state.movingToTimeSegment)
+				if(state.movingToTimeSegment)				// Moving to time segment in cluster
+				{
 					setCurrentCluster( state.attractorCluster, state.timeSegmentTarget );
+					WMV_TimeSegment ts;
+				}
 				else
 					setCurrentCluster( state.attractorCluster, -1 );
 
@@ -3182,6 +3256,14 @@ public class WMV_Viewer
 			if(path.size() > 0)
 			{
 				WMV_Cluster c = p.getCurrentCluster();
+				if(c == null)
+				{
+					int nearest = getNearestCluster(true);					// Get nearest cluster location, including current cluster
+					WMV_Cluster nearestCluster = p.getCurrentField().getCluster(nearest);
+					if(nearestCluster.getClusterDistance() > worldSettings.defaultFocusDistance)
+						c = nearestCluster;
+				}
+				
 				if(c != null)
 				{
 					state.following = true;
@@ -3249,9 +3331,9 @@ public class WMV_Viewer
 					if(p.getSettings().screenMessagesOn)
 						p.ml.display.message(p.ml, "Started Following Timeline...");
 				}
-				else p.ml.systemMessage("Viewer.startFollowingTimeline()... No current cluster!");
+				else p.ml.systemMessage("Viewer.startFollowingTimeline()... ERROR: No current cluster!");
 			}
-			else p.ml.systemMessage("Viewer.startFollowingTimeline()... No timeline points!");
+			else p.ml.systemMessage("Viewer.startFollowingTimeline()... ERROR: No timeline points!");
 		}
 	}
 
@@ -3518,6 +3600,39 @@ public class WMV_Viewer
 		state.gpsTrackTransitionStart = p.ml.frameCount;
 		state.gpsTrackTransitionEnd = p.ml.frameCount + state.gpsTrackTransitionLength;
 	}
+	
+	/**
+	 * Transition current time point to time of given time segment ID
+	 * @param goalID Goal time segment ID
+	 */
+	private void transitionToFieldTimelineID(int startID, int goalID)
+	{
+		if(startID != -1 && goalID != -1)
+		{
+			state.fadingToTime = true;
+			state.timeTransitionStartID = startID;		// Distance covered over one frame during GPS track transition 
+			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getLower().getTime();
+			state.timeTransitionGoalID = goalID;								// Distance covered over one frame during GPS track transition 
+			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getLower().getTime();
+			state.timeTransitionStartFrame = p.ml.frameCount;
+			state.timeTransitionEndFrame = p.ml.frameCount + state.timeTransitionLength;
+		}
+		else
+		{
+			p.ml.systemMessage("Viewer.transitionToFieldTimelineID()... ERROR startID:"+startID+" goalID:"+goalID);
+		}
+	}
+	
+//	private void transitionToFieldTimelinesID(int goalID)
+//	{
+////		public PVector timeTransitionStartID;						// Distance covered over one frame during GPS track transition 
+////		public PVector timeTransitionGoalID;							// Distance covered over one frame during GPS track transition 
+////		public final int timeTransitionLength;						// Frame length of GPS track transition
+////		public int timeTransitionStartFrame, timeTransitionEndFrame;	// GPS track transition start / end frame
+//
+//		state.timeTransitionStartID = ;									// Distance covered over one frame during GPS track transition 
+//		state.timeTransitionGoalID = goalID;								// Distance covered over one frame during GPS track transition 
+//	}
 	
 	/**
 	 * Choose GPS track from list and set to selected
@@ -3996,8 +4111,8 @@ public class WMV_Viewer
 		}
 	}
 	/**
-	 * Move to first time segment in field
-	 * @param ignoreDate Move to first time segment regardless of date
+	 * Move to cluster whose associated media contains first time segment in field
+	 * @param ignoreDate Move to first time segment (i.e. earliest time) on any date
 	 * @return Whether succeeded
 	 */
 	public boolean moveToFirstTimeSegment(boolean ignoreDate)
@@ -4006,7 +4121,7 @@ public class WMV_Viewer
 		if(ignoreDate)
 		{
 			if(debug.viewer) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Moving to first time segment on any date");
-			moveToTimeSegmentInField(getCurrentFieldID(), 0, true, true);		// Move to first time segment in field
+			moveToTimeSegmentInField( getCurrentFieldID(), 0, true, true );		// Move to first time segment in field
 			return true;
 		}		
 		else
@@ -4016,7 +4131,7 @@ public class WMV_Viewer
 			boolean success = false;
 			while(!success)
 			{
-				success = setCurrentTimeSegmentAndDate(0, newDate, true);
+				success = setCurrentTimeSegmentAndDate( 0, newDate, true, true );
 				if(success)
 					break;
 				else
@@ -4029,9 +4144,9 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				if(debug.viewer && debug.detailed) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
-				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
-				moveToTimeSegmentInField(getCurrentFieldID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
+				if(debug.viewer && debug.detailed) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentWithDate+" state.currentFieldDate:"+state.currentFieldDate);
+				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(state.currentFieldTimeSegmentWithDate, state.currentFieldDate).getFieldTimelineID();
+				moveToTimeSegmentInField( getCurrentFieldID(), curFieldTimeSegment, true, true );		// Move to first time segment in field
 			}
 			else if(debug.viewer)
 				p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
@@ -4568,9 +4683,9 @@ public class WMV_Viewer
 	/**
 	 * Set current cluster and current time segment
 	 * @param newCluster New current cluster
-	 * @param newFieldTimeSegment New time segment to set (-1 to ignore this parameter)
+	 * @param timeSegmentTarget New time segment to set (-1 to ignore this parameter)
 	 */
-	void setCurrentCluster(int newCluster, int newFieldTimeSegment)
+	void setCurrentCluster(int newCluster, int timeSegmentTarget)
 	{
 		if(newCluster >= 0 && newCluster < p.getCurrentField().getClusters().size())
 		{
@@ -4583,7 +4698,7 @@ public class WMV_Viewer
 			c = p.getCurrentCluster();
 			
 			if(debug.viewer && debug.detailed) 
-				p.ml.systemMessage("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+newFieldTimeSegment+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
+				p.ml.systemMessage("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+timeSegmentTarget+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
 			
 			if(c != null)
 			{
@@ -4591,21 +4706,21 @@ public class WMV_Viewer
 					c.getState().timeFading = true;						// Set cluster timeFading to true
 
 				WMV_Field f = p.getCurrentField();
-				if(newFieldTimeSegment == -1)							// If == -1, search for time segment
+				if(timeSegmentTarget == -1)							// If no time segment specified, search for first time segment
 				{
 					for(WMV_TimeSegment t : f.getTimeline().timeline)			// Search field timeline for cluster time segment
 					{
 						if(c.getTimeline() != null)
 						{
 							if(t.getFieldTimelineID() == f.getTimeSegmentInCluster(c.getID(), 0).getFieldTimelineID())			// Compare cluster time segment to field time segment
-								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
+								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true, true, true);
 						}
 						else p.ml.systemMessage("Current Cluster timeline is NULL!:"+c.getID());
 					}
 				}
 				else
 				{
-					setCurrentFieldTimeSegment(newFieldTimeSegment, true);
+					setCurrentFieldTimeSegment(timeSegmentTarget, true, true, true);
 					state.movingToTimeSegment = false;
 				}
 
@@ -4637,44 +4752,91 @@ public class WMV_Viewer
 	/**
 	 * Set current field timeline segment with option to adjust currentFieldTimelinesSegment
 	 * @param newCurrentFieldTimeSegment
+	 * @param updateTimelinesSegment
+	 * @param fade Whether to fade (true) or jump (false) to new time point	Note: only works when Time Fading is on (and paused)
+	 * @return Whether succeeded
 	 */
-	public boolean setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment, boolean updateTimelinesSegment )
+	public boolean setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment, boolean updateTimelinesSegment, boolean fade, boolean updateTime )
 	{
+		int lastFieldTimeSegment = state.currentFieldTimeSegment;
 		state.currentFieldTimeSegment = newCurrentFieldTimeSegment;
-		p.ml.display.updateCurrentSelectableTimeSegment = true;
-		boolean success = true;
-		
-//		if(debug.viewer && debug.detailed) p.ml.systemMessage("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
-		
-		if(updateTimelinesSegment)
+
+		if(lastFieldTimeSegment != state.currentFieldTimeSegment)
 		{
-			if(state.currentFieldTimeSegment != -1)
+			p.ml.display.updateCurrentSelectableTimeSegment = true;
+			boolean success = true;
+
+			//		if(debug.viewer && debug.detailed) p.ml.systemMessage("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
+
+			if(updateTimelinesSegment)
 			{
-				int newFieldDate = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldDateID();
-				int newFieldTimelinesSegment = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
-				success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
+				if(state.currentFieldTimeSegment != -1)
+				{
+					int newFieldDate = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldDateID();
+					int newFieldTimelinesSegment = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
+					success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false, false);
+				}
+				else
+					success = false;
+			}
+
+			if(updateTime)
+			{
+				if(p.state.timeFading && p.state.paused)
+				{
+					if(fade)
+					{
+						if(lastFieldTimeSegment != -1 && state.currentFieldTimeSegment != -1)
+						{
+							if(p.ml.debug.time)
+								p.ml.systemMessage("Viewer.setCurrentFieldTimeSegment()... Will transitionToFieldTimelineID()... lastFieldTimeSegment:"+lastFieldTimeSegment+" state.currentFieldTimeSegment:"+state.currentFieldTimeSegment);
+
+							transitionToFieldTimelineID(lastFieldTimeSegment, state.currentFieldTimeSegment);
+						}
+						else if(state.currentFieldTimeSegment != -1)
+						{
+							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getTime();
+							p.setCurrentTime(goalTime, true, true);
+						}
+						else
+						{
+							if(p.ml.debug.time)
+								p.ml.systemMessage("Viewer.setCurrentFieldTimeSegment()... Couldn't update time... lastFieldTimeSegment:"+lastFieldTimeSegment+" state.currentFieldTimeSegment:"+state.currentFieldTimeSegment);
+						}
+					}
+					else
+					{
+						if(state.currentFieldTimeSegment != -1)
+						{
+							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getTime();
+							p.setCurrentTime(goalTime, true, true);
+						}
+					}
+				}
+			}
+
+			if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < p.getCurrentField().getTimeline().timeline.size())
+			{
+				return success;
 			}
 			else
-				success = false;
+			{
+				if(debug.viewer && debug.detailed)
+					p.ml.systemMessage("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+p.getCurrentField().getTimeline().timeline.size());
+				return false;
+			}
 		}
-		
-		if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < p.getCurrentField().getTimeline().timeline.size())
-			return success;
-		else
-		{
-			if(debug.viewer && debug.detailed)
-				p.ml.systemMessage("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+p.getCurrentField().getTimeline().timeline.size());
-			return false;
-		}
+		else return true;
 	}
 
 	/**
 	 * Set current field timelines segment with option to adjust currentFieldTimelineSegment
-	 * @param newCurrentFieldTimeSegmentOnDate
+	 * @param newCurrentFieldTimeSegmentWithDate
 	 * @param updateTimelineSegment Whether to update the current field time segment in date-specific timeline as well
-	 * @return True if succeeded
+	 * @param fade Whether to fade (true) or jump (false) to new time point
+	 * @return Whether succeeded
 	 */
-	public boolean setCurrentFieldTimeSegmentOnDate( int newCurrentFieldTimeSegmentOnDate, boolean updateTimelineSegment )
+	public boolean setCurrentFieldTimeSegmentWithDate( int newCurrentFieldTimeSegmentWithDate, boolean updateTimelineSegment, boolean fade, boolean updateTime )
 	{
 		if(p.getCurrentField().getTimelines() != null)
 		{
@@ -4694,18 +4856,18 @@ public class WMV_Viewer
 			p.ml.systemMessage("setCurrentFieldTimeSegmentOnDate() currentField.getTimelines() == null!!!");
 			return false;
 		}
-	
-		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
+		
+		state.currentFieldTimeSegmentWithDate = newCurrentFieldTimeSegmentWithDate;
 		p.ml.display.updateCurrentSelectableTimeSegment = true;
 
 		if(state.currentFieldDate < p.getCurrentField().getTimelines().size())
 		{
-			if(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size() > 0 && state.currentFieldTimeSegmentOnDate < p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size())
+			if(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size() > 0 && state.currentFieldTimeSegmentWithDate < p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size())
 			{
 				if(updateTimelineSegment)
 				{
-					int fieldTimelineID = p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.get(state.currentFieldTimeSegmentOnDate).getFieldTimelineID();
-					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false);
+					int fieldTimelineID = p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.get(state.currentFieldTimeSegmentWithDate).getFieldTimelineID();
+					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false, fade, updateTime);
 					return success;
 				}
 				else return true;
@@ -4724,10 +4886,10 @@ public class WMV_Viewer
 	 * @param updateTimelineSegment Whether to update the current field time segment in main timeline as well
 	 * @return
 	 */
-	public boolean setCurrentTimeSegmentAndDate(int newCurrentFieldTimelinesSegment, int newDate, boolean updateTimelineSegment)
+	public boolean setCurrentTimeSegmentAndDate(int newCurrentFieldTimelinesSegment, int newDate, boolean updateTimelineSegment, boolean updateTime)
 	{
 		state.currentFieldDate = newDate;
-		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
+		boolean success = setCurrentFieldTimeSegmentWithDate( newCurrentFieldTimelinesSegment, updateTimelineSegment, updateTime, updateTime );
 		return success;
 	}
 	
@@ -5533,7 +5695,7 @@ public class WMV_Viewer
 	 */
 	public int getCurrentFieldTimeSegmentOnDate()
 	{
-		return state.currentFieldTimeSegmentOnDate;
+		return state.currentFieldTimeSegmentWithDate;
 	}
 	
 	public void startMoveXTransition(int dir)

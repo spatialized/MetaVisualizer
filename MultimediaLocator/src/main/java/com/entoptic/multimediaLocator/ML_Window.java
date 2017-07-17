@@ -1072,8 +1072,7 @@ public class ML_Window
 		mediaWindow.setActionOnClose(GWindow.KEEP_OPEN);
 	
 		int x = 0, y = iTopMargin;
-		world.ml.delay(delayAmount);
-		world.ml.delay(delayAmount);
+		world.ml.delay(delayAmount * 2);
 
 		if(compressTallWindows) x = 115;
 		lblMedia = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Media");
@@ -1091,6 +1090,8 @@ public class ML_Window
 		lblGraphics.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		if(!compressTallWindows) lblGraphics.setTextAlign(GAlign.CENTER, null);
 		lblGraphics.setTextBold();
+
+		world.ml.delay(delayAmount / 2);
 
 		x = 90;
 		y += iMediumBoxHeight;
@@ -1117,6 +1118,8 @@ public class ML_Window
 		y += 30;
 		lblAlpha= new GLabel(mediaWindow, x, y, 90, iVerySmallBoxHeight, "Transparency");
 		lblAlpha.setLocalColorScheme(G4P.SCHEME_10);
+
+		world.ml.delay(delayAmount / 2);
 
 		x = 250;
 		chkbxAlphaMode = new GCheckbox(mediaWindow, x, y, 35, iVerySmallBoxHeight, "(;)");
@@ -1158,6 +1161,8 @@ public class ML_Window
 		y += 30;
 		lblAltitudeFactor = new GLabel(mediaWindow, x, y, 100, iVerySmallBoxHeight, "Altitude Factor");
 		lblAltitudeFactor.setLocalColorScheme(G4P.SCHEME_10);
+
+		world.ml.delay(delayAmount / 2);
 
 		x = 120;
 		y += 10;
@@ -1611,7 +1616,7 @@ public class ML_Window
 		sdrCurrentTime.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
 		sdrCurrentTime.setValue(0.f);
-		sdrCurrentTime.setValue(world.getCurrentTimePoint());
+		sdrCurrentTime.setValue(world.getCurrentTime() / world.getFieldTimeCycleLength());
 		sdrCurrentTime.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrCurrentTime.setEasing(0);
 		sdrCurrentTime.setShowValue(true);

@@ -28,9 +28,9 @@ public class WMV_ViewerState
 	
 	public boolean fadingToTime = false;							// Whether in time fading transition
 	public int timeTransitionStartID = -1;						// Time transition start segment ID
-	public float timeTransitionStartTimePoint = 0.f;						// Time transition goal segment ID
+	public float timeTransitionStartTimePoint = 0.f;				// Time transition start (absolute) time point {0.f - 1.f}
 	public int timeTransitionGoalID = -1;						// Time transition goal segment ID
-	public float timeTransitionGoalTimePoint = 0.f;						// Time transition goal segment ID
+	public float timeTransitionGoalTimePoint = 0.f;				// Time transition goal (absolute) time point {0.f - 1.f}
 	public final int timeTransitionLength = 30;					// Frame length of time transition
 	public int timeTransitionStartFrame, timeTransitionEndFrame;	// Time transition start / end frame
 

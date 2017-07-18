@@ -180,7 +180,7 @@ public class ML_Input
 			}
 
 			if (slider.tag == "SetCurrentTime") 
-				world.setCurrentTime(slider.getValueF(), world.state.getTimeMode() == 1, false);
+				world.setCurrentTime(slider.getValueF(), world.state.getTimeMode() == 1, false);		// Set current time relative to current Time Mode
 			
 			if (slider.tag == "ClusterLength") 
 				world.settings.clusterLength = slider.getValueF();

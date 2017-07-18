@@ -114,21 +114,21 @@ public abstract class WMV_Media
 
 		switch( worldState.getTimeMode() )
 		{
-			case 0:															// Time Mode: Cluster
-				curTime = c.getState().currentTime;									// Set image time from cluster
+			case 0:																		// Time Mode: Cluster
+				curTime = c.getState().currentTime;										// Set image time from cluster
 				lower = c.getTimeline().getLower().getLower().getAbsoluteTime();			// Get cluster timeline lower bound
 				upper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();			// Get cluster timeline upper bound
 			break;
 		
-			case 1:															// Time Mode: Field
+			case 1:																		// Time Mode: Field
 				curTime = worldState.getCurrentTimeCycleFrame();
-				lower = fieldTimeline.getLower().getLower().getAbsoluteTime();		// Check division					// Get cluster timeline lower bound
-				upper = fieldTimeline.getUpper().getUpper().getAbsoluteTime();		// Get cluster timeline upper bound
+				lower = fieldTimeline.getLower().getLower().getAbsoluteTime();			// Get field timeline lower bound
+				upper = fieldTimeline.getUpper().getUpper().getAbsoluteTime();			// Get field timeline upper bound
 				break;
 				
-			case 2:															// Time Mode: (Single) Media
-				curTime = worldState.getCurrentTimeCycleFrame();
-				break;
+//			case 2:																		// Time Mode: (Single) Media		-- Disabled (Obsolete)
+//				curTime = worldState.getCurrentTimeCycleFrame();
+//				break;
 		}
 		
 		if(worldState.getTimeMode() == 0 || worldState.getTimeMode() == 1)
@@ -228,18 +228,18 @@ public abstract class WMV_Media
 				}
 			}
 		}
-		else if(worldState.getTimeMode() == 2)
-		{
-			if(mState.isCurrentMedia)
-			{
-				fadeInStart = viewerState.getCurrentMediaStartTime();				// Frame media starts fading in
-				fadeInEnd = Math.round(fadeInStart + length / 4.f);		// Frame media reaches full state.brightness
-				fadeOutEnd = fadeInStart + worldSettings.defaultMediaLength;									// Frame media finishes fading out
-				fadeOutStart = Math.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
-			}
-			else
-				setTimeBrightness(0.f);
-		}
+//		else if(worldState.getTimeMode() == 2)
+//		{
+//			if(mState.isCurrentMedia)
+//			{
+//				fadeInStart = viewerState.getCurrentMediaStartTime();				// Frame media starts fading in
+//				fadeInEnd = Math.round(fadeInStart + length / 4.f);		// Frame media reaches full state.brightness
+//				fadeOutEnd = fadeInStart + worldSettings.defaultMediaLength;									// Frame media finishes fading out
+//				fadeOutStart = Math.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
+//			}
+//			else
+//				setTimeBrightness(0.f);
+//		}
 		
 		/* Calculate and set time brightness */
 		calculateAndSetTimeBrightness(curTime, worldSettings.timeCycleLength, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd);

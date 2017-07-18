@@ -304,17 +304,73 @@ public class WMV_World
 	}
 
 	/**
+	 * Set current time from given absolute time 
+	 * @param absoluteTimePoint Absolute time {0.f: midnight, 1.f: midnight the next day}
+	 */
+	public void setCurrentTimeFromAbsolute(float absoluteTimePoint, boolean updateSliders)
+	{
+		if(state.getTimeMode() == 0)					// Cluster Mode
+		{
+			WMV_Cluster c = getCurrentCluster();
+			if(c != null)
+			{
+				float lower = getCurrentCluster().getTimeline().getLower().getLower().getAbsoluteTime();		// Cluster lowest absolute time 
+				float upper = getCurrentCluster().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Cluster highest absolute time 
+				float clusterTimePoint = ml.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to cluster
+				if(ml.debug.time) ml.systemMessage("World.setCurrentTimeFromAbsolute()... absoluteTimePoint:"+absoluteTimePoint+" result clusterTimePoint:"+clusterTimePoint);
+
+				setCurrentTime(clusterTimePoint, false, updateSliders);
+			}
+		}
+		else											// Field Mode
+		{
+			float lower = getCurrentField().getTimeline().getLower().getLower().getAbsoluteTime();		// Field lowest absolute time 
+			float upper = getCurrentField().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Field highest absolute time 
+			float fieldTimePoint = ml.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to field
+			if(ml.debug.time) ml.systemMessage("World.setCurrentTimeFromAbsolute()... absoluteTimePoint:"+absoluteTimePoint+" result fieldTimePoint:"+fieldTimePoint);
+
+			setCurrentTime(fieldTimePoint, true, updateSliders);
+		}
+	}
+
+	/**
+	 * Get field time from given absolute time 
+	 * @param absoluteTimePoint Absolute time {0.f: midnight, 1.f: midnight the next day}
+	 */
+	public float getFieldTimeFromAbsolute(float absoluteTimePoint)
+	{
+		float lower = getCurrentField().getTimeline().getLower().getLower().getAbsoluteTime();		// Lowest absolute field time 
+		float upper = getCurrentField().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Highest absolute field time 
+		float fieldTimePoint = ml.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to field
+		return fieldTimePoint;
+	}
+
+	/**
+	 * Get absolute time from given field time 
+	 * @param absoluteTimePoint Field time {0.f: first field time, 1.f: last field time}
+	 */
+	public float getAbsoluteTimeFromField(float fieldTimePoint)
+	{
+		float lower = getCurrentField().getTimeline().getLower().getLower().getAbsoluteTime();		// Lowest absolute field time 
+		float upper = getCurrentField().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Highest absolute field time 
+		float absoluteTimePoint = ml.utilities.mapValue(fieldTimePoint, 0.f, 1.f, lower, upper);		// Time relative to field
+		return absoluteTimePoint;
+	}
+	
+	/**
 	 * Set time point based on current Time Mode
-	 * @param newTimePoint New time point
-	 * @param absoluteTime Whether given new time point is absolute, i.e. relative to field. If false and in Field Time Mode, 
-	 *        time will be interpreted as relative to field; if false and in Cluster Time Mode, time will be interpreted as relative to cluster 
+	 * @param newTimePoint New time point {Between 0.f and 1.f}
+	 * @param fieldTime Assert given new time point is relative to field. If false:in Field Time Mode, time will be still interpreted as relative to field, 
+	 * 		  in Cluster Time Mode, time will be interpreted as relative to cluster 
 	 * @param updateSliders Whether to update sliders in Time Window
 	 */
-	public void setCurrentTime(float newTimePoint, boolean absoluteTime, boolean updateSliders)
+	public void setCurrentTime(float newTimePoint, boolean fieldTime, boolean updateSliders)
 	{
-		if(absoluteTime)										// Set field time to given time point
+		if(ml.debug.time) ml.systemMessage("World.setCurrentTime()... newTimePoint:"+newTimePoint+" fieldTime? "+fieldTime+" updateSliders? "+updateSliders);
+
+		if(fieldTime)										// Set field time to given time point
 		{
-			setCurrentTimeCycleFrame(newTimePoint);				
+			setCurrentTimeCyclePoint( newTimePoint );				
 			if(updateSliders && ml.display.window.setupTimeWindow)
 				ml.display.window.sdrCurrentTime.setValue( getCurrentTimeCycleFrame() / getFieldTimeCycleLength() );
 		}
@@ -329,18 +385,17 @@ public class WMV_World
 				{
 					if(c.getState().timeFading)
 					{
-						if(absoluteTime) 			
-							c.setCurrentTimeFromAbsoluteTime(newTimePoint);
+						if(fieldTime) 			
+							c.setCurrentTimeFromAbsoluteTime( getAbsoluteTimeFromField(newTimePoint) );
 						else 
 							c.setCurrentTime(newTimePoint);			
 					}
 				}
 				
-				if(!absoluteTime)									// Set current time based on given relative time 								
+				if(!fieldTime)									// Set current time based on given relative time 								
 				{
 					if(getCurrentCluster() != null)
 					{
-//						WMV_TimeSegment ts = getCurrentCluster().getTimeline().timeline.get( state.timeSegmentTarget );
 						setCurrentTimeToClusterTime( getCurrentCluster(), newTimePoint, true );	// Set field time based on given cluster time 
 
 						if(updateSliders && ml.display.window.setupTimeWindow)
@@ -354,7 +409,7 @@ public class WMV_World
 				if(ml.debug.time)
 					ml.systemMessage("World.setCurrentTime()... In Field Mode... newTimePoint:"+newTimePoint+" updateSliders? "+updateSliders);
 
-				if(!absoluteTime)									// Set current time based on given relative time 												
+				if(!fieldTime)									// Set current time based on given relative time 												
 				{
 					WMV_Cluster c = getCurrentCluster();
 					if(c != null)
@@ -383,37 +438,42 @@ public class WMV_World
 	 */
 	public void setCurrentTimeToClusterTime( WMV_Cluster c, float clusterTimePoint, boolean updateSliders )
 	{
-		float absLower = c.getTimeline().getLower().getLower().getAbsoluteTime();			// Cluster lowest absolute time 
-		float absUpper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();			// Cluster highest absolute time 
-		float lower = getCurrentField().getTimeline().getLower().getLower().getRelativeTime(absLower, absUpper);		// Lowest relative time 
-		float upper = getCurrentField().getTimeline().getUpper().getUpper().getRelativeTime(absLower, absUpper);		// Highest relative time 
+		WMV_Time closest = c.getClosestTimeToClusterTime( clusterTimePoint );			// Find cluster associated media (absolute) time closest to given time point
+
+		float fAbsLower = getCurrentField().getTimeline().getLower().getLower().getAbsoluteTime();		// Field lowest absolute time 
+		float fAbsUpper = getCurrentField().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Field highest absolute time 
+
+		float newFieldTimePoint = closest.getRelativeTime(fAbsLower, fAbsUpper);		// Field time point associated with given cluster time point
+//		float newAbsTimePoint = closest.getAbsoluteTime();							// New field time point is closest time in absolute terms
 		
-		WMV_Time closest = c.getClosestTimeToClusterTime( clusterTimePoint );		// Find cluster associated media with time closest to given time point
-		float newFieldTimePoint = closest.getAbsoluteTime();							// New field time point is closest time in absolute terms
-		
-		if(newFieldTimePoint > lower && newFieldTimePoint < upper)
+		if(newFieldTimePoint >= 0.f && newFieldTimePoint <= 1.f)		// Time in field range
 		{
-			float newTimePoint = (int) utilities.mapValue(newFieldTimePoint, lower, upper, 0.f, settings.timeCycleLength);
-			setCurrentTime( newTimePoint, true, updateSliders );
+//			float newFieldTimePoint = getFieldTimeFromAbsolute( newAbsTimePoint );
+			setCurrentTimeCyclePoint( newFieldTimePoint );				
+//			setCurrentTime( newFieldTimePoint, true, updateSliders );
 			
 			if(ml.debug.cluster || ml.debug.time)
-				System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" newFieldTimePoint:"+newFieldTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTime()+"  Field lower:"+lower+" upper:"+upper);
+				System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" clusterTimePoint:"+clusterTimePoint+" converted to newFieldTimePoint:"+newFieldTimePoint+" Result: getCurrentTime(): "+getCurrentTime());
 		}
-		else
+		else												// Time out of range
 		{
-			if( newFieldTimePoint < lower )
-				setCurrentTime( 0.f, true, updateSliders );
-			else if( newFieldTimePoint > upper )
-				setCurrentTime( 1.f, true, updateSliders );
+			if( newFieldTimePoint < 0.f )
+				setCurrentTimeCyclePoint( 0.f );				
+//				setCurrentTime( 0.f, true, updateSliders );
+			else if( newFieldTimePoint > 1.f )
+				setCurrentTimeCyclePoint( 1.f );				
+//				setCurrentTime( 1.f, true, updateSliders );
 		}
 	}
 
 	/**
 	 * Set current frame in field time cycle
-	 * @param newTimePoint New time point
+	 * @param newTimePoint New time point {0.f: first frame, 1.f: last frame}
 	 */
-	private void setCurrentTimeCycleFrame(float newTimePoint)
+	private void setCurrentTimeCyclePoint(float newTimePoint)
 	{
+		if(ml.debug.time) ml.systemMessage("World.setCurrentTimeCycleFrame()... newTimePoint:"+newTimePoint);
+
 		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, getFieldTimeCycleLength()) );
 	}
 	
@@ -480,11 +540,6 @@ public class WMV_World
 				if(c.isTimeFading())
 					c.setTimeFading(false);
 		}
-		
-//		if(getCurrentCluster() != null)
-//		{
-//			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
-//		}
 	}
 	
 	/**
@@ -540,7 +595,7 @@ public class WMV_World
 	void decrementTime()
 	{
 		float curTimePoint = getCurrentTime();
-		if (curTimePoint - settings.timeInc < 0) setCurrentTime(0, false, true);
+		if (curTimePoint - settings.timeInc < 0.f) setCurrentTime(0.f, false, true);
 		else setCurrentTime(curTimePoint - settings.timeInc, false, true);
 	}
 	

@@ -220,7 +220,8 @@ public class WMV_Viewer
 			if(p.ml.debug.time) 
 				p.ml.systemMessage("Viewer.updateTimeTransition()... Reached End Time Point: "+state.timeTransitionGoalTimePoint);
 			
-			p.setCurrentTime(state.timeTransitionGoalTimePoint, true, true);
+			p.setCurrentTimeFromAbsolute(state.timeTransitionGoalTimePoint, true);
+//			p.setCurrentTime(state.timeTransitionGoalTimePoint, true, true);
 			
 			if(p.ml.debug.time)
 				p.ml.systemMessage("Viewer.updateTimeTransition()... New Current Time: "+p.getCurrentTime());
@@ -243,7 +244,8 @@ public class WMV_Viewer
 			
 //			if(p.ml.debug.time) p.ml.systemMessage("Viewer.updateTimeTransition()... timePoint:"+timePoint);
 			
-			p.setCurrentTime(timePoint, true, true);
+			p.setCurrentTimeFromAbsolute(timePoint, true);
+//			p.setCurrentTime(timePoint, true, true);
 		}
 			
 //		state.timeTransitionEndFrame = p.ml.frameCount + state.timeTransitionLength;
@@ -4796,7 +4798,8 @@ public class WMV_Viewer
 						else if(state.currentFieldTimeSegment != -1)
 						{
 							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getAbsoluteTime();
-							p.setCurrentTime(goalTime, true, true);
+							p.setCurrentTimeFromAbsolute(goalTime, true);
+//							p.setCurrentTime(goalTime, true, true);
 						}
 						else
 						{
@@ -4809,7 +4812,8 @@ public class WMV_Viewer
 						if(state.currentFieldTimeSegment != -1)
 						{
 							float goalTime = p.getCurrentField().getTimeline().timeline.get(state.currentFieldTimeSegment).getLower().getAbsoluteTime();
-							p.setCurrentTime(goalTime, true, true);
+							p.setCurrentTimeFromAbsolute(goalTime, true);
+//							p.setCurrentTime(goalTime, true, true);
 						}
 					}
 				}

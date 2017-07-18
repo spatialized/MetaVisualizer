@@ -1161,7 +1161,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
 		float absoluteTime = utilities.mapValue(clusterTimePoint, 0.f, 1.f, lower, upper);		// Cluster time as absolute time
 
-		System.out.println("Cluster.getClosestTimeToClusterTime()... timePoint:"+clusterTimePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
+		System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
 		
 		for(WMV_TimeSegment ts : state.timeline.timeline)			// Find closest cluster time to given cluster time
 		{
@@ -1179,7 +1179,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		
 		if(nearestDist == 100.f || nearestID == -1)
 		{
-			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" orig. timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
 			return null;
 		}
 		else if(nearest == null)
@@ -1233,13 +1233,13 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		if(nearestDist == 100.f || nearestID == -1)
 		{
 			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getAbsoluteTime());
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+(nearest == null?"":nearest.getAbsoluteTime()));
 			return null;
 		}
 		else
 		{
 			if(debug.time)
-				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+nearest.getAbsoluteTime());
+				System.out.println("Cluster.getClosestTimeToFieldTime()... Cluster ID: "+getID()+" timePoint:"+timePoint+" result:"+(nearest==null?"":nearest.getAbsoluteTime()));
 			return nearest;
 		}
 	}

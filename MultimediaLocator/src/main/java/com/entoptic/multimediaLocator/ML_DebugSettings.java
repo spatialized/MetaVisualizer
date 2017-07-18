@@ -29,7 +29,7 @@ public class ML_DebugSettings
 	public boolean mouse = false;				// Debug mouse interaction
 	
 	/* Model */
-	public boolean metadata = true;				// Debug WMV_Metadata class
+	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	
 	/* Media */

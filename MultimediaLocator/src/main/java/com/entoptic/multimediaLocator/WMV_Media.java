@@ -165,7 +165,8 @@ public abstract class WMV_Media
 					error = true;
 				}
 
-				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length, worldSettings.timeCycleLength - length) );	// Calculate center time in cluster timeline
+				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length / 2.f, worldSettings.timeCycleLength - length / 2.f) );	// Calculate center time in cluster timeline
+//				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length, worldSettings.timeCycleLength - length) );	// Calculate center time in cluster timeline
 
 				fadeInStart = Math.round(centerTime - length / 2.f);		// Frame media starts fading in
 				fadeInEnd = Math.round(centerTime - length / 4.f);			// Frame media reaches full state.brightness

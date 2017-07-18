@@ -22,7 +22,7 @@ public class WMV_WorldSettings
 	public final float videoFocusDistanceFactor = 0.8f;			// Scaling from defaultFocusDistance to video focus distance
 
 	public boolean altitudeScaling = true;								// Scale media height by altitude (m.) EXIF field 
-	public final float altitudeScalingFactorMax = 4.f;					// Adjust altitude for ease of viewing
+	public final float altitudeScalingFactorMax = 3.f;					// Adjust altitude for ease of viewing
 	public float altitudeScalingFactor = defaultAltitudeScalingFactor;	// Adjust altitude for ease of viewing
 
 	public float kMeansClusteringEpsilon = 0.005f;				// If no clusters move farther than this threshold, stop cluster refinement

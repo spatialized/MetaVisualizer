@@ -18,7 +18,9 @@ public class WMV_ViewerState
 	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentFieldTimeSegmentWithDate = 0;		// Current time segment in field timelines
-	public int currentFieldDate = 0;					// Current date in field dateline
+	public int currentFieldDate = 0;						// Current date in field dateline
+	public boolean updateTimeAtGoalCluster = false;		// Whether to update current time once reached goal cluster
+	public int lastFieldTimeSegment = 0;					// Last time segment in field timeline
 	
 	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
 	public int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
@@ -48,8 +50,8 @@ public class WMV_ViewerState
 	public boolean atCurrentCluster = false;			// Whether viewer is centered at current cluster (false if has moved)
 	public int lastCluster = -1;						// Last cluster visited
 
-	public int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
-	public int attractorCluster = -1;					// ID of single cluster currently attracting viewer
+	public int teleportGoalClusterID = -1;				// Cluster to navigate to (-1 == none)
+	public int attractorClusterID = -1;					// ID of single cluster currently attracting viewer
 	public int attractionStart = 0;						// Frame when current attractor began attracting viewer
 	
 	public float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target

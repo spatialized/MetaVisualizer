@@ -580,17 +580,17 @@ public class ML_KeyboardControls
 				ml.world.viewer.rotateY(1);
 
 			/* Time */
-			if (input.shiftKey && keyCode == PApplet.UP) 
-				ml.world.incrementTime();
-
-			if (input.shiftKey && keyCode == PApplet.DOWN) 
-				ml.world.decrementTime();
-
-			if (input.shiftKey && keyCode == PApplet.LEFT) 
-				ml.world.decrementTimeCycleLength();
-
-			if (input.shiftKey && keyCode == PApplet.RIGHT) 
-				ml.world.incrementTimeCycleLength();
+//			if (input.shiftKey && keyCode == PApplet.UP) 
+//				ml.world.incrementTime();
+//
+//			if (input.shiftKey && keyCode == PApplet.DOWN) 
+//				ml.world.decrementTime();
+//
+//			if (input.shiftKey && keyCode == PApplet.LEFT) 
+//				ml.world.decrementTimeCycleLength();
+//
+//			if (input.shiftKey && keyCode == PApplet.RIGHT) 
+//				ml.world.incrementTimeCycleLength();
 		}
 	}
 	

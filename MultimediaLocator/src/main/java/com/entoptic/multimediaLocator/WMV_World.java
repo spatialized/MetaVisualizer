@@ -285,20 +285,22 @@ public class WMV_World
 	 */
 	public float getCurrentTime()
 	{
-		float timePoint = 0.f;						// Normalized time position between 0.f and 1.f
+		float timePoint = 0.f;						// Normalized time position {0.f: first field time, 1.f: last field time}
 		switch(getState().getTimeMode())
 		{
 			case 0:
+//				WMV_Cluster c = getClusterWithCurrentTime();
 				WMV_Cluster c = getCurrentCluster();
+				
 				if(c != null)
 					timePoint = utilities.mapValue(c.getState().currentTime, 0, c.getState().timeCycleLength, 0.f, 1.f);
 				break;
 			case 1:
-				timePoint = utilities.mapValue(getCurrentTimeCycleFrame(), 0, getSettings().timeCycleLength, 0.f, 1.f);
+				timePoint = utilities.mapValue(getCurrentFieldTimeCyclePoint(), 0, getSettings().timeCycleLength, 0.f, 1.f);
 				break;
-			case 2:
-				timePoint = utilities.mapValue(getCurrentTimeCycleFrame(), 0, getSettings().timeCycleLength, 0.f, 1.f);
-				break;
+//			case 2:
+//				timePoint = utilities.mapValue(getCurrentTimeCycleFrame(), 0, getSettings().timeCycleLength, 0.f, 1.f);
+//				break;
 		}
 		return timePoint;
 	}
@@ -311,15 +313,17 @@ public class WMV_World
 	{
 		if(state.getTimeMode() == 0)					// Cluster Mode
 		{
+//			WMV_Cluster c = getClusterWithCurrentTime();
 			WMV_Cluster c = getCurrentCluster();
 			if(c != null)
 			{
-				float lower = getCurrentCluster().getTimeline().getLower().getLower().getAbsoluteTime();		// Cluster lowest absolute time 
-				float upper = getCurrentCluster().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Cluster highest absolute time 
+				float lower = c.getTimeline().getLower().getLower().getAbsoluteTime();		// Cluster lowest absolute time 
+				float upper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();		// Cluster highest absolute time 
 				float clusterTimePoint = ml.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to cluster
 				if(ml.debug.time) ml.systemMessage("World.setCurrentTimeFromAbsolute()... absoluteTimePoint:"+absoluteTimePoint+" result clusterTimePoint:"+clusterTimePoint);
 
-				setCurrentTime(clusterTimePoint, false, updateSliders);
+//				setCurrentTime(clusterTimePoint, false, updateSliders);
+				setCurrentTime(clusterTimePoint, false, true);
 			}
 		}
 		else											// Field Mode
@@ -329,7 +333,8 @@ public class WMV_World
 			float fieldTimePoint = ml.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to field
 			if(ml.debug.time) ml.systemMessage("World.setCurrentTimeFromAbsolute()... absoluteTimePoint:"+absoluteTimePoint+" result fieldTimePoint:"+fieldTimePoint);
 
-			setCurrentTime(fieldTimePoint, true, updateSliders);
+//			setCurrentTime(fieldTimePoint, true, updateSliders);
+			setCurrentTime(fieldTimePoint, true, true);
 		}
 	}
 
@@ -370,9 +375,9 @@ public class WMV_World
 
 		if(fieldTime)										// Set field time to given time point
 		{
-			setCurrentTimeCyclePoint( newTimePoint );				
+			setCurrentFieldTimeCyclePoint( newTimePoint );				
 			if(updateSliders && ml.display.window.setupTimeWindow)
-				ml.display.window.sdrCurrentTime.setValue( getCurrentTimeCycleFrame() / getFieldTimeCycleLength() );
+				ml.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getFieldTimeCycleLength()) );
 		}
 		
 		switch(state.timeMode)
@@ -394,12 +399,14 @@ public class WMV_World
 				
 				if(!fieldTime)									// Set current time based on given relative time 								
 				{
-					if(getCurrentCluster() != null)
+//					WMV_Cluster c = getClusterWithCurrentTime();
+					WMV_Cluster c = getCurrentCluster();
+					if(c != null)
 					{
-						setCurrentTimeToClusterTime( getCurrentCluster(), newTimePoint, true );	// Set field time based on given cluster time 
+						setCurrentFieldTimeToClusterTime( c, newTimePoint, true );	// Set current field time based on given cluster time 
 
 						if(updateSliders && ml.display.window.setupTimeWindow)
-							ml.display.window.sdrCurrentTime.setValue( getCurrentCluster().getCurrentTime() / getCurrentCluster().getTimeCycleLength() );
+							ml.display.window.sdrCurrentTime.setValue( (float)c.getCurrentTime() / (float)c.getTimeCycleLength() );
 					}
 				}
 				
@@ -411,13 +418,14 @@ public class WMV_World
 
 				if(!fieldTime)									// Set current time based on given relative time 												
 				{
+//					WMV_Cluster c = getClusterWithCurrentTime();
 					WMV_Cluster c = getCurrentCluster();
 					if(c != null)
 					{
-						setCurrentTimeToClusterTime( c, newTimePoint, true );	// Set field time to first time in target time segment
+						setCurrentFieldTimeToClusterTime( c, newTimePoint, true );	// Set field time to first time in target time segment
 
 						if(updateSliders && ml.display.window.setupTimeWindow)
-							ml.display.window.sdrCurrentTime.setValue( c.getCurrentTime() / c.getTimeCycleLength() );
+							ml.display.window.sdrCurrentTime.setValue( (float)c.getCurrentTime() / (float)c.getTimeCycleLength() );
 					}
 				}
 				
@@ -436,52 +444,71 @@ public class WMV_World
 	 * @param c Cluster to set time from
 	 * @param clusterTimePoint Cluster time point to use to set field time, {0.f: first cluster time, 1.f: last cluster time}
 	 */
-	public void setCurrentTimeToClusterTime( WMV_Cluster c, float clusterTimePoint, boolean updateSliders )
+	public void setCurrentFieldTimeToClusterTime( WMV_Cluster c, float clusterTimePoint, boolean updateSliders )
 	{
 		WMV_Time closest = c.getClosestTimeToClusterTime( clusterTimePoint );			// Find cluster associated media (absolute) time closest to given time point
 
 		float fAbsLower = getCurrentField().getTimeline().getLower().getLower().getAbsoluteTime();		// Field lowest absolute time 
 		float fAbsUpper = getCurrentField().getTimeline().getUpper().getUpper().getAbsoluteTime();		// Field highest absolute time 
 
-		float newFieldTimePoint = closest.getRelativeTime(fAbsLower, fAbsUpper);		// Field time point associated with given cluster time point
-//		float newAbsTimePoint = closest.getAbsoluteTime();							// New field time point is closest time in absolute terms
-		
-		if(newFieldTimePoint >= 0.f && newFieldTimePoint <= 1.f)		// Time in field range
+		if(closest != null)
 		{
-//			float newFieldTimePoint = getFieldTimeFromAbsolute( newAbsTimePoint );
-			setCurrentTimeCyclePoint( newFieldTimePoint );				
-//			setCurrentTime( newFieldTimePoint, true, updateSliders );
-			
-			if(ml.debug.cluster || ml.debug.time)
-				System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" clusterTimePoint:"+clusterTimePoint+" converted to newFieldTimePoint:"+newFieldTimePoint+" Result: getCurrentTime(): "+getCurrentTime());
+			float newFieldTimePoint = closest.getRelativeTime(fAbsLower, fAbsUpper);		// Field time point associated with given cluster time point
+			//		float newAbsTimePoint = closest.getAbsoluteTime();							// New field time point is closest time in absolute terms
+
+			if(newFieldTimePoint >= 0.f && newFieldTimePoint <= 1.f)		// Time in field range
+			{
+				setCurrentFieldTimeCyclePoint( newFieldTimePoint );				
+//				setCurrentTime( newFieldTimePoint, true, updateSliders );
+
+				if(ml.debug.cluster || ml.debug.time)
+					System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" clusterTimePoint:"+clusterTimePoint+" converted to newFieldTimePoint:"+newFieldTimePoint+" Result: getCurrentTime(): "+getCurrentTime());
+			}
+			else															// Time out of range
+			{
+				if(ml.debug.cluster || ml.debug.time)
+					System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" time out of range...");
+
+				if( newFieldTimePoint < 0.f )
+					setCurrentFieldTimeCyclePoint( 0.f );				
+//					setCurrentTime( 0.f, true, updateSliders );
+				else if( newFieldTimePoint > 1.f )
+					setCurrentFieldTimeCyclePoint( 1.f );				
+//					setCurrentTime( 1.f, true, updateSliders );
+			}
 		}
-		else												// Time out of range
+		else
 		{
-			if( newFieldTimePoint < 0.f )
-				setCurrentTimeCyclePoint( 0.f );				
-//				setCurrentTime( 0.f, true, updateSliders );
-			else if( newFieldTimePoint > 1.f )
-				setCurrentTimeCyclePoint( 1.f );				
-//				setCurrentTime( 1.f, true, updateSliders );
+			if(ml.debug.cluster || ml.debug.time)
+				System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" ERROR... clusterTimePoint:"+clusterTimePoint+" closest == null!");
 		}
 	}
-
 	/**
 	 * Set current frame in field time cycle
 	 * @param newTimePoint New time point {0.f: first frame, 1.f: last frame}
+	 * @param padding Whether to set time cycle accounting for padding due to fading (true) or set raw value (false)
 	 */
-	private void setCurrentTimeCyclePoint(float newTimePoint)
+	private void setCurrentFieldTimeCyclePoint(float newTimePoint)
+//	private void setCurrentFieldTimeCyclePoint(float newTimePoint, boolean padding)
 	{
-		if(ml.debug.time) ml.systemMessage("World.setCurrentTimeCycleFrame()... newTimePoint:"+newTimePoint);
+		if(ml.debug.time) ml.systemMessage("World.setCurrentTimeCyclePoint()... newTimePoint:"+newTimePoint);
 
-		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, getFieldTimeCycleLength()) );
+		int low = 0, high = getFieldTimeCycleLength();
+		
+//		if(padding)
+//		{
+//			low = (int) (settings.defaultMediaLength / 2.f);
+//			high = (int) (settings.timeCycleLength - settings.defaultMediaLength / 2.f);
+//		}
+		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, low, high) );
+//		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0.f, getFieldTimeCycleLength()) );
 	}
 	
 	/**
 	 * Get current frame in field time cycle
 	 * @return Current time point
 	 */
-	public int getCurrentTimeCycleFrame()
+	public int getCurrentFieldTimeCyclePoint()
 	{
 		return state.getCurrentTimeCycleFrame();
 	}
@@ -490,7 +517,7 @@ public class WMV_World
 	 * Get current field time cycle length
 	 * @return Current field time cycle length
 	 */
-	public float getFieldTimeCycleLength()
+	public int getFieldTimeCycleLength()
 	{
 		return settings.timeCycleLength;
 	}
@@ -503,7 +530,6 @@ public class WMV_World
 	{
 		settings.timeCycleLength = newTimeCycleLength;
 		settings.timeInc = settings.timeCycleLength / 30.f;			
-
 	}
 	
 	/**
@@ -550,8 +576,13 @@ public class WMV_World
 		if(!state.paused)
 		{
 			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
-			if(getCurrentTimeCycleFrame() > settings.timeCycleLength)
+			if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
+			{
+				if(ml.debug.world)
+					ml.systemMessage("Reached end of Field Time Cycle...");
+
 				state.setCurrentTimeCycleFrame( 0 );
+			}
 		}
 	}
 	
@@ -564,9 +595,9 @@ public class WMV_World
 		{
 			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
 			if(ml.debug.time && ml.debug.detailed)
-				ml.systemMessage("currentTime:"+getCurrentTimeCycleFrame());
+				ml.systemMessage("currentTime:"+getCurrentFieldTimeCyclePoint());
 
-			if(getCurrentTimeCycleFrame() >= viewer.getNextMediaStartTime())
+			if(getCurrentFieldTimeCyclePoint() >= viewer.getNextMediaStartTime())
 			{
 				if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
 				{
@@ -575,13 +606,13 @@ public class WMV_World
 				else
 				{
 					if(ml.debug.world)
-						ml.systemMessage("Reached end of last media with "+(settings.timeCycleLength - getCurrentTimeCycleFrame())+ " frames to go...");
+						ml.systemMessage("Reached end of last media with "+(settings.timeCycleLength - getCurrentFieldTimeCyclePoint())+ " frames to go...");
 					state.setCurrentTimeCycleFrame( 0 );
 					startMediaTimeModeCycle();
 				}
 			}
 
-			if(getCurrentTimeCycleFrame() > settings.timeCycleLength)
+			if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
 			{
 				state.setCurrentTimeCycleFrame( 0 );
 				startMediaTimeModeCycle();
@@ -595,8 +626,8 @@ public class WMV_World
 	void decrementTime()
 	{
 		float curTimePoint = getCurrentTime();
-		if (curTimePoint - settings.timeInc < 0.f) setCurrentTime(0.f, false, true);
-		else setCurrentTime(curTimePoint - settings.timeInc, false, true);
+		if (curTimePoint - settings.timeInc < 0.f) setCurrentTime(0.f, state.getTimeMode() == 1, true);
+		else setCurrentTime(curTimePoint - settings.timeInc, state.getTimeMode() == 1, true);
 	}
 	
 	/**
@@ -606,8 +637,8 @@ public class WMV_World
 	{
 		float curTimePoint = getCurrentTime();
 		float endTimePoint = 1.f;
-		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint, false, true);
-		else setCurrentTime(curTimePoint + settings.timeInc, false, true);
+		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint, state.getTimeMode() == 1, true);
+		else setCurrentTime(curTimePoint + settings.timeInc, state.getTimeMode() == 1, true);
 	}
 	
 	/**
@@ -1389,6 +1420,25 @@ public class WMV_World
 	}
 	
 	/**
+	 * Get cluster currently responsible for time in Cluster Time Mode (current cluster, unless moving)
+	 * @return Cluster currently responsible for time in Cluster Time Mode
+	 */
+	public WMV_Cluster getClusterWithCurrentTime()
+	{
+		WMV_Cluster c;
+		if(viewer.getState().movingToCluster && viewer.getState().movingToTimeSegment)
+		{
+			if(viewer.isTeleporting())
+				c = getCurrentField().getCluster(viewer.getState().teleportGoalClusterID);
+			else 
+				c = getCurrentField().getCluster(viewer.getState().attractorClusterID);
+		}
+		else
+			c = getCurrentCluster();
+		return c;
+	}
+	
+	/**
 	 * Decrement time cycle length
 	 */
 	void decrementTimeCycleLength()
@@ -1938,22 +1988,22 @@ public class WMV_World
 				case 0:
 					WMV_Image i = getCurrentField().getImage(curMediaID);
 					i.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(getCurrentTimeCycleFrame());
-					viewer.setNextMediaStartTime(getCurrentTimeCycleFrame() + settings.defaultMediaLength);
+					viewer.setCurrentMediaStartTime(getCurrentFieldTimeCyclePoint());
+					viewer.setNextMediaStartTime(getCurrentFieldTimeCyclePoint() + settings.defaultMediaLength);
 //					if(viewer.lookAtCurrentMedia()) viewer.lookAtMedia(i.getID(), 0);
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
 					n.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(getCurrentTimeCycleFrame());
-					viewer.setNextMediaStartTime(getCurrentTimeCycleFrame() + settings.defaultMediaLength);
+					viewer.setCurrentMediaStartTime(getCurrentFieldTimeCyclePoint());
+					viewer.setNextMediaStartTime(getCurrentFieldTimeCyclePoint() + settings.defaultMediaLength);
 //					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
 					WMV_Video v = getCurrentField().getVideo(curMediaID);
 					v.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(getCurrentTimeCycleFrame());
-					viewer.setNextMediaStartTime(getCurrentTimeCycleFrame() + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
+					viewer.setCurrentMediaStartTime(getCurrentFieldTimeCyclePoint());
+					viewer.setNextMediaStartTime(getCurrentFieldTimeCyclePoint() + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
 //					if(viewer.lookAtCurrentMedia()) viewer.lookAtMedia(v.getID(), 2);
 					break;
 //				case 3:	
@@ -2307,7 +2357,7 @@ public class WMV_World
 									else
 										center = first + last * 0.5f;
 	
-									float current = utilities.mapValue(getCurrentTimeCycleFrame(), 0, settings.timeCycleLength, 0.f, 1.f);
+									float current = utilities.mapValue(getCurrentFieldTimeCyclePoint(), 0, settings.timeCycleLength, 0.f, 1.f);
 									float timeDiff = (float)Math.abs(current-center);			// Find time offset from center
 									if(timeDiff <= settings.clusterLength) 					// Compare offset to cluster length
 										visible = true;

@@ -1615,8 +1615,8 @@ public class ML_Window
 		sdrCurrentTime = new GSlider(timeWindow, x, y+10, 160, 80, 24);
 		sdrCurrentTime.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
-		sdrCurrentTime.setValue(0.f);
-		sdrCurrentTime.setValue(world.getCurrentTime() / world.getFieldTimeCycleLength());
+		sdrCurrentTime.setValue(world.getCurrentTime());
+//		sdrCurrentTime.setValue(world.getCurrentTime() / world.getFieldTimeCycleLength());
 		sdrCurrentTime.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrCurrentTime.setEasing(0);
 		sdrCurrentTime.setShowValue(true);

@@ -138,6 +138,7 @@ public class WMV_WorldState
 	
 	public void setCurrentTimeCycleFrame(int newTime)
 	{
+		System.out.println("WorldState.setCurrentTimeCycleFrame()... newTime:"+newTime);
 		currentTime = newTime;
 	}
 }

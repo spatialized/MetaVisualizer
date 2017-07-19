@@ -2112,11 +2112,13 @@ public class ML_Window
 
 		x = 60;
 		y += 50;
-		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Library");
+		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Environment");
+//		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnCreateLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Library");
+		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Environment");
+//		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);

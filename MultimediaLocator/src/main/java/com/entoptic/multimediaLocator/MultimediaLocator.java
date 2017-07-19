@@ -490,7 +490,7 @@ public class MultimediaLocator extends PApplet
 				world.getField(fieldID).setDataFolderLoaded(true);
 				
 				if(f.getID() == 0)
-					display.window.setLibraryWindowText("Loading MultimediaLocator library...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Loading MultimediaLocator Environment...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) 
 					systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
@@ -1004,7 +1004,7 @@ public class MultimediaLocator extends PApplet
 			display.window.lblImport.setVisible(false);
 			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
-			display.window.setCreateLibraryWindowText("Creating MultimediaLocator library...", "This process can take a while for large media collections...");
+			display.window.setCreateLibraryWindowText("Creating MultimediaLocator Environment...", "This process can take a while for large media collections...");
 		}
 		else
 		{
@@ -1283,8 +1283,18 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyPressed() 
 	{
-		if(state.running) 
+		if(state.running)
+		{
+			if(debug.input)
+			{
+				if(key == PApplet.CODED)
+					systemMessage("ML.keyPressed()... coded key:"+key+" keyCode:"+keyCode);
+				else
+					systemMessage("ML.keyPressed()... key:"+key);
+			}
+			
 			input.handleKeyPressed(this, key, keyCode);
+		}
 //		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
 //			input.handleKeyPressed(this, key, keyCode);
 	}
@@ -1294,7 +1304,18 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyReleased() 
 	{
-		input.handleKeyReleased(this, display, key, keyCode);
+		if(state.running) 
+		{
+			if(debug.input)
+			{
+				if(key == PApplet.CODED)
+					systemMessage("ML.keyReleased()... coded key:"+key+" keyCode:"+keyCode);
+				else
+					systemMessage("ML.keyReleased()... key:"+key);
+			}
+			
+			input.handleKeyReleased(this, display, key, keyCode);
+		}
 	}
 	
 	/**
@@ -1303,7 +1324,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1317,7 +1338,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1331,7 +1352,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void importWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void importWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1345,7 +1366,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1359,7 +1380,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1374,12 +1395,31 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+		{
+			if(debug.input)
+			{
+				if(key == PApplet.CODED)
+					systemMessage("ML.mediaWindowKey()... KeyEvent.PRESS... key:"+key);
+				else
+					systemMessage("ML.mediaWindowKey()... KeyEvent.PRESS... coded key:"+key+" keyCode:"+keyCode);
+			}
+
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		}
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+		{
+			if(debug.input)
+			{
+				if(key == PApplet.CODED)
+					systemMessage("ML.mediaWindowKey()... KeyEvent.RELEASE... key:"+key);
+				else
+					systemMessage("ML.mediaWindowKey()... KeyEvent.RELEASE... coded key:"+key+" keyCode:"+keyCode);
+			}
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+		}
 	}
 
 	/**
@@ -1388,7 +1428,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void libraryViewWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void libraryViewWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1402,7 +1442,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1416,7 +1456,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void timelineWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void timelineWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -1424,7 +1464,6 @@ public class MultimediaLocator extends PApplet
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-
 	/**
 	 * Respond to mouse pressed event
 	 */

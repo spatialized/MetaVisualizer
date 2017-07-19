@@ -16,9 +16,6 @@ public class ML_Input
 	ML_KeyboardControls keyboard;					/* Keyboard input class */
 	private ML_MouseControls mouse;
 	
-	public boolean shiftKey = false;
-	public boolean optionKey = false;
-
 	/**
 	 * Constructor for input class
 	 * @param newScreenWidth
@@ -37,15 +34,17 @@ public class ML_Input
 	 * @param key Key that was pressed
 	 * @param keyCode Key code
 	 */
-	void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	public void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
 			/* General */
 			keyboard.handleUniversalKeyPressed(ml, key, keyCode);
 
-			if (ml.state.interactive)					
+			if (ml.state.interactive)
+			{
 				keyboard.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
+			}
 			else 						// Interactive Clustering Mode
 			{
 				keyboard.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
@@ -73,7 +72,7 @@ public class ML_Input
 	 * @param key
 	 * @param keyCode
 	 */
-	void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	public void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 	}
@@ -84,7 +83,7 @@ public class ML_Input
 	 * @param key
 	 * @param keyCode
 	 */
-	void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	public void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboard.handleListItemWindowKeyPressed(ml, key, keyCode);
 	}
@@ -107,7 +106,7 @@ public class ML_Input
 	{
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
-			keyboard.handleKeyReleased(ml, display, key, keyCode);
+			keyboard.handleUniversalKeyReleased(ml, display, key, keyCode);
 		}
 	}
 	

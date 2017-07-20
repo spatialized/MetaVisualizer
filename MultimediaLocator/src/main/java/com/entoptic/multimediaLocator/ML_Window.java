@@ -28,9 +28,9 @@ public class ML_Window
 	
 	/* Windows */
 	private final int windowWidth = 310;
-	private final int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 880;
+	private final int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 825;
 	public boolean compressTallWindows = false;
-	private int compressedNavigationWindowHeight = mediumWindowHeight - 25, compressedMediaWindowHeight = 470;
+	private int compressedNavigationWindowHeight = mediumWindowHeight - 25; //, compressedMediaWindowHeight = 470;
 
 	private final int closeWindowWaitTime = 180;			// Time to wait before closing hidden windows
 	private int lastWindowHiddenFrame;						// Frame when last window was hidden
@@ -172,7 +172,7 @@ public class ML_Window
 	
 	private GLabel lblHideMedia;
 	public GLabel lblSelection, lblSelectionOptions;					
-	private GLabel lblAdvanced, lblAltitudeFactor, lblSelect, lblDeselect;						
+	private GLabel lblModel, lblAltitudeFactor, lblSelect, lblDeselect;						
 //	public GLabel lblShift2;
 	private GButton btnMediaWindowExit, btnMediaWindowClose;		
 
@@ -193,7 +193,7 @@ public class ML_Window
 	public GOption optLibraryViewWorldMode, optLibraryViewFieldMode, optLibraryViewClusterMode;
 	public GToggleGroup tgLibraryViewMode;	
 	public GButton btnLibraryView, btnPreviousCluster, btnNextCluster, btnCurrentCluster;
-	public GLabel lblViewerStats, lblWorldStats, lblSelectionPreferences, lblViewPreferences, lblModelPreferences;					
+	public GLabel lblViewerStats, lblWorldStats, lblSelectionPreferences, lblPathNavigationPreferences, lblViewPreferences, lblModelPreferences;					
 	int preferencesWindowHeight;
 	int prefsWindowViewerTextYOffset, prefsWindowWorldTextYOffset;
 	private GButton btnPreferencesWindowExit, btnPreferencesWindowClose;		
@@ -249,11 +249,11 @@ public class ML_Window
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
-		preferencesWindowHeight = shortWindowHeight + 60;
+		preferencesWindowHeight = mediumWindowHeight - 45;
 		helpWindowHeight = mediumWindowHeight + 100;
 //		mapWindowHeight = shortWindowHeight - 25;
 		timeWindowHeight = shortWindowHeight + 55;
-		mediaWindowHeight = tallWindowHeight - 145;
+		mediaWindowHeight = mediumWindowHeight + 75;
 		mediaWindowWidth = windowWidth;
 
 		if(world.ml.displayHeight < tallWindowHeight + 10)					// Small screen: compress windows
@@ -293,7 +293,7 @@ public class ML_Window
 		mainMenu.addDrawHandler(this, "mlWindowDraw");
 		mainMenu.addMouseHandler(this, "mlWindowMouse");
 		mainMenu.addKeyHandler(world.ml, "mlWindowKey");
-		mainMenu.setActionOnClose(GWindow.KEEP_OPEN);
+//		mainMenu.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		world.ml.delay(delayAmount);
 
@@ -491,7 +491,7 @@ public class ML_Window
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
 		navigationWindow.addKeyHandler(world.ml, "navigationWindowKey");
-		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
+//		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		world.ml.delay(delayAmount * 3 / 2);
 
@@ -606,27 +606,6 @@ public class ML_Window
 		world.ml.delay(delayAmount / 2);
 
 		x = 70;
-		y += iLargeBoxHeight;
-		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
-		btnZoomOut.tag = "ZoomOut";
-		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnZoomOut.fireAllEvents(true);
-
-		if(compressTallWindows) x = 135;
-		else x = 0;
-		lblZoom = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Zoom");
-		lblZoom.setLocalColorScheme(G4P.SCHEME_10);
-		lblZoom.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		if(!compressTallWindows) lblZoom.setTextAlign(GAlign.CENTER, null);
-		lblZoom.setTextBold();
-
-		x = 195;
-		btnZoomIn = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "In (q)");
-		btnZoomIn.tag = "ZoomIn";
-		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnZoomIn.fireAllEvents(true);
-		
-		x = 70;
 		y += iMediumBoxHeight;
 		btnStopViewer = new GButton(navigationWindow, x, y, 160, iVerySmallBoxHeight + 2, "Stop (.)");
 		btnStopViewer.tag = "StopViewer";
@@ -657,13 +636,29 @@ public class ML_Window
 			}
 		}
 
+		x = 70;
+		y += iLargeBoxHeight;
+		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
+		btnZoomOut.tag = "ZoomOut";
+		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomOut.fireAllEvents(true);
+
+		if(compressTallWindows) x = 135;
+		else x = 0;
+		lblZoom = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Zoom");
+		lblZoom.setLocalColorScheme(G4P.SCHEME_10);
+		lblZoom.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		if(!compressTallWindows) lblZoom.setTextAlign(GAlign.CENTER, null);
+		lblZoom.setTextBold();
+
 		world.ml.delay(delayAmount / 2);
-		
-//		if(compressTallWindows)
-//			x = 90;
-//		else
-//			x = 0;
-	
+
+		x = 195;
+		btnZoomIn = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "In (q)");
+		btnZoomIn.tag = "ZoomIn";
+		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomIn.fireAllEvents(true);
+
 		if(compressTallWindows)
 			x = 135;
 		else 
@@ -966,73 +961,66 @@ public class ML_Window
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
 
-		x = 85;
-		if(compressTallWindows) x += windowWidth;
-		y += iSmallBoxHeight;
-		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 175, iVerySmallBoxHeight, "Teleporting (,)");
-		chkbxFollowTeleport.tag = "FollowTeleport";
-		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
-
 //		x = 85;
 //		if(compressTallWindows) x += windowWidth;
 //		y += iSmallBoxHeight;
-//		lblTeleportSettings = new GLabel(navigationWindow, x, y-3, navigationWindow.width, iVerySmallBoxHeight, "Teleport Settings");
-//		lblTeleportSettings.setLocalColorScheme(G4P.SCHEME_10);
-//		lblTeleportSettings.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-//		if(!compressTallWindows) lblTeleportSettings.setTextAlign(GAlign.CENTER, null);
-//		lblPathNavigation.setTextBold();
-		
-		y += 8;
-		
-		x = 65;
-		if(compressTallWindows) x += windowWidth;
-		sdrTeleportLength = new GSlider(navigationWindow, x, y, 70, 80, iVerySmallBoxHeight);
-		sdrTeleportLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
-		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
-		sdrTeleportLength.setTextOrientation(G4P.ORIENT_TRACK);
-//		sdrTeleportLength.setRotation(PApplet.PI/2.f);
-//		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
-		sdrTeleportLength.setEasing(0);
-		sdrTeleportLength.setShowValue(true);
-		sdrTeleportLength.tag = "TeleportLength";
-
-		x = 215;
-		if(compressTallWindows) x += windowWidth;
-		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 70, 80, iVerySmallBoxHeight);
-		sdrPathWaitLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrPathWaitLength.setLimits(0.f, 30.f, 600.f);
-		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
-		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_TRACK);
-		sdrPathWaitLength.setEasing(0);
-		sdrPathWaitLength.setShowValue(true);
-		sdrPathWaitLength.tag = "PathWaitLength";
-		
-		x = iLeftMargin;
-		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
-		lblTeleportLength = new GLabel(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Length");
-		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
-
-		x = 155;
-		if(compressTallWindows) x += windowWidth;
-		lblPathWaitLength = new GLabel(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Wait Time");
-		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 175, iVerySmallBoxHeight, "Teleporting (,)");
+//		chkbxFollowTeleport.tag = "FollowTeleport";
+//		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
+//
+//		y += 8;
+//		
+//		x = 65;
+//		if(compressTallWindows) x += windowWidth;
+//		sdrTeleportLength = new GSlider(navigationWindow, x, y, 70, 80, iVerySmallBoxHeight);
+//		sdrTeleportLength.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
+//		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
+//		sdrTeleportLength.setTextOrientation(G4P.ORIENT_TRACK);
+////		sdrTeleportLength.setRotation(PApplet.PI/2.f);
+////		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
+//		sdrTeleportLength.setEasing(0);
+//		sdrTeleportLength.setShowValue(true);
+//		sdrTeleportLength.tag = "TeleportLength";
+//
+//		x = 215;
+//		if(compressTallWindows) x += windowWidth;
+//		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 70, 80, iVerySmallBoxHeight);
+//		sdrPathWaitLength.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		sdrPathWaitLength.setLimits(0.f, 30.f, 600.f);
+//		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
+//		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_TRACK);
+//		sdrPathWaitLength.setEasing(0);
+//		sdrPathWaitLength.setShowValue(true);
+//		sdrPathWaitLength.tag = "PathWaitLength";
+//		
+//		x = iLeftMargin;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight;
+//		lblTeleportLength = new GLabel(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Length");
+//		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
+//
+//		x = 155;
+//		if(compressTallWindows) x += windowWidth;
+//		lblPathWaitLength = new GLabel(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Wait Time");
+//		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 		
 		setMapControlsEnabled(display.getDisplayView() == 1);
 		
-		if(compressTallWindows)
-			x = navigationWindowWidth / 2 - 60;
-		else
-			x = iLeftMargin;
-		y = navigationWindowHeight - iBottomTextY;
-		btnNavigationWindowClose = new GButton(navigationWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧1)");
-		btnNavigationWindowClose.tag = "CloseNavigationWindow";
-		btnNavigationWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
+//		if(compressTallWindows)
+//			x = navigationWindowWidth / 2 - 60;
+//		else
+//			x = iLeftMargin;
+//		y = navigationWindowHeight - iBottomTextY;
+//		btnNavigationWindowClose = new GButton(navigationWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧1)");
+//		btnNavigationWindowClose.tag = "CloseNavigationWindow";
+//		btnNavigationWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
 		
-		x = navigationWindowWidth - 150;
+//		x = navigationWindowWidth - 150;
+		x = navigationWindowWidth / 2 - 65;
+		y = navigationWindowHeight - iBottomTextY;
 		btnNavigationWindowExit = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Main Menu (space)");
 		btnNavigationWindowExit.tag = "ExitNavigationWindow";
 		btnNavigationWindowExit.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1070,7 +1058,7 @@ public class ML_Window
 		mediaWindow.addDrawHandler(this, "mediaWindowDraw");
 		mediaWindow.addMouseHandler(this, "mediaWindowMouse");
 		mediaWindow.addKeyHandler(world.ml, "mediaWindowKey");
-		mediaWindow.setActionOnClose(GWindow.KEEP_OPEN);
+//		mediaWindow.setActionOnClose(GWindow.KEEP_OPEN);
 	
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount * 2);
@@ -1095,13 +1083,13 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = 90;
-		y += iMediumBoxHeight;
-		chkbxBlurMasks = new GCheckbox(mediaWindow, x, y, 145, iVerySmallBoxHeight, "Fade Edges (E)");
-		chkbxBlurMasks.tag = "FadeEdges";
-		chkbxBlurMasks.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxBlurMasks.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxBlurMasks.setSelected(world.getState().useBlurMasks);
+//		x = 90;
+//		y += iMediumBoxHeight;
+//		chkbxBlurMasks = new GCheckbox(mediaWindow, x, y, 145, iVerySmallBoxHeight, "Fade Edges (E)");
+//		chkbxBlurMasks.tag = "FadeEdges";
+//		chkbxBlurMasks.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxBlurMasks.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		chkbxBlurMasks.setSelected(world.getState().useBlurMasks);
 
 		x = 120;
 		y += 10;
@@ -1128,6 +1116,45 @@ public class ML_Window
 		chkbxAlphaMode.tag = "AlphaMode";
 		chkbxAlphaMode.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxAlphaMode.setSelected(world.getState().alphaMode);
+
+		x = 25;
+		y += 40;
+		lblVisibleAngle = new GLabel(mediaWindow, x, y, 90, iVerySmallBoxHeight, "Angle Fading");
+		lblVisibleAngle.setLocalColorScheme(G4P.SCHEME_10);
+		world.ml.delay(delayAmount / 2);
+
+		x = 120;
+//		y -= iMediumBoxHeight;
+		sdrVisibleAngle = new GSlider(mediaWindow, x, y-iMediumBoxHeight, 120, 80, 20);
+		sdrVisibleAngle.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrVisibleAngle.setLimits(world.viewer.getVisibleAngle(), 0.1f, 0.95f);
+		sdrVisibleAngle.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrVisibleAngle.setEasing(0);
+		sdrVisibleAngle.setShowValue(true);
+		sdrVisibleAngle.tag = "VisibleAngle";
+		
+		x = 250;
+		chkbxAngleFading = new GCheckbox(mediaWindow, x, y, 145, iVerySmallBoxHeight, "(G)");
+		chkbxAngleFading.tag = "AngleFading";
+		chkbxAngleFading.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxAngleFading.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
+		chkbxAngleFading.setSelected(world.viewer.getSettings().angleFading);
+
+		x = 120;
+		y += 10;
+		sdrFarClipping = new GSlider(mediaWindow, x, y, 160, 80, 20);
+		sdrFarClipping.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrFarClipping.setLimits(world.viewer.getSettings().getFarViewingDistance(), 2.f, 25.f);
+		sdrFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrFarClipping.setEasing(0);
+		sdrFarClipping.setShowValue(true);
+		sdrFarClipping.tag = "FarClipping";
+		
+		x = 25;
+		y += 30;
+		lblFarClipping = new GLabel(mediaWindow, x, y, 125, iVerySmallBoxHeight, "Visible Distance");
+		lblFarClipping.setLocalColorScheme(G4P.SCHEME_10);
+		world.ml.delay(delayAmount);
 
 		x = 120;
 		y += 10;
@@ -1166,64 +1193,39 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = 120;
-		y += 10;
-		sdrFarClipping = new GSlider(mediaWindow, x, y, 160, 80, 20);
-		sdrFarClipping.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrFarClipping.setLimits(world.viewer.getSettings().getFarViewingDistance(), 2.f, 25.f);
-		sdrFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
-		sdrFarClipping.setEasing(0);
-		sdrFarClipping.setShowValue(true);
-		sdrFarClipping.tag = "FarClipping";
-		
-		x = 25;
-		y += 30;
-		lblFarClipping = new GLabel(mediaWindow, x, y, 125, iVerySmallBoxHeight, "Visible Distance");
-		lblFarClipping.setLocalColorScheme(G4P.SCHEME_10);
-		world.ml.delay(delayAmount / 2);
+//		x = 120;
+//		y += 10;
+//		sdrFarClipping = new GSlider(mediaWindow, x, y, 160, 80, 20);
+//		sdrFarClipping.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		sdrFarClipping.setLimits(world.viewer.getSettings().getFarViewingDistance(), 2.f, 25.f);
+//		sdrFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
+//		sdrFarClipping.setEasing(0);
+//		sdrFarClipping.setShowValue(true);
+//		sdrFarClipping.tag = "FarClipping";
+//		
+//		x = 25;
+//		y += 30;
+//		lblFarClipping = new GLabel(mediaWindow, x, y, 125, iVerySmallBoxHeight, "Visible Distance");
+//		lblFarClipping.setLocalColorScheme(G4P.SCHEME_10);
+//		world.ml.delay(delayAmount);
 
-		x = 25;
-		y += 40;
-		lblVisibleAngle = new GLabel(mediaWindow, x, y, 90, iVerySmallBoxHeight, "Angle Fading");
-		lblVisibleAngle.setLocalColorScheme(G4P.SCHEME_10);
-		world.ml.delay(delayAmount / 2);
-
-		x = 120;
-//		y -= iMediumBoxHeight;
-		sdrVisibleAngle = new GSlider(mediaWindow, x, y-iMediumBoxHeight, 120, 80, 20);
-		sdrVisibleAngle.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrVisibleAngle.setLimits(world.viewer.getVisibleAngle(), 0.1f, 0.95f);
-		sdrVisibleAngle.setTextOrientation(G4P.ORIENT_TRACK);
-		sdrVisibleAngle.setEasing(0);
-		sdrVisibleAngle.setShowValue(true);
-		sdrVisibleAngle.tag = "VisibleAngle";
-		
-		x = 250;
-		chkbxAngleFading = new GCheckbox(mediaWindow, x, y, 145, iVerySmallBoxHeight, "(G)");
-		chkbxAngleFading.tag = "AngleFading";
-		chkbxAngleFading.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxAngleFading.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
-		chkbxAngleFading.setSelected(world.viewer.getSettings().angleFading);
-
-		world.ml.delay(delayAmount / 2);
-
-		x = 65;
-		y += iLargeBoxHeight;
-		btnSubjectDistanceDown = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "-");
-		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
-		btnSubjectDistanceDown.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x += 42;
-		lblSubjectDistance = new GLabel(mediaWindow, x, y, 110, iVerySmallBoxHeight, "Subject Distance");
-		lblSubjectDistance.setLocalColorScheme(G4P.SCHEME_10);
-//		if(!compressTallWindows) lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
-		lblSubjectDistance.setTextBold();
-
-		world.ml.delay(delayAmount);
-
-		btnSubjectDistanceUp = new GButton(mediaWindow, x+=115, y, 30, iVerySmallBoxHeight, "+");
-		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
-		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		x = 65;
+//		y += iLargeBoxHeight;
+//		btnSubjectDistanceDown = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "-");
+//		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
+//		btnSubjectDistanceDown.setLocalColorScheme(G4P.CYAN_SCHEME);
+//
+//		x += 42;
+//		lblSubjectDistance = new GLabel(mediaWindow, x, y, 110, iVerySmallBoxHeight, "Subject Distance");
+//		lblSubjectDistance.setLocalColorScheme(G4P.SCHEME_10);
+////		if(!compressTallWindows) lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
+//		lblSubjectDistance.setTextBold();
+//
+//		world.ml.delay(delayAmount);
+//
+//		btnSubjectDistanceUp = new GButton(mediaWindow, x+=115, y, 30, iVerySmallBoxHeight, "+");
+//		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
+//		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 //		chkbxAngleThinning = new GCheckbox(mediaWindow, x += 105, y, 100, iVerySmallBoxHeight, "Angle Thinning");
 //		chkbxAngleThinning.tag = "AngleThinning";
@@ -1265,18 +1267,129 @@ public class ML_Window
 //		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
 //		chkbxHideSounds.setSelected(world.viewer.getSettings().hideSounds);
 
-		x = 30;
-		y += iMediumBoxHeight;
-		btnOutputFolder = new GButton(mediaWindow, x, y, 115, iVerySmallBoxHeight, "Set Output Folder");
-		btnOutputFolder.tag = "OutputFolder";
-		btnOutputFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x += 125;
-		btnExportScreenshot = new GButton(mediaWindow, x, y, 135, iVerySmallBoxHeight, "Save Screenshot (\\)");
-		btnExportScreenshot.tag = "SaveScreenshot";
-		btnExportScreenshot.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		x = 30;
+//		y += iMediumBoxHeight;
+//		btnOutputFolder = new GButton(mediaWindow, x, y, 115, iVerySmallBoxHeight, "Set Output Folder");
+//		btnOutputFolder.tag = "OutputFolder";
+//		btnOutputFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
+//
+//		x += 125;
+//		btnExportScreenshot = new GButton(mediaWindow, x, y, 135, iVerySmallBoxHeight, "Save Screenshot (\\)");
+//		btnExportScreenshot.tag = "SaveScreenshot";
+//		btnExportScreenshot.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		world.ml.delay(delayAmount);
+
+
+//			if(compressTallWindows) 
+//			x = windowWidth + 100;
+//		else
+			x = 0;
+
+		y += 38;
+		mediaWindowLineBreakY_1 = y - 7;
+		lblModel = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Model");
+		lblModel.setLocalColorScheme(G4P.SCHEME_10);
+		lblModel.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+//		if(!compressTallWindows)
+			lblModel.setTextAlign(GAlign.CENTER, null);
+		lblModel.setTextBold();
+
+		x = 65;
+		y += iMediumBoxHeight;
+		btnSubjectDistanceDown = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "-");
+		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
+		btnSubjectDistanceDown.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		x += 42;
+		lblSubjectDistance = new GLabel(mediaWindow, x, y, 110, iVerySmallBoxHeight, "Subject Distance");
+		lblSubjectDistance.setLocalColorScheme(G4P.SCHEME_10);
+//		if(!compressTallWindows) lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
+		lblSubjectDistance.setTextBold();
+
+		world.ml.delay(delayAmount);
+
+		btnSubjectDistanceUp = new GButton(mediaWindow, x+=115, y, 30, iVerySmallBoxHeight, "+");
+		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
+		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		x = 85;
+//		if(compressTallWindows) x += windowWidth;
+		y += iMediumBoxHeight;
+		chkbxShowModel = new GCheckbox(mediaWindow, x, y, 140, iVerySmallBoxHeight, "Show Model (5)");
+		chkbxShowModel.tag = "ShowModel";
+		chkbxShowModel.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxShowModel.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxShowModel.setSelected(world.getState().showModel);
+
+//		x = 175;
+//		if(compressTallWindows) x += windowWidth;
+//		chkbxMediaToCluster = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Show GPS (6)");
+//		chkbxMediaToCluster.tag = "MediaToCluster";
+//		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxMediaToCluster.setEnabled(world.getState().showModel);
+//		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
+//
+		x = 165;
+//		if(compressTallWindows) x += windowWidth;
+		y += 5;
+		sdrModelFarClipping = new GSlider(mediaWindow, x, y, 125, 80, 20);
+		sdrModelFarClipping.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrModelFarClipping.setLimits(world.getState().modelDistanceVisibilityFactorFar, 1.f, 36.f);
+		sdrModelFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrModelFarClipping.setEasing(0);
+		sdrModelFarClipping.setShowValue(true);
+		sdrModelFarClipping.tag = "ModelFarClipping";
+		
+		x = 25;
+//		if(compressTallWindows) x += windowWidth;
+		y += iSmallBoxHeight;
+		lblModelFarClipping = new GLabel(mediaWindow, x, y, 165, iVerySmallBoxHeight, "Model Visibility Distance");
+		lblModelFarClipping.setLocalColorScheme(G4P.SCHEME_10);
+		world.ml.delay(delayAmount);
+
+//		x = 80;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight;
+//		chkbxMediaToCluster = new GCheckbox(mediaWindow, x, y, 165, iVerySmallBoxHeight, "View Interest Points (6)");
+//		chkbxMediaToCluster.tag = "MediaToCluster";
+//		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxMediaToCluster.setEnabled(world.getState().showModel);
+//		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
+		
+//		if(compressTallWindows) x += windowWidth;
+//		x = 80;
+//		y += iLargeBoxHeight;
+//		chkbxDisplayTerrain = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Show Terrain (T)");
+//		chkbxDisplayTerrain.tag = "DisplayTerrain";
+//		chkbxDisplayTerrain.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxDisplayTerrain.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		chkbxDisplayTerrain.setSelected(world.getState().displayTerrain);
+
+//		x = iLeftMargin;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iSmallBoxHeight;
+//		chkbxCaptureToMedia = new GCheckbox(mediaWindow, x, y, 150, iVerySmallBoxHeight, "View GPS Locations (7)");
+//		chkbxCaptureToMedia.tag = "CaptureToMedia";
+//		chkbxCaptureToMedia.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxCaptureToMedia.setEnabled(world.getState().showModel);
+//		chkbxCaptureToMedia.setSelected(world.getState().showCaptureToMedia);
+//
+//		chkbxCaptureToCluster = new GCheckbox(mediaWindow, x += 155, y, 170, iVerySmallBoxHeight, "View Adjustment (8)");
+//		chkbxCaptureToCluster.tag = "CaptureToCluster";
+//		chkbxCaptureToCluster.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxCaptureToCluster.setEnabled(world.getState().showModel);
+//		chkbxCaptureToCluster.setSelected(world.getState().showCaptureToCluster);
+
+//		x = 65;
+////		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight;
+//		chkbxOrientationMode = new GCheckbox(mediaWindow, x, y, 195, iVerySmallBoxHeight, "Orientation Mode (9)");
+//		chkbxOrientationMode.tag = "OrientationMode";
+//		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
+
 		
 //		if(compressTallWindows)
 //		{
@@ -1286,17 +1399,16 @@ public class ML_Window
 //		else
 //		{
 			x = 0;
-			y += 30;
+			y += iLargeBoxHeight;
 //		}
-
-		mediaWindowLineBreakY_1 = y;
+		mediaWindowLineBreakY_2 = y - 4;
 		lblSelection = new GLabel(mediaWindow, x, y, mediaWindow.width, iMediumBoxHeight, "Selection");
 		lblSelection.setLocalColorScheme(G4P.SCHEME_10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblSelection.setTextBold();
 
-		x = 100;
+		x = 105;
 //		if(compressTallWindows) x += windowWidth;
 		y += iLargeBoxHeight;
 		chkbxSelectionMode = new GCheckbox(mediaWindow, x, y, 145, iVerySmallBoxHeight, "Enable (A)");
@@ -1378,6 +1490,17 @@ public class ML_Window
 		btnExportMedia.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnExportMedia.setLocalColorScheme(G4P.CYAN_SCHEME);
 
+		x = 30;
+		y += iMediumBoxHeight;
+		btnExportScreenshot = new GButton(mediaWindow, x, y, 135, iVerySmallBoxHeight, "Save Screenshot (\\)");
+		btnExportScreenshot.tag = "SaveScreenshot";
+		btnExportScreenshot.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		x += 145;
+		btnOutputFolder = new GButton(mediaWindow, x, y, 115, iVerySmallBoxHeight, "Set Output Folder");
+		btnOutputFolder.tag = "OutputFolder";
+		btnOutputFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
+
 //		x = 25;
 //		if(compressTallWindows) x += windowWidth;
 //		y += iMediumBoxHeight;
@@ -1414,108 +1537,19 @@ public class ML_Window
 //		}
 //		else x = 0;
 		
-//		if(compressTallWindows) 
-//			x = windowWidth + 100;
-//		else
-			x = 0;
-
-		y += 38;
-		mediaWindowLineBreakY_2 = y - 7;
-		lblAdvanced = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Model");
-		lblAdvanced.setLocalColorScheme(G4P.SCHEME_10);
-		lblAdvanced.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		if(!compressTallWindows)
-			lblAdvanced.setTextAlign(GAlign.CENTER, null);
-		lblAdvanced.setTextBold();
-
-		x = 85;
-//		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
-		chkbxShowModel = new GCheckbox(mediaWindow, x, y, 140, iVerySmallBoxHeight, "Show Model (5)");
-		chkbxShowModel.tag = "ShowModel";
-		chkbxShowModel.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxShowModel.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxShowModel.setSelected(world.getState().showModel);
-
-//		x = 175;
-//		if(compressTallWindows) x += windowWidth;
-//		chkbxMediaToCluster = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Show GPS (6)");
-//		chkbxMediaToCluster.tag = "MediaToCluster";
-//		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxMediaToCluster.setEnabled(world.getState().showModel);
-//		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
-//
-		x = 165;
-//		if(compressTallWindows) x += windowWidth;
-		y += 5;
-		sdrModelFarClipping = new GSlider(mediaWindow, x, y, 125, 80, 20);
-		sdrModelFarClipping.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrModelFarClipping.setLimits(world.getState().modelDistanceVisibilityFactorFar, 1.f, 36.f);
-		sdrModelFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
-		sdrModelFarClipping.setEasing(0);
-		sdrModelFarClipping.setShowValue(true);
-		sdrModelFarClipping.tag = "ModelFarClipping";
-		
-		x = 25;
-//		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
-		lblModelFarClipping = new GLabel(mediaWindow, x, y, 165, iVerySmallBoxHeight, "Model Visibility Distance");
-		lblModelFarClipping.setLocalColorScheme(G4P.SCHEME_10);
-		world.ml.delay(delayAmount);
-
-//		x = 80;
-//		if(compressTallWindows) x += windowWidth;
-//		y += iMediumBoxHeight;
-//		chkbxMediaToCluster = new GCheckbox(mediaWindow, x, y, 165, iVerySmallBoxHeight, "View Interest Points (6)");
-//		chkbxMediaToCluster.tag = "MediaToCluster";
-//		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxMediaToCluster.setEnabled(world.getState().showModel);
-//		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
-		
-//		if(compressTallWindows) x += windowWidth;
-//		x = 80;
-//		y += iLargeBoxHeight;
-//		chkbxDisplayTerrain = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Show Terrain (T)");
-//		chkbxDisplayTerrain.tag = "DisplayTerrain";
-//		chkbxDisplayTerrain.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxDisplayTerrain.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-//		chkbxDisplayTerrain.setSelected(world.getState().displayTerrain);
-
-//		x = iLeftMargin;
-//		if(compressTallWindows) x += windowWidth;
-//		y += iSmallBoxHeight;
-//		chkbxCaptureToMedia = new GCheckbox(mediaWindow, x, y, 150, iVerySmallBoxHeight, "View GPS Locations (7)");
-//		chkbxCaptureToMedia.tag = "CaptureToMedia";
-//		chkbxCaptureToMedia.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxCaptureToMedia.setEnabled(world.getState().showModel);
-//		chkbxCaptureToMedia.setSelected(world.getState().showCaptureToMedia);
-//
-//		chkbxCaptureToCluster = new GCheckbox(mediaWindow, x += 155, y, 170, iVerySmallBoxHeight, "View Adjustment (8)");
-//		chkbxCaptureToCluster.tag = "CaptureToCluster";
-//		chkbxCaptureToCluster.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxCaptureToCluster.setEnabled(world.getState().showModel);
-//		chkbxCaptureToCluster.setSelected(world.getState().showCaptureToCluster);
-
-		x = 65;
-//		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
-		chkbxOrientationMode = new GCheckbox(mediaWindow, x, y, 195, iVerySmallBoxHeight, "Orientation Mode (9)");
-		chkbxOrientationMode.tag = "OrientationMode";
-		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
 
 //		x = mediaWindowWidth / 2 - 60;
 //		if(compressTallWindows)
 //			x = mediaWindowWidth / 2 - 60;
 //		else
-			x = iLeftMargin;
-		y = mediaWindowHeight - iBottomTextY;
-		btnMediaWindowClose = new GButton(mediaWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧2)");
-		btnMediaWindowClose.tag = "CloseMediaWindow";
-		btnMediaWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
+//			x = iLeftMargin;
+//		y = mediaWindowHeight - iBottomTextY;
+//		btnMediaWindowClose = new GButton(mediaWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧2)");
+//		btnMediaWindowClose.tag = "CloseMediaWindow";
+//		btnMediaWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
 		
-		x = mediaWindowWidth - 150;
+		x = mediaWindowWidth / 2 - 65;
+		y = mediaWindowHeight - iBottomTextY;
 		btnMediaWindowExit = new GButton(mediaWindow, x, y, 130, iVerySmallBoxHeight, "Main Menu (space)");
 		btnMediaWindowExit.tag = "ExitMediaWindow";
 		btnMediaWindowExit.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1544,7 +1578,8 @@ public class ML_Window
 		timeWindow.addData(new ML_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
 		timeWindow.addKeyHandler(world.ml, "timelineWindowKey");
-		
+//		timeWindow.setActionOnClose(GWindow.KEEP_OPEN);
+
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
@@ -1561,7 +1596,7 @@ public class ML_Window
 		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnTimeView.setLocalColorScheme(G4P.GREEN_SCHEME);
 
-		x = 90;
+		x = 105;
 		y += iVeryLargeBoxHeight;
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, iVerySmallBoxHeight, "On / Off (f)");
 		chkbxTimeFading.tag = "TimeFading";
@@ -1575,7 +1610,7 @@ public class ML_Window
 		lblTimeCycle.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeCycle.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
-		x = 90;
+		x = 105;
 		y += iMediumBoxHeight * 0.5f;
 		chkbxPaused = new GCheckbox(timeWindow, x, y, 140, iVerySmallBoxHeight, "Pause (-)");
 		chkbxPaused.tag = "Paused";
@@ -1784,13 +1819,13 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = iLeftMargin + 5;
-		y = timeWindowHeight - iBottomTextY;
-		btnTimeWindowClose = new GButton(timeWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧3)");
-		btnTimeWindowClose.tag = "CloseTimeWindow";
-		btnTimeWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
+//		x = iLeftMargin + 5;
+//		btnTimeWindowClose = new GButton(timeWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧3)");
+//		btnTimeWindowClose.tag = "CloseTimeWindow";
+//		btnTimeWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
 		
-		x = timeWindow.width - 150;
+		x = timeWindow.width / 2 - 65;
+		y = timeWindowHeight - iBottomTextY;
 		btnTimeWindowExit = new GButton(timeWindow, x, y, 130, iVerySmallBoxHeight, "Main Menu (space)");
 		btnTimeWindowExit.tag = "ExitTimeWindow";
 		btnTimeWindowExit.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1838,7 +1873,7 @@ public class ML_Window
 		preferencesWindow.addData(new ML_WinData());
 		preferencesWindow.addDrawHandler(this, "preferencesWindowDraw");
 		preferencesWindow.addKeyHandler(world.ml, "preferencesWindowKey");
-		preferencesWindow.setActionOnClose(GWindow.KEEP_OPEN);
+//		preferencesWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount * 3 / 2);
@@ -1853,66 +1888,94 @@ public class ML_Window
 
 		x = 0;
 		y += iLargeBoxHeight;
-		lblViewPreferences = new GLabel(preferencesWindow, x, y-3, preferencesWindow.width, iMediumBoxHeight, "View");
+		lblPathNavigationPreferences = new GLabel(preferencesWindow, x, y-3, preferencesWindow.width, iMediumBoxHeight, "Path Navigation");
+		lblPathNavigationPreferences.setLocalColorScheme(G4P.SCHEME_10);
+		lblPathNavigationPreferences.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		lblPathNavigationPreferences.setTextAlign(GAlign.CENTER, null);
+		lblPathNavigationPreferences.setTextBold();
+
+		x = 70;
+		y += iLargeBoxHeight;
+		chkbxFollowTeleport = new GCheckbox(preferencesWindow, x, y, 185, iVerySmallBoxHeight, "Force Teleporting (,)");
+		chkbxFollowTeleport.tag = "FollowTeleport";
+		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
+
+		y += 8;
+		
+		x = 65;
+		sdrTeleportLength = new GSlider(preferencesWindow, x, y, 70, 80, iVerySmallBoxHeight);
+		sdrTeleportLength.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
+		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
+		sdrTeleportLength.setTextOrientation(G4P.ORIENT_TRACK);
+//		sdrTeleportLength.setRotation(PApplet.PI/2.f);
+//		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrTeleportLength.setEasing(0);
+		sdrTeleportLength.setShowValue(true);
+		sdrTeleportLength.tag = "TeleportLength";
+
+		x = 215;
+		sdrPathWaitLength = new GSlider(preferencesWindow, x, y, 70, 80, iVerySmallBoxHeight);
+		sdrPathWaitLength.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrPathWaitLength.setLimits(0.f, 30.f, 600.f);
+		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
+		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrPathWaitLength.setEasing(0);
+		sdrPathWaitLength.setShowValue(true);
+		sdrPathWaitLength.tag = "PathWaitLength";
+		
+		x = iLeftMargin;
+//		if(compressTallWindows) x += windowWidth;
+		y += iMediumBoxHeight;
+		lblTeleportLength = new GLabel(preferencesWindow, x, y, 80, iVerySmallBoxHeight, "Length");
+		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
+
+		x = 155;
+//		if(compressTallWindows) x += windowWidth;
+		lblPathWaitLength = new GLabel(preferencesWindow, x, y, 90, iVerySmallBoxHeight, "Wait Time");
+		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
+
+		x = 0;
+		y += iLargeBoxHeight;
+		lblViewPreferences = new GLabel(preferencesWindow, x, y-3, preferencesWindow.width, iMediumBoxHeight, "Viewing");
 		lblViewPreferences.setLocalColorScheme(G4P.SCHEME_10);
 		lblViewPreferences.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblViewPreferences.setTextAlign(GAlign.CENTER, null);
 		lblViewPreferences.setTextBold();
 
-		x = 110;
+		x = 55;
 		y += iMediumBoxHeight;
-		chkbxShowMetadata = new GCheckbox(preferencesWindow, x, y, 195, iVerySmallBoxHeight, "Metadata (M)");
+		chkbxBlurMasks = new GCheckbox(preferencesWindow, x, y, 145, iVerySmallBoxHeight, "Fade Edges (E)");
+		chkbxBlurMasks.tag = "FadeEdges";
+		chkbxBlurMasks.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxBlurMasks.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxBlurMasks.setSelected(world.getState().useBlurMasks);
+//		x = 80;
+//		if(compressTallWindows) x += windowWidth;
+		y += iMediumBoxHeight;
+		chkbxOrientationMode = new GCheckbox(preferencesWindow, x, y, 195, iVerySmallBoxHeight, "Orientation Mode (9)");
+		chkbxOrientationMode.tag = "OrientationMode";
+		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
+
+//		x = 80;
+		y += iMediumBoxHeight;
+		chkbxShowMetadata = new GCheckbox(preferencesWindow, x, y, 195, iVerySmallBoxHeight, "View Metadata (M)");
 		chkbxShowMetadata.tag = "ViewMetadata";
 		chkbxShowMetadata.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		chkbxShowMetadata.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxShowMetadata.setSelected(world.getState().showMetadata);
 
-		x = 90;
+//		x = 80;
 		y += iMediumBoxHeight;
-		chkbxDisplayTerrain = new GCheckbox(preferencesWindow, x, y, 205, iVerySmallBoxHeight, "Ground Level (T)");
+		chkbxDisplayTerrain = new GCheckbox(preferencesWindow, x, y, 230, iVerySmallBoxHeight, "Terrain On / Off (BETA) (T)");
 		chkbxDisplayTerrain.tag = "DisplayTerrain";
 		chkbxDisplayTerrain.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxDisplayTerrain.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		chkbxDisplayTerrain.setSelected(world.getState().displayTerrain);
-
-		x = 0;
-		y += iMediumBoxHeight;
-//		x = iLeftMargin + 10;
-//		if(compressTallWindows) x = 100;
-//		y += iSmallBoxHeight * 0.5f;
-		lblHideMedia = new GLabel(preferencesWindow, x, y, preferencesWindow.width, iVerySmallBoxHeight, "Hide");
-		lblHideMedia.setLocalColorScheme(G4P.SCHEME_10);
-		lblHideMedia.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		if(!compressTallWindows) 
-		lblHideMedia.setTextAlign(GAlign.CENTER, null);
-		lblHideMedia.setTextBold();
-
-		x = 75;
-		y += iMediumBoxHeight;
-		chkbxHideImages = new GCheckbox(preferencesWindow, x, y, 95, iVerySmallBoxHeight, "Images (I)");
-		chkbxHideImages.tag = "HideImages";
-		chkbxHideImages.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxHideImages.setSelected(world.viewer.getSettings().hideImages);
-		
-		chkbxHidePanoramas = new GCheckbox(preferencesWindow, x += 90, y, 115, iVerySmallBoxHeight, "Panoramas (P)");
-		chkbxHidePanoramas.tag = "HidePanoramas";
-		chkbxHidePanoramas.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxHidePanoramas.setSelected(world.viewer.getSettings().hidePanoramas);
-
-		world.ml.delay(delayAmount / 2);
-
-		x = 90;
-		y += iSmallBoxHeight;
-//		y += iSmallBoxHeight * 0.5f;
-		chkbxHideVideos = new GCheckbox(preferencesWindow, x, y, 85, iVerySmallBoxHeight, "Videos (V)");
-		chkbxHideVideos.tag = "HideVideos";
-		chkbxHideVideos.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxHideVideos.setSelected(world.viewer.getSettings().hideVideos);
-
-		chkbxHideSounds = new GCheckbox(preferencesWindow, x += 90, y, 95, iVerySmallBoxHeight, "Sounds (U)");
-		chkbxHideSounds.tag = "HideSounds";
-		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxHideSounds.setSelected(world.viewer.getSettings().hideSounds);
 
 		x = 0;
 		y += iLargeBoxHeight;
@@ -1922,12 +1985,12 @@ public class ML_Window
 		lblModelPreferences.setTextAlign(GAlign.CENTER, null);
 		lblModelPreferences.setTextBold();
 
-		x = 60;
+		x = 55;
 		y += iMediumBoxHeight;
 		chkbxMediaToCluster = new GCheckbox(preferencesWindow, x, y, 215, iVerySmallBoxHeight, "View GPS Locations (6)");
 		chkbxMediaToCluster.tag = "MediaToCluster";
 		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxMediaToCluster.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxMediaToCluster.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 //		chkbxMediaToCluster.setEnabled(world.getState().showModel);
 		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
 
@@ -1941,15 +2004,60 @@ public class ML_Window
 		
 		x = 25;
 		y += iMediumBoxHeight;
-		chkbxMultiSelection = new GCheckbox(preferencesWindow, x, y, 150, iVerySmallBoxHeight, "Multi-Selection (OPT m)");
+		chkbxMultiSelection = new GCheckbox(preferencesWindow, x, y, 155, iVerySmallBoxHeight, "Multi-Selection (OPT m)");
 		chkbxMultiSelection.tag = "MultiSelection";
 		chkbxMultiSelection.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxMultiSelection.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize-1));
 		chkbxMultiSelection.setSelected(world.viewer.getSettings().multiSelection);
 
-		chkbxSegmentSelection = new GCheckbox(preferencesWindow, x+155, y, 125, iVerySmallBoxHeight, "Groups (OPT s)");
+		chkbxSegmentSelection = new GCheckbox(preferencesWindow, x+160, y, 135, iVerySmallBoxHeight, "Groups (OPT s)");
 		chkbxSegmentSelection.tag = "SegmentSelection";
 		chkbxSegmentSelection.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxSegmentSelection.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize-1));
 		chkbxSegmentSelection.setSelected(world.viewer.getSettings().groupSelection);
+
+		x = 0;
+		y += iMediumBoxHeight;
+//		x = iLeftMargin + 10;
+//		if(compressTallWindows) x = 100;
+//		y += iSmallBoxHeight * 0.5f;
+		lblHideMedia = new GLabel(preferencesWindow, x, y, preferencesWindow.width, iVerySmallBoxHeight, "Hiding");
+		lblHideMedia.setLocalColorScheme(G4P.SCHEME_10);
+		lblHideMedia.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+//		if(!compressTallWindows) 
+		lblHideMedia.setTextAlign(GAlign.CENTER, null);
+		lblHideMedia.setTextBold();
+
+		x = 55;
+		y += iMediumBoxHeight;
+		chkbxHideImages = new GCheckbox(preferencesWindow, x, y, 95, iVerySmallBoxHeight, "Images (I)");
+		chkbxHideImages.tag = "HideImages";
+		chkbxHideImages.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxHideImages.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxHideImages.setSelected(world.viewer.getSettings().hideImages);
+		
+		chkbxHidePanoramas = new GCheckbox(preferencesWindow, x + 100, y, 115, iVerySmallBoxHeight, "Panoramas (P)");
+		chkbxHidePanoramas.tag = "HidePanoramas";
+		chkbxHidePanoramas.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxHidePanoramas.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxHidePanoramas.setSelected(world.viewer.getSettings().hidePanoramas);
+
+		world.ml.delay(delayAmount / 2);
+
+//		x = 55;
+		y += iSmallBoxHeight;
+//		y += iSmallBoxHeight * 0.5f;
+		chkbxHideVideos = new GCheckbox(preferencesWindow, x, y, 95, iVerySmallBoxHeight, "Videos (V)");
+		chkbxHideVideos.tag = "HideVideos";
+		chkbxHideVideos.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxHideVideos.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxHideVideos.setSelected(world.viewer.getSettings().hideVideos);
+
+		chkbxHideSounds = new GCheckbox(preferencesWindow, x += 100, y, 95, iVerySmallBoxHeight, "Sounds (U)");
+		chkbxHideSounds.tag = "HideSounds";
+		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxHideSounds.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		chkbxHideSounds.setSelected(world.viewer.getSettings().hideSounds);
 
 //		x = 70;
 //		y += iLargeBoxHeight;
@@ -2052,13 +2160,14 @@ public class ML_Window
 		world.ml.delay(delayAmount / 2);
 
 //		x = libraryViewWindow.width / 2 - 60;
-		x = iLeftMargin + 5;
-		y = preferencesWindowHeight - iBottomTextY;
-		btnPreferencesWindowClose = new GButton(preferencesWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧4)");
-		btnPreferencesWindowClose.tag = "ClosePreferencesWindow";
-		btnPreferencesWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
+//		x = iLeftMargin + 5;
+//		y = preferencesWindowHeight - iBottomTextY;
+//		btnPreferencesWindowClose = new GButton(preferencesWindow, x, y, 125, iVerySmallBoxHeight, "Close Window (⇧4)");
+//		btnPreferencesWindowClose.tag = "ClosePreferencesWindow";
+//		btnPreferencesWindowClose.setLocalColorScheme(G4P.RED_SCHEME);
 		
-		x = preferencesWindow.width - 150;
+		x = preferencesWindow.width / 2 - 65;
+		y = preferencesWindow.height - iBottomTextY;
 		btnPreferencesWindowExit = new GButton(preferencesWindow, x, y, 130, iVerySmallBoxHeight, "Main Menu (space)");
 		btnPreferencesWindowExit.tag = "ExitPreferencesWindow";
 		btnPreferencesWindowExit.setLocalColorScheme(G4P.CYAN_SCHEME);

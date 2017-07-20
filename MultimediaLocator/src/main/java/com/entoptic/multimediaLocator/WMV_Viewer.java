@@ -3889,7 +3889,7 @@ public class WMV_Viewer
 			camera.teleport(state.location.x, state.location.y, state.location.z, true);
 		}
 		
-		if(p.ml.display.window.setupMediaWindow)
+		if(p.ml.display.window.setupPreferencesWindow)
 			p.ml.display.window.chkbxOrientationMode.setSelected(newState);
 	}
 	

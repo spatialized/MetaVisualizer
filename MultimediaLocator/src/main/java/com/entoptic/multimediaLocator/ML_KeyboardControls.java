@@ -196,7 +196,7 @@ public class ML_KeyboardControls
 		if (key == '9')														
 		{
 			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
-			if(ml.display.window.setupMediaWindow)
+			if(ml.display.window.setupPreferencesWindow)
 				ml.display.window.chkbxOrientationMode.setSelected(ml.world.viewer.getSettings().orientationMode);
 		}
 
@@ -430,7 +430,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().useBlurMasks;
 			ml.world.getState().useBlurMasks = state;
-			if(ml.display.window.setupMediaWindow)
+			if(ml.display.window.setupPreferencesWindow)
 				ml.display.window.chkbxBlurMasks.setSelected(state);
 		}
 

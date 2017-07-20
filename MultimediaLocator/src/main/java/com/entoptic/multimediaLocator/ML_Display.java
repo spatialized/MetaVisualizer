@@ -2948,6 +2948,10 @@ public class ML_Display
 //					window.btnLibraryView.setEnabled(true);
 //					window.setLibraryViewWindowControlsEnabled(false);
 //				}
+				
+				if(setupTimeView) setupTimeView = false;
+				if(setupLibraryView) setupLibraryView = false;
+				
 				break;
 				
 			case 1:														// Map View
@@ -2994,6 +2998,10 @@ public class ML_Display
 //					window.btnLibraryView.setEnabled(true);
 //					window.setLibraryViewWindowControlsEnabled(false);
 //				}
+				
+				if(setupTimeView) setupTimeView = false;
+				if(setupLibraryView) setupLibraryView = false;
+
 				break;
 				
 			case 2:														// Timeline View
@@ -3021,6 +3029,9 @@ public class ML_Display
 //					window.setLibraryViewWindowControlsEnabled(false);
 //				}
 				zoomToTimeline(ml.world, true);
+				
+				if(setupLibraryView) setupLibraryView = false;
+
 				break;
 				
 			case 3:													/* Library View */
@@ -3061,6 +3072,9 @@ public class ML_Display
 //					window.btnLibraryView.setEnabled(false);
 //					window.setLibraryViewWindowControlsEnabled(true);
 //				}
+				
+				if(setupTimeView) setupTimeView = false;
+
 				break;
 			case 4:													// Media View
 				break;

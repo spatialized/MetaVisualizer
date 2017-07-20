@@ -15,8 +15,8 @@ public class WMV_WorldSettings
 	public boolean copyLargeImageFiles = false;
 	public boolean copyLargeVideoFiles = false;
 	
-	public final float defaultFocusDistance = 10.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
-	public final float defaultAltitudeScalingFactor = 1.5f;		// Adjust altitude for ease of viewing
+	public final float defaultFocusDistance = 14.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
+	public final float defaultAltitudeScalingFactor = 1.f;		// Adjust altitude for ease of viewing
 	public float subjectSizeRatio = 0.18f;						// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public final float panoramaFocusDistanceFactor = 1.1f;		// Scaling from defaultFocusDistance to panorama radius
 	public final float videoFocusDistanceFactor = 0.8f;			// Scaling from defaultFocusDistance to video focus distance
@@ -74,7 +74,8 @@ public class WMV_WorldSettings
 
 	public final int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
 	public int defaultMediaLength = initDefaultMediaLength;						// Default frame length of media in time cycle
-	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
+//	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
+	public final float clusterTimePrecision = 0.000033f;		// Precision of timesHistogram (no. of bins)
 	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
 	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled

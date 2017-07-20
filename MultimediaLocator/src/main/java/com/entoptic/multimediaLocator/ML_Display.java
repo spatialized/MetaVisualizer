@@ -1,8 +1,12 @@
 package main.java.com.entoptic.multimediaLocator;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import g4p_controls.G4P;
+import g4p_controls.GButton;
+import g4p_controls.GLabel;
 //import g4p_controls.GButton;
 import processing.core.*;
 
@@ -31,6 +35,11 @@ public class ML_Display
 	
 	/* Window Behavior */
 	public boolean disableLostFocusHook = false;
+	
+	/* Buttons */
+	ArrayList<ML_Button> buttons;
+	private float buttonWidth, buttonHeight;
+	private float buttonSpacing;
 	
 	/* Graphics */
 	private PMatrix3D originalMatrix; 							/* For restoring 3D view after 2D HUD */
@@ -93,7 +102,9 @@ public class ML_Display
 	public final float transitionZoomInIncrement = 0.95f, transitionZoomOutIncrement = 1.052f;	
 
 	/* Library View */
-	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
+	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Location (Cluster)
+	private boolean setupLibraryView = false;		
+	
 	public int currentDisplayField = 0, currentDisplayCluster = 0;
 
 	private float clusterMediaXOffset, clusterMediaYOffset;
@@ -190,6 +201,8 @@ public class ML_Display
 
 		map2D = new ML_Map(this);
 		
+		buttons = new ArrayList<ML_Button>();
+		
 		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
 		defaultFont = ml.createFont("SansSerif", smallTextSize);
 
@@ -217,6 +230,10 @@ public class ML_Display
 		datelineYOffset = windowHeight * 0.57f;
 		
 		screenWidthFactor = ml.width / 1440.f;
+		
+		buttonWidth = windowWidth * 0.075f;
+		buttonHeight = windowWidth * 0.0175f;
+		buttonSpacing = windowWidth * 0.0125f;
 		
 		hudVeryLargeTextSize = 32.f * screenWidthFactor;
 		hudLargeTextSize = 26.f * screenWidthFactor;
@@ -277,6 +294,9 @@ public class ML_Display
 						displayTimeView(ml.world);
  						break;
 					case 3:								// Library view
+						if(!setupLibraryView)
+							setupLibraryView(ml.world);
+						
 						displayLibraryView(ml.world);
 						updateLibraryView(ml.world);		
 						break;
@@ -287,28 +307,191 @@ public class ML_Display
 			}
 		}
 	}
+	
+	/**
+	 * Setup Library View
+	 * @param world Parent world
+	 */
+	private void setupLibraryView(WMV_World world)
+	{
+		createLibraryViewButtons();
+	}
+	
+	/**
+	 * Create Library View buttons
+	 */
+	private void createLibraryViewButtons()
+	{
+		ML_Button cluster, field, library;
+		
+		float x = hudCenterXOffset - buttonWidth * 0.5f;
+		float y = hudTopMargin + lineWidth;			// Starting vertical position
 
-	  /**
-	   * Begin Heads-Up Display
-	   * @param ml Parent app
-	   */
-	  public void beginHUD(MultimediaLocator ml) 
-	  {
-		  ml.g.pushMatrix();
-		  ml.g.hint(PConstants.DISABLE_DEPTH_TEST);
-		  ml.g.resetMatrix();		 			 	// Load identity matrix.
-		  ml.g.applyMatrix(originalMatrix);		  	// Apply original transformation matrix.
-	  }
+		cluster = new ML_Button(0, "Location", hudVerySmallTextSize, x-buttonWidth, x, y, y+buttonHeight);
+//		cluster.addLabel("Displaying: ");
+		x += buttonSpacing;
+		field = new ML_Button(1, "Field", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		x += buttonSpacing;
+		library = new ML_Button(2, "Library", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		
+		buttons.add(cluster);
+		buttons.add(field);
+		buttons.add(library);
 
-	  /**
-	   * End Heads-Up Display
-	   * @param ml Parent app
-	   */
-	  public void endHUD(MultimediaLocator ml) 
-	  {
-//	   	  ml.g.hint(PConstants.ENABLE_DEPTH_TEST);
-		  ml.g.popMatrix();
-	  }
+		ML_Button previous, next, current;
+		
+		x = hudCenterXOffset - buttonWidth * 1.5f;
+		y += buttonHeight + buttonSpacing;												// Starting vertical position
+
+		previous = new ML_Button(10, "Previous (left)", hudVerySmallTextSize, x-buttonWidth*0.5f, x+=buttonWidth, y, y+buttonHeight);
+		x += buttonSpacing;
+		current = new ML_Button(12, "Current", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		x += buttonSpacing;
+		next = new ML_Button(11, "Next (right)", hudVerySmallTextSize, x, x+=buttonWidth + buttonWidth * 0.5f, y, y+buttonHeight);
+		
+		buttons.add(previous);
+		buttons.add(current);
+		buttons.add(next);
+	}
+	
+	/**
+	 * Button class
+	 * @author davidgordon
+	 */
+	private class ML_Button
+	{
+		private int id;
+		private String text;
+		private String label = "";
+		
+		private float textSize;
+		private boolean selected;
+		public float leftEdge, rightEdge, topEdge, bottomEdge;
+		/**
+		 * Constructor for button
+		 * @param newID
+		 * @param newText
+		 * @param newTextSize
+		 * @param newLeftEdge
+		 * @param newRightEdge
+		 * @param newTopEdge
+		 * @param newBottomEdge
+		 */
+		ML_Button(int newID, String newText, float newTextSize, float newLeftEdge, float newRightEdge, float newTopEdge, float newBottomEdge)
+		{
+			id = newID;
+			text = newText;
+			textSize = newTextSize;
+			
+			leftEdge = newLeftEdge;
+			rightEdge = newRightEdge;
+			topEdge = newTopEdge;
+			bottomEdge = newBottomEdge;
+		}
+
+		public int getID()
+		{
+			return id;
+		}
+		
+		public boolean isSelected()
+		{
+			return selected;
+		}
+		
+		public boolean containsPoint(PVector point)
+		{
+			if( point.x > leftEdge && point.x < rightEdge && 
+					point.y > topEdge && point.y < bottomEdge )
+				return true;
+			else
+				return false;
+		}
+		
+		public void setSelected(boolean newState)
+		{
+			selected = newState;
+		}
+		
+		public void addLabel(String newLabel)
+		{
+			label = newLabel;
+		}
+		
+		public void clearLabel()
+		{
+			label = "";
+		}
+		
+		public void display(WMV_World p, float hue, float saturation, float brightness)
+		{
+			float textWidthFactor = 2.f / textSize;
+			float textHeightFactor = 5.f / textSize;
+			
+			ml.stroke(hue, saturation, brightness, 255);												
+			ml.strokeWeight(3.f);
+
+			ml.pushMatrix();
+
+			ml.fill(hue, saturation, brightness, 255);												
+			ml.textSize(textSize);
+
+			float xOffset = -textWidthFactor * text.length();  
+			ml.text(text, (rightEdge+leftEdge)/2.f + xOffset, topEdge + buttonHeight / 2.f - textHeightFactor / 2.f, 0);
+			
+			if(!label.equals(""))
+			{
+				xOffset = -textWidthFactor * label.length() * 2.f - buttonSpacing;  
+				ml.text(label, leftEdge + xOffset, topEdge + buttonHeight / 2.f - textHeightFactor / 2.f, 0);
+			}
+			
+			ml.popMatrix();
+				
+			ml.pushMatrix();
+			if(selected)
+			{
+				ml.strokeWeight(1.f);
+//				ml.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
+//				ml.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
+//				ml.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
+//				ml.line(leftEdge, bottomEdge, 0, rightEdge, bottomEdge, 0);			
+				ml.fill(hue, saturation, 155, 125);
+			}
+			else
+			{
+				ml.strokeWeight(0.f);
+				ml.fill(hue, saturation, 75, 55);
+			}
+				
+			float width = rightEdge-leftEdge;
+			float height = bottomEdge-topEdge;
+			
+			ml.rect(leftEdge+width/2.f, topEdge+height/2.f, width, height);
+			ml.popMatrix();
+		}
+	}
+
+	/**
+	 * Begin Heads-Up Display
+	 * @param ml Parent app
+	 */
+	public void beginHUD(MultimediaLocator ml) 
+	{
+		ml.g.pushMatrix();
+		ml.g.hint(PConstants.DISABLE_DEPTH_TEST);
+		ml.g.resetMatrix();		 			 	// Load identity matrix.
+		ml.g.applyMatrix(originalMatrix);		  	// Apply original transformation matrix.
+	}
+
+	/**
+	 * End Heads-Up Display
+	 * @param ml Parent app
+	 */
+	public void endHUD(MultimediaLocator ml) 
+	{
+		//	   	  ml.g.hint(PConstants.ENABLE_DEPTH_TEST);
+		ml.g.popMatrix();
+	}
 
 	/**
 	 * Set the current initialization progress bar position
@@ -417,6 +600,8 @@ public class ML_Display
 				createClusterSelectableMedia(p, imageList);
 			updateSelectableMedia = false;
 		}
+		
+		updateLibraryViewMouse();
 	}
 	
 	/**
@@ -1153,9 +1338,9 @@ public class ML_Display
 	 * Update Library View based on current mouse position
 	 * @param p Parent world
 	 */
-	private void updateLibraryMouse(WMV_World p)
+	private void updateLibraryViewMouse()
 	{
-//		System.out.println("Display.updateTimelineMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
+//		System.out.println("Display.updateLibraryViewMouse()... frameCount:"+ml.frameCount+" mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY+" displayView:"+displayView);
 		
 		PVector mouseLoc = new PVector(ml.mouseX, ml.mouseY);
 
@@ -1168,84 +1353,39 @@ public class ML_Display
 			endDisplayHUD();
 		}
 		
-		if(selectableMedia != null)
+		if(buttons.size() > 0)
 		{
-			SelectableMedia mediaSelected = getSelectedMedia(mouseLoc);
-			
-			if(mediaSelected != null)
+			for(ML_Button b : buttons)
 			{
-				if(selectedMedia != mediaSelected.getID())
-				{
-					selectedMedia = mediaSelected.getID();				// Set to selected
-
-					if(ml.debug.library && ml.debug.detailed)
-						System.out.println("Display.updateLibraryMouse()... Selected media: "+selectedMedia);
-				}
+				if( mouseLoc.x > b.leftEdge && mouseLoc.x < b.rightEdge && 
+						mouseLoc.y > b.topEdge && mouseLoc.y < b.bottomEdge )
+					b.setSelected(true);
+				else
+					b.setSelected(false);
 			}
-			else
-				selectedMedia = -1;
+		}
+		
+		if(createdSelectableMedia)
+		{
+			if(selectableMedia != null)
+			{
+				SelectableMedia mediaSelected = getSelectedMedia(mouseLoc);
+
+				if(mediaSelected != null)
+				{
+					if(selectedMedia != mediaSelected.getID())
+					{
+						selectedMedia = mediaSelected.getID();				// Set to selected
+
+						if(ml.debug.library && ml.debug.detailed)
+							System.out.println("Display.updateLibraryMouse()... Selected media: "+selectedMedia);
+					}
+				}
+				else
+					selectedMedia = -1;
+			}
 		}
 	}
-	
-	/**
-	 * Get 2D mouse location, adjusted for screen size
-	 * @param original Original mouse location
-	 * @return Adjusted mouse location
-	 */
-//	private PVector getAdjustedMouse2DLocation(PVector original)
-//	{
-//		float mouseX = original.x;
-//		float mouseY = original.y;
-//		
-//		float centerX = screenWidth * 0.5f;			/* Center X location */
-//		float centerY = screenHeight * 0.5f;		/* Center Y location */
-//		
-//		float dispX = mouseX - centerX;						/* Mouse X displacement from the center */
-//		float dispY = mouseY - centerY;						/* Mouse Y displacement from the center */
-//		
-//		float offsetXFactor = 0.00009f * screenHeight;
-//		float offsetYFactor = 0.00009f * screenWidth;
-//		
-////		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
-//		
-//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
-//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
-//
-//		offsetX *= monitorOffsetXAdjustment;			// -- Added 7/2/17
-//
-//		float newX = mouseX + offsetX;
-//		float newY = mouseY + offsetY;
-//		
-//		return new PVector(newX, newY);
-//	}
-	
-//	/**														
-//	 * Get 2D mouse location adjusted for screen size			-- Works with 0.625 aspect monitors only
-//	 * @param original Original mouse location
-//	 * @return Adjusted mouse location
-//	 */
-//	private PVector getAdjustedMouse2DLocation(PVector original)
-//	{
-//		float mouseX = original.x;
-//		float mouseY = original.y;
-//		
-//		float centerX = screenWidth * 0.5f;			/* Center X location */
-//		float centerY = screenHeight * 0.5f;		/* Center Y location */
-//		
-//		float dispX = mouseX - centerX;						/* Mouse X displacement from the center */
-//		float dispY = mouseY - centerY;						/* Mouse Y displacement from the center */
-//		
-//		float offsetXFactor = 0.00009f * screenHeight;
-//		float offsetYFactor = 0.00009f * screenWidth;
-//		
-//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
-//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
-//
-//		float newX = mouseX + offsetX;
-//		float newY = mouseY + offsetY;
-//		
-//		return new PVector(newX, newY);
-//	}
 	
 	/**
 	 * Zoom to current selectable time segment
@@ -1556,12 +1696,46 @@ public class ML_Display
 	 */
 	public void handleLibraryViewMouseReleased(WMV_World p, float mouseX, float mouseY)
 	{
-		updateLibraryMouse(p);
+		updateLibraryViewMouse();
 		
 		if(selectedMedia != -1)
 			p.viewer.startViewingMedia(0, selectedMedia);			// Only images currently implemented
 		
-//		p.viewer.teleportToCluster(selectedCluster, false, selectableTimeSegments.get(selectedTime).segment.getFieldTimelineID());
+		for(ML_Button b : buttons)
+		{
+			if( b.isSelected() && b.containsPoint(new PVector(mouseX, mouseY) ))
+			{
+				switch(b.getID())
+				{
+					case 0:				// Set Library Display
+						if(getLibraryViewMode() != 2)
+							setLibraryViewMode(2);
+						break;
+					case 1:				// Set Field Display
+						if(getLibraryViewMode() != 1)
+							setLibraryViewMode(1);
+						break;
+					case 2:				// Set Cluster Display
+						if(getLibraryViewMode() != 0)
+							setLibraryViewMode(0);
+						break;
+					case 10:				// Previous Location
+						ml.display.showPreviousItem();
+						break;
+					case 11:				// Next Location
+						ml.display.showNextItem();
+						break;
+					case 12:				// Current Location
+						if(getLibraryViewMode() == 1)
+							setDisplayItem( ml.world.viewer.getCurrentFieldID() );
+						else if(getLibraryViewMode() == 2)
+							setDisplayItem( ml.world.viewer.getCurrentClusterID() );
+						break;
+				}
+				
+				b.setSelected(false);
+			}
+		}
 	}
 
 	/**
@@ -1909,22 +2083,37 @@ public class ML_Display
 	void displayLibraryView(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
-		if(currentDisplayCluster < 0 || currentDisplayCluster >= f.getClusters().size())
-		{
-			System.out.println("Display.displayLibraryView()... Fixed currentDisplayCluster out of range! was: "+currentDisplayCluster+" getClusters().size():"+f.getClusters().size());
-			currentDisplayCluster = 0;
-		}
+		
+//		if(currentDisplayCluster < 0 || currentDisplayCluster >= f.getClusters().size())
+//		{
+//			System.out.println("Display.displayLibraryView()... Fixed currentDisplayCluster out of range! was: "+currentDisplayCluster+" getClusters().size():"+f.getClusters().size());
+//			currentDisplayCluster = 0;
+//		}
 
-		if(currentDisplayField < 0 || currentDisplayField >= p.getFieldCount())
-		{
-			System.out.println("Display.displayLibraryView()... Fixed currentDisplayField out of range! was: "+currentDisplayField+" getFields().size():"+p.getFields().size());
-			currentDisplayField = 0;
-		}
+//		if(currentDisplayField < 0 || currentDisplayField >= p.getFieldCount())
+//		{
+//			System.out.println("Display.displayLibraryView()... Fixed currentDisplayField out of range! was: "+currentDisplayField+" getFields().size():"+p.getFields().size());
+//			currentDisplayField = 0;
+//		}
 
+
+		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+
+		startDisplayHUD();
+		ml.pushMatrix();
+		
+		for(ML_Button b : buttons)
+			b.display(p, 0.f, 0.f, 255.f);
+		
+		ml.popMatrix();
+		endDisplayHUD();
+		
+		
 		WMV_Cluster c;
 		float x = hudCenterXOffset;
+//		float y = hudTopMargin + buttonHeight * 2.f + buttonSpacing * 2.f;			// Starting vertical position
 		float y = hudTopMargin;			// Starting vertical position
-
+		
 		switch(libraryViewMode)
 		{
 			case 0:														// Library   -- In progress
@@ -1935,7 +2124,10 @@ public class ML_Display
 				ml.textSize(hudLargeTextSize);
 				if(ml.world.getFieldCount() == 1)
 				{
-					ml.text(ml.world.getCurrentField().getName(), x, y += lineWidthWide * 1.5f);
+					ml.text(ml.world.getCurrentField().getName(), x, y);
+					
+					y += lineWidthWide;
+					
 					ml.textSize(hudMediumTextSize);
 					ml.text("(Single Field)", x, y += lineWidth );
 //					ml.text("No Current Library", x, y += lineWidthWide * 1.5f);
@@ -1968,6 +2160,9 @@ public class ML_Display
 				ml.fill(0, 0, 255, 255);
 				ml.textSize(hudVeryLargeTextSize);
 				ml.text(""+p.getCurrentField().getName(), x, y, 0);
+				
+				y += lineWidthWide;
+
 				c = p.getCurrentCluster();
 				
 //				ml.textSize(hudLargeTextSize);
@@ -2061,7 +2256,9 @@ public class ML_Display
 				ml.textSize(hudVeryLargeTextSize);
 				ml.text(""+p.getCurrentField().getName(), x, y, 0);
 	
-				y += hudLineWidthVeryWide;
+//				y += lineWidthWide + buttonHeight * 2.f + buttonSpacing * 2.f;
+
+				y += hudLineWidthVeryWide + buttonHeight * 2.f;
 				ml.textSize(hudLargeTextSize);
 				c = f.getCluster(currentDisplayCluster);		// Get cluster to display info for
 				WMV_Cluster cl = p.getCurrentCluster();
@@ -2098,7 +2295,6 @@ public class ML_Display
 				if(createdSelectableMedia)
 				{
 					drawClusterMediaGrid();				// Draw media in cluster in grid
-					updateLibraryMouse(p);
 				}
 				else
 				{
@@ -2106,7 +2302,7 @@ public class ML_Display
 					if(imageList != null)
 						createClusterSelectableMedia(p, imageList);
 				}
-				
+
 				ml.popMatrix();
 				
 //				map2D.displaySmallBasicMap(p);
@@ -2114,6 +2310,8 @@ public class ML_Display
 				
 				break;
 		}
+		
+//		updateLibraryViewMouse();
 	}
 	
 	private void createClusterSelectableMedia(WMV_World p, ArrayList<WMV_Image> imageList)

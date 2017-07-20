@@ -11,7 +11,8 @@ public class WMV_ViewerSettings
 	/* Camera */
 	public final float initFieldOfView = (float)Math.PI * 0.375f;	// Camera field of view
 	public float fieldOfView = initFieldOfView; 					// Initial camera field of view
-	public float rotateIncrement = 3.1415f / 256.f;					// Rotation amount per frame when turning
+
+	public float rotateIncrement = 3.1415f / 512.f;					// Rotation amount per frame when turning
 	public float zoomIncrement = 3.1415f / 32.f;					// Zoom amount per frame when zooming
 	public float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
 	public float farClippingDistance = 10000.f;						// Distance (m.) of far clipping plane

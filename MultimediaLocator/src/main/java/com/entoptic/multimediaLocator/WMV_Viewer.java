@@ -3610,10 +3610,17 @@ public class WMV_Viewer
 		if(startID != -1 && goalID != -1)
 		{
 			state.fadingToTime = true;
-			state.timeTransitionStartID = startID;		// Distance covered over one frame during GPS track transition 
-			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getLower().getAbsoluteTime();
+			state.timeTransitionStartID = startID;							// Distance covered over one frame during GPS track transition 
+			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getCenter().getAbsoluteTime();
+//			state.timeTransitionStartTimePoint = p.getCurrentField().getTimeline().timeline.get(startID).getLower().getAbsoluteTime();
+//			state.timeTransitionStartTimePoint = p.getCurrentFieldTime();
+
+			if(p.ml.debug.time)
+				p.ml.systemMessage("Viewer.transitionToFieldTimelineID()... Set state.timeTransitionStartTimePoint:"+state.timeTransitionStartTimePoint+" while p.getCurrentFieldTime():"+p.getCurrentFieldTime());
+			
 			state.timeTransitionGoalID = goalID;								// Distance covered over one frame during GPS track transition 
-			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getLower().getAbsoluteTime();
+			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getCenter().getAbsoluteTime();
+//			state.timeTransitionGoalTimePoint = p.getCurrentField().getTimeline().timeline.get(goalID).getLower().getAbsoluteTime();
 			state.timeTransitionStartFrame = p.ml.frameCount;
 			state.timeTransitionEndFrame = p.ml.frameCount + state.timeTransitionLength;
 		}
@@ -3625,13 +3632,13 @@ public class WMV_Viewer
 	
 //	private void transitionToFieldTimelinesID(int goalID)
 //	{
-////		public PVector timeTransitionStartID;						// Distance covered over one frame during GPS track transition 
-////		public PVector timeTransitionGoalID;							// Distance covered over one frame during GPS track transition 
-////		public final int timeTransitionLength;						// Frame length of GPS track transition
-////		public int timeTransitionStartFrame, timeTransitionEndFrame;	// GPS track transition start / end frame
+////		public PVector timeTransitionStartID;								// Distance covered over one frame during GPS track transition 
+////		public PVector timeTransitionGoalID;									// Distance covered over one frame during GPS track transition 
+////		public final int timeTransitionLength;								// Frame length of GPS track transition
+////		public int timeTransitionStartFrame, timeTransitionEndFrame;			// GPS track transition start / end frame
 //
-//		state.timeTransitionStartID = ;									// Distance covered over one frame during GPS track transition 
-//		state.timeTransitionGoalID = goalID;								// Distance covered over one frame during GPS track transition 
+//		state.timeTransitionStartID = ;										// Distance covered over one frame during GPS track transition 
+//		state.timeTransitionGoalID = goalID;									// Distance covered over one frame during GPS track transition 
 //	}
 	
 	/**

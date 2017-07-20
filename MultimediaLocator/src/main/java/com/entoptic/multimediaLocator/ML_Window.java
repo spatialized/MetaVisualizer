@@ -2104,27 +2104,27 @@ public class ML_Window
 		lblStartup.setTextAlign(GAlign.CENTER, null);
 
 		x = 0;
-		lblStartupWindowText = new GLabel(startupWindow, x, y, startupWindow.width, 22, "Opening MultimediaLocator library...");
+		lblStartupWindowText = new GLabel(startupWindow, x, y, startupWindow.width, 22, "Opening MultimediaLocator Environment...");
 		lblStartupWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblStartupWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblStartupWindowText.setTextAlign(GAlign.CENTER, null);
 		lblStartupWindowText.setVisible(false);
 
-		x = 60;
+		x = 55;
 		y += 50;
-		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Environment");
+		btnCreateLibrary = new GButton(startupWindow, x, y, 200, iMediumBoxHeight, "Create Environment");
 //		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
-		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
+		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 		btnCreateLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Environment");
+		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 185, iMediumBoxHeight, "Open Environment");
 //		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
-		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
+		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 		chkbxRebuildLibrary = new GCheckbox(startupWindow, x+=195, y+5, 125, iVerySmallBoxHeight, "Rebuild");
 		chkbxRebuildLibrary.tag = "RebuildLibrary";
-		chkbxRebuildLibrary.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		chkbxRebuildLibrary.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		chkbxRebuildLibrary.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxRebuildLibrary.setSelected(world.ml.state.rebuildLibrary);
 		
@@ -2180,7 +2180,7 @@ public class ML_Window
 		lblImport.setTextBold();
 
 		x = 0;
-		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 35, createLibraryWindow.width, 22, "Creating MultimediaLocator library...");
+		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 35, createLibraryWindow.width, 22, "Creating MultimediaLocator Environment...");
 		lblCreateLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblCreateLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblCreateLibraryWindowText.setTextAlign(GAlign.CENTER, null);

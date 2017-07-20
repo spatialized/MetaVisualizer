@@ -167,9 +167,7 @@ public class ML_Input
 						world.setClusterTimeCycleLength(slider.getValueI());
 						break;
 					case 1:														// Field
-						world.setFieldTimeCycleLength(slider.getValueI());
-//						world.settings.timeCycleLength = slider.getValueI();
-//						world.settings.timeInc = world.settings.timeCycleLength / 30.f;			
+						world.setTimeCycleLength(slider.getValueI());
 						break;
 					case 2:														// Media
 						break;
@@ -991,16 +989,18 @@ public class ML_Input
 	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
 	{
 		mouse.handleMousePressed(viewer, mouseX, mouseY, frameCount);
-		
 	}
+	
 	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
 		mouse.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
+	
 	void handleMouseClicked(int mouseX, int mouseY, int frameCount)
 	{
 		mouse.handleMouseClicked(mouseX, mouseY, frameCount);
 	}
+	
 	void handleMouseDragged(int mouseX, int mouseY)
 	{
 		mouse.handleMouseDragged(mouseX, mouseY);

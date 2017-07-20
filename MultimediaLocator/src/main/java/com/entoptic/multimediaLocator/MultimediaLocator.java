@@ -498,7 +498,7 @@ public class MultimediaLocator extends PApplet
 			else											/* If failed to load field, initialize from metadata */
 			{
 				if(f.getID() == 0)						/* First field to be initialized */
-					display.window.setLibraryWindowText("Building MultimediaLocator library...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Building MultimediaLocator Environment...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) 
 					systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
@@ -851,7 +851,7 @@ public class MultimediaLocator extends PApplet
 		if(library.getFolders() != null)
 		{
 			ArrayList<String> libFolders = library.getFolders();
-			display.window.setLibraryWindowText("Rebuilding MultimediaLocator library...");		// -- Not being called
+			display.window.setLibraryWindowText("Rebuilding MultimediaLocator Environment...");		// -- Not being called
 			for(String strFolderName : libFolders)
 			{
 				File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
@@ -1397,6 +1397,10 @@ public class MultimediaLocator extends PApplet
 	 */
 	synchronized public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
+		if(debug.input)
+			systemMessage(">>> ML.mediaWindowKey()... keyevent.getAction():"+keyevent.getAction());
+
+//		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 		{
 			if(debug.input)
@@ -1408,8 +1412,9 @@ public class MultimediaLocator extends PApplet
 			}
 
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//			delay(1);			// TESTING
 		}
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+		else if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 		{
 			if(debug.input)
 			{
@@ -1419,6 +1424,12 @@ public class MultimediaLocator extends PApplet
 					systemMessage("ML.mediaWindowKey()... KeyEvent.RELEASE... coded key:"+key+" keyCode:"+keyCode);
 			}
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+//			delay(1);			// TESTING
+		}
+		else
+		{
+			if(debug.input)
+				systemMessage("ML.mediaWindowKey()... Unknown KeyEvent... keyevent.getAction():"+keyevent.getAction()+" is it: processing.event.KeyEvent.TYPE:"+processing.event.KeyEvent.TYPE);
 		}
 	}
 

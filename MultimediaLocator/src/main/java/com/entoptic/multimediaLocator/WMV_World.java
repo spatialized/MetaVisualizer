@@ -304,6 +304,16 @@ public class WMV_World
 		}
 		return timePoint;
 	}
+	
+	/**
+	 * Get current position in Time Cycle
+	 * @return Current time point
+	 */
+	public float getCurrentFieldTime()
+	{
+		float timePoint = utilities.mapValue(getCurrentFieldTimeCyclePoint(), 0, getSettings().timeCycleLength, 0.f, 1.f);
+		return timePoint;
+	}
 
 	/**
 	 * Set current time from given absolute time 
@@ -377,7 +387,7 @@ public class WMV_World
 		{
 			setCurrentFieldTimeCyclePoint( newTimePoint );				
 			if(updateSliders && ml.display.window.setupTimeWindow)
-				ml.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getFieldTimeCycleLength()) );
+				ml.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getTimeCycleLength()) );
 		}
 		
 		switch(state.timeMode)
@@ -493,7 +503,7 @@ public class WMV_World
 	{
 		if(ml.debug.time) ml.systemMessage("World.setCurrentTimeCyclePoint()... newTimePoint:"+newTimePoint);
 
-		int low = 0, high = getFieldTimeCycleLength();
+		int low = 0, high = getTimeCycleLength();
 		
 //		if(padding)
 //		{
@@ -517,7 +527,7 @@ public class WMV_World
 	 * Get current field time cycle length
 	 * @return Current field time cycle length
 	 */
-	public int getFieldTimeCycleLength()
+	public int getTimeCycleLength()
 	{
 		return settings.timeCycleLength;
 	}
@@ -526,10 +536,12 @@ public class WMV_World
 	 * Set field time cycle length
 	 * @param newTimeCycleLength New time cycle length
 	 */
-	public void setFieldTimeCycleLength(int newTimeCycleLength)
+	public void setTimeCycleLength(int newTimeCycleLength)
 	{
 		settings.timeCycleLength = newTimeCycleLength;
-		settings.timeInc = settings.timeCycleLength / 30.f;			
+		settings.timeInc = settings.timeCycleLength / 30.f;	
+		
+		createTimeCycle();			// Added 7-19-17
 	}
 	
 	/**

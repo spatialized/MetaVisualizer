@@ -2054,9 +2054,11 @@ public class WMV_World
 	 */
 	public void setTimeMode(int newTimeMode)
 	{
+//		System.out.println("setTimeMode()... 1 "+newTimeMode+" ml.display.window.setupTimeWindow:"+ml.display.window.setupTimeWindow+" ml.display.window.showTimeWindow"+ml.display.window.showTimeWindow);
 		state.timeMode = newTimeMode;
 		if(ml.display.window.setupTimeWindow)
 		{
+//			System.out.println("setTimeMode()... 2 "+newTimeMode);
 			switch(state.timeMode)
 			{
 				case 0:														// Cluster
@@ -2093,7 +2095,7 @@ public class WMV_World
 			if(!i.isDisabled())
 				i.setHidden(false);						
 
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideImages.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -2114,7 +2116,7 @@ public class WMV_World
 			}
 		}
 
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideImages.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)
@@ -2130,7 +2132,7 @@ public class WMV_World
 			if(!n.isDisabled())
 				n.setHidden(false);						
 
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -2163,7 +2165,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)
@@ -2179,7 +2181,7 @@ public class WMV_World
 			if(!v.isDisabled())
 				v.setHidden(false);						
 
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideVideos.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -2200,7 +2202,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideVideos.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)

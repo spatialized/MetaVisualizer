@@ -68,7 +68,7 @@ import ddf.minim.Minim;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private static boolean createJar = false;			// Determines how to load cubemap shader
+	private static boolean createJar = true;			// Determines how to load cubemap shader
 
 	/* Classes */
 	ML_Library library;								// Multimedia library
@@ -1480,6 +1480,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mousePressed()
 	{
+		input.handleMousePressed(world, display, mouseX, mouseY, frameCount);
+
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
 		

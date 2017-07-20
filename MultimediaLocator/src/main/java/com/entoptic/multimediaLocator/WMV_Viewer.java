@@ -1924,7 +1924,6 @@ public class WMV_Viewer
 		state.currentCluster = 0;
 		state.clusterNearDistance = worldSettings.clusterCenterSize * state.clusterNearDistanceFactor;
 
-//		initialize(0, 0, 0);
 		initialize();
 	}
 
@@ -5455,13 +5454,13 @@ public class WMV_Viewer
 		if(inSelectionMode() && getMultiSelection())
 		{
 			setMultiSelection( false, false );
-			if(p.ml.display.window.setupMediaWindow)
+			if(p.ml.display.window.setupPreferencesWindow)
 				p.ml.display.window.chkbxMultiSelection.setSelected( false );
 		}
 		if(inSelectionMode() && getGroupSelection()) 
 		{
 			setGroupSelection( false, false );
-			if(p.ml.display.window.setupMediaWindow)
+			if(p.ml.display.window.setupPreferencesWindow)
 				p.ml.display.window.chkbxSegmentSelection.setSelected( false );
 		}
 	}
@@ -5474,7 +5473,7 @@ public class WMV_Viewer
 	public void setGroupSelection(boolean newGroupSelection, boolean message)
 	{
 		settings.groupSelection = newGroupSelection;
-		if(p.ml.display.window.setupMediaWindow)
+		if(p.ml.display.window.setupPreferencesWindow)
 			p.ml.display.window.chkbxSegmentSelection.setSelected(settings.groupSelection);
 		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Group Selection Mode "+(newGroupSelection?"Enabled":"Disabled"));
@@ -5496,7 +5495,7 @@ public class WMV_Viewer
 	public void setMultiSelection(boolean newMultiSelection, boolean message)
 	{
 		settings.multiSelection = newMultiSelection;
-		if(p.ml.display.window.setupMediaWindow)
+		if(p.ml.display.window.setupPreferencesWindow)
 			p.ml.display.window.chkbxMultiSelection.setSelected(settings.multiSelection);
 		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Multiple Selection Mode "+(newMultiSelection?"Enabled":"Disabled"));

@@ -82,8 +82,20 @@ public class ML_MouseControls
 		mouseReleased = false;
 	}
 
-	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
+	void handleMousePressed(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
+//		if(display.getDisplayView() == 1)
+//			display.map2D.handleMousePressed(world, mouseX, mouseY);
+		if(display.getDisplayView() == 2)
+			display.handleTimeViewMousePressed(world, mouseX, mouseY);
+//		else if(display.getDisplayView() == 3)
+//			display.handleLibraryViewMousePressed(world, mouseX, mouseY);
+//		else if(display.getDisplayView() == 4)
+//			display.handleMediaViewMousePressed(world, mouseX, mouseY);
+
+		
+		
+		
 //		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
 //		{
 //			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)

@@ -295,6 +295,7 @@ public class ML_Display
 							setupTimeView();
 						updateFieldTimeline(ml.world);
 						displayTimeView(ml.world);
+						updateTimeView(ml.world);
  						break;
 					case 3:								// Library view
 						if(!setupLibraryView)
@@ -320,6 +321,9 @@ public class ML_Display
 		setupTimeView = true;
 	}
 	
+	/**
+	 * Create Time View buttons
+	 */
 	private void createTimeViewButtons()
 	{
 		buttons = new ArrayList<ML_Button>();
@@ -337,9 +341,9 @@ public class ML_Display
 		x = hudCenterXOffset - buttonWidth * 0.5f;
 		y += buttonHeight + buttonSpacing;			
 
-		zoomIn = new ML_Button(0, "In", hudVerySmallTextSize, x-buttonWidth, x, y, y+buttonHeight);
+		zoomIn = new ML_Button(2, "In", hudVerySmallTextSize, x-buttonWidth, x, y, y+buttonHeight);
 		x += buttonSpacing;
-		zoomOut = new ML_Button(1, "Out", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
+		zoomOut = new ML_Button(3, "Out", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
 		
 		buttons.add(scrollLeft);
 		buttons.add(scrollRight);
@@ -628,7 +632,7 @@ public class ML_Display
 
 		endDisplayHUD();					// -- Added 6/29/17
 
-		updateTimelineMouse(p);
+//		updateTimelineMouse(p);
 	}
 	
 	/**
@@ -659,6 +663,15 @@ public class ML_Display
 			else 
 				System.out.println("Display.updateCurrentSelectableTimeSegment()... ERROR: No current time segment!");
 		}
+	}
+	
+	/**
+	 * Update Time View
+	 * @param p Parent world
+	 */
+	private void updateTimeView(WMV_World p)
+	{
+		updateTimelineMouse(p);
 	}
 	
 	/**
@@ -1380,6 +1393,19 @@ public class ML_Display
 			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
 			endDisplayHUD();
 		}
+		
+		if(buttons.size() > 0)
+		{
+			for(ML_Button b : buttons)
+			{
+				if( mouseLoc.x > b.leftEdge && mouseLoc.x < b.rightEdge && 
+						mouseLoc.y > b.topEdge && mouseLoc.y < b.bottomEdge )
+					b.setSelected(true);
+				else
+					b.setSelected(false);
+			}
+		}
+		
 		if(selectableTimeSegments != null)
 		{
 			SelectableTimeSegment timeSelected = getSelectedTimeSegment(mouseLoc);
@@ -1747,6 +1773,7 @@ public class ML_Display
 		updateFieldTimeline = true;
 	}
 	
+	
 	/**
 	 * Handle mouse released event
 	 * @param p Parent world
@@ -1763,8 +1790,213 @@ public class ML_Display
 
 		if(selectedDate != -1)
 			setCurrentSelectableDate(selectedDate);
+		
+		for(ML_Button b : buttons)
+		{
+			if( b.isSelected() && b.containsPoint(new PVector(mouseX, mouseY) ))
+			{
+				switch(b.getID())
+				{
+					case 0:				// Scroll left
+						ml.display.stopScrolling();
+						break;
+					case 1:				// Scroll right
+						ml.display.stopScrolling();
+						break;
+					case 2:				// Zoom in
+						ml.display.stopZooming();
+						break;
+					case 3:				// Zoom out
+						ml.display.stopZooming();
+						break;
+
+//					PRESSED
+//						
+//					case "TimelineZoomIn":
+//						if(ml.display.isZooming())
+//							ml.display.stopZooming();
+//						else
+//							ml.display.zoom(ml.world, -1, true);
+//						break;
+//					case "TimelineZoomOut":
+//						if(ml.display.isZooming())
+//							ml.display.stopZooming();
+//						else
+//							ml.display.zoom(ml.world, 1, true);
+//						break;
+//					case "TimelineReverse":
+//						if(ml.display.isScrolling())
+//							ml.display.stopScrolling();
+//						else
+//							ml.display.scroll(ml.world, -1);
+//						break;
+//					case "TimelineForward":
+//						if(ml.display.isScrolling())
+//							ml.display.stopScrolling();
+//						else
+//							ml.display.scroll(ml.world, 1);
+//						break;
+
+//						CLICKED
+
+//					case "TimelineZoomIn":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomOut":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomToFit":
+//						ml.display.zoomToTimeline(ml.world, true);
+//						break;
+//					case "TimelineZoomToSelected":
+//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//						break;
+//					case "TimelineZoomToDate":
+//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//						break;
+//					case "TimelineZoomToFull":
+//						ml.display.resetZoom(ml.world, true);
+//						break;
+					
+//						RELEASED
+
+//					case "TimelineZoomIn":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomOut":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineReverse":
+//						ml.display.stopScrolling();
+//						break;
+//					case "TimelineForward":
+//						ml.display.stopScrolling();
+//						break;
+
+				}
+				
+				b.setSelected(false);
+			}
+		}
 	}
-	
+
+	/**
+	 * Handle mouse released event
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
+	public void handleTimeViewMousePressed(WMV_World p, float mouseX, float mouseY)
+	{
+		updateTimelineMouse(p);
+		
+		if(selectedTime != -1)
+			if(selectedCluster != -1)
+				p.viewer.teleportToCluster(selectedCluster, false, selectableTimeSegments.get(selectedTime).segment.getFieldTimelineID());
+
+		if(selectedDate != -1)
+			setCurrentSelectableDate(selectedDate);
+		
+		for(ML_Button b : buttons)
+		{
+			if( b.isSelected() && b.containsPoint(new PVector(mouseX, mouseY)) )
+			{
+				switch(b.getID())
+				{
+					case 0:				// Scroll left
+						if(ml.display.isScrolling())
+							ml.display.stopScrolling();
+						else
+							ml.display.scroll(ml.world, -1);
+						break;
+					case 1:				// Scroll right
+						if(ml.display.isScrolling())
+							ml.display.stopScrolling();
+						else
+							ml.display.scroll(ml.world, 1);
+						break;
+					case 2:				// Zoom in
+						if(ml.display.isZooming())
+							ml.display.stopZooming();
+						else
+							ml.display.zoom(ml.world, -1, true);
+						break;
+					case 3:				// Zoom out
+						if(ml.display.isZooming())
+							ml.display.stopZooming();
+						else
+							ml.display.zoom(ml.world, 1, true);						
+						break;
+
+//					PRESSED
+//						
+//					case "TimelineZoomIn":
+//						if(ml.display.isZooming())
+//							ml.display.stopZooming();
+//						else
+//							ml.display.zoom(ml.world, -1, true);
+//						break;
+//					case "TimelineZoomOut":
+//						if(ml.display.isZooming())
+//							ml.display.stopZooming();
+//						else
+//							ml.display.zoom(ml.world, 1, true);
+//						break;
+//					case "TimelineReverse":
+//						if(ml.display.isScrolling())
+//							ml.display.stopScrolling();
+//						else
+//							ml.display.scroll(ml.world, -1);
+//						break;
+//					case "TimelineForward":
+//						if(ml.display.isScrolling())
+//							ml.display.stopScrolling();
+//						else
+//							ml.display.scroll(ml.world, 1);
+//						break;
+
+//						CLICKED
+
+//					case "TimelineZoomIn":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomOut":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomToFit":
+//						ml.display.zoomToTimeline(ml.world, true);
+//						break;
+//					case "TimelineZoomToSelected":
+//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//						break;
+//					case "TimelineZoomToDate":
+//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//						break;
+//					case "TimelineZoomToFull":
+//						ml.display.resetZoom(ml.world, true);
+//						break;
+					
+//						RELEASED
+
+//					case "TimelineZoomIn":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineZoomOut":
+//						ml.display.stopZooming();
+//						break;
+//					case "TimelineReverse":
+//						ml.display.stopScrolling();
+//						break;
+//					case "TimelineForward":
+//						ml.display.stopScrolling();
+//						break;
+				}
+				
+				b.setSelected(false);
+			}
+		}
+	}
+
 	/**
 	 * Handle mouse released event in Library View
 	 * @param p Parent world

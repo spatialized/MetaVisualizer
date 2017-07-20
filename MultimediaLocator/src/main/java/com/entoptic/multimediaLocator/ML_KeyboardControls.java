@@ -431,9 +431,7 @@ public class ML_KeyboardControls
 			boolean state = !ml.world.getState().useBlurMasks;
 			ml.world.getState().useBlurMasks = state;
 			if(ml.display.window.setupMediaWindow)
-			{
 				ml.display.window.chkbxBlurMasks.setSelected(state);
-			}
 		}
 
 		if (key == 'I')	

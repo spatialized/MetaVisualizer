@@ -550,24 +550,24 @@ public class ML_Input
 					break;
 
 				/* Timeline */
-				case "TimelineZoomIn":
-					ml.display.stopZooming();
-					break;
-				case "TimelineZoomOut":
-					ml.display.stopZooming();
-					break;
-				case "TimelineZoomToFit":
-					ml.display.zoomToTimeline(ml.world, true);
-					break;
-				case "TimelineZoomToSelected":
-					ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
-					break;
-				case "TimelineZoomToDate":
-					ml.display.zoomToCurrentSelectableDate(ml.world, true);
-					break;
-				case "TimelineZoomToFull":
-					ml.display.resetZoom(ml.world, true);
-					break;
+//				case "TimelineZoomIn":
+//					ml.display.stopZooming();
+//					break;
+//				case "TimelineZoomOut":
+//					ml.display.stopZooming();
+//					break;
+//				case "TimelineZoomToFit":
+//					ml.display.zoomToTimeline(ml.world, true);
+//					break;
+//				case "TimelineZoomToSelected":
+//					ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//					break;
+//				case "TimelineZoomToDate":
+//					ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//					break;
+//				case "TimelineZoomToFull":
+//					ml.display.resetZoom(ml.world, true);
+//					break;
 					
 				/* Library View */
 				case "OpenPreferencesWindow":
@@ -655,30 +655,30 @@ public class ML_Input
 					break;
 				
 				/* Timeline */
-				case "TimelineZoomIn":
-					if(ml.display.isZooming())
-						ml.display.stopZooming();
-					else
-						ml.display.zoom(ml.world, -1, true);
-					break;
-				case "TimelineZoomOut":
-					if(ml.display.isZooming())
-						ml.display.stopZooming();
-					else
-						ml.display.zoom(ml.world, 1, true);
-					break;
-				case "TimelineReverse":
-					if(ml.display.isScrolling())
-						ml.display.stopScrolling();
-					else
-						ml.display.scroll(ml.world, -1);
-					break;
-				case "TimelineForward":
-					if(ml.display.isScrolling())
-						ml.display.stopScrolling();
-					else
-						ml.display.scroll(ml.world, 1);
-					break;
+//				case "TimelineZoomIn":
+//					if(ml.display.isZooming())
+//						ml.display.stopZooming();
+//					else
+//						ml.display.zoom(ml.world, -1, true);
+//					break;
+//				case "TimelineZoomOut":
+//					if(ml.display.isZooming())
+//						ml.display.stopZooming();
+//					else
+//						ml.display.zoom(ml.world, 1, true);
+//					break;
+//				case "TimelineReverse":
+//					if(ml.display.isScrolling())
+//						ml.display.stopScrolling();
+//					else
+//						ml.display.scroll(ml.world, -1);
+//					break;
+//				case "TimelineForward":
+//					if(ml.display.isScrolling())
+//						ml.display.stopScrolling();
+//					else
+//						ml.display.scroll(ml.world, 1);
+//					break;
 			}
 		}
 		
@@ -709,18 +709,18 @@ public class ML_Input
 					break;
 					
 				/* Timeline */
-				case "TimelineZoomIn":
-					ml.display.stopZooming();
-					break;
-				case "TimelineZoomOut":
-					ml.display.stopZooming();
-					break;
-				case "TimelineReverse":
-					ml.display.stopScrolling();
-					break;
-				case "TimelineForward":
-					ml.display.stopScrolling();
-					break;
+//				case "TimelineZoomIn":
+//					ml.display.stopZooming();
+//					break;
+//				case "TimelineZoomOut":
+//					ml.display.stopZooming();
+//					break;
+//				case "TimelineReverse":
+//					ml.display.stopScrolling();
+//					break;
+//				case "TimelineForward":
+//					ml.display.stopScrolling();
+//					break;
 				
 				/* Navigation -- Disabled */
 //				case "MoveForward":
@@ -986,9 +986,9 @@ public class ML_Input
 		mouse.updateMouseSelection(mouseX, mouseY, frameCount);
 	}
 	
-	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
+	void handleMousePressed(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
-		mouse.handleMousePressed(viewer, mouseX, mouseY, frameCount);
+		mouse.handleMousePressed(world, display, mouseX, mouseY, frameCount);
 	}
 	
 	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)

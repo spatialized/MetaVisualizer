@@ -15,14 +15,14 @@ public class WMV_WorldSettings
 	public boolean copyLargeImageFiles = false;
 	public boolean copyLargeVideoFiles = false;
 	
-	public final float defaultFocusDistance = 14.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
-	public final float defaultAltitudeScalingFactor = 1.f;		// Adjust altitude for ease of viewing
+	public final float defaultFocusDistance = 15.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
+	public final float defaultAltitudeScalingFactor = 0.66f;		// Adjust altitude for ease of viewing
 	public float subjectSizeRatio = 0.18f;						// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public final float panoramaFocusDistanceFactor = 1.1f;		// Scaling from defaultFocusDistance to panorama radius
 	public final float videoFocusDistanceFactor = 0.8f;			// Scaling from defaultFocusDistance to video focus distance
 
 	public boolean altitudeScaling = true;								// Scale media height by altitude (m.) EXIF field 
-	public final float altitudeScalingFactorMax = 3.f;					// Adjust altitude for ease of viewing
+	public final float altitudeScalingFactorMax = 2.f;					// Adjust altitude for ease of viewing
 	public float altitudeScalingFactor = defaultAltitudeScalingFactor;	// Adjust altitude for ease of viewing
 
 	public float kMeansClusteringEpsilon = 0.005f;				// If no clusters move farther than this threshold, stop cluster refinement

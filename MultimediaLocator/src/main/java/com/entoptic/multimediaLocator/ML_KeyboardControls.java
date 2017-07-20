@@ -92,10 +92,10 @@ public class ML_KeyboardControls
 
 			if (key == '$') 
 			{
-				if(!ml.display.window.showLibraryViewWindow)
-					ml.display.window.openLibraryViewWindow();
+				if(!ml.display.window.showPreferencesWindow)
+					ml.display.window.openPreferencesWindow();
 				else
-					ml.display.window.hideLibraryViewWindow();
+					ml.display.window.hidePreferencesWindow();
 			}
 
 			if (key == '^') 
@@ -181,7 +181,7 @@ public class ML_KeyboardControls
 				ml.world.state.displayTerrain = true;
 				ml.world.fadeInTerrain(true);
 			}
-			if(ml.display.window.setupMediaWindow)
+			if(ml.display.window.setupPreferencesWindow)
 				ml.display.window.chkbxDisplayTerrain.setSelected(!state);
 		}
 
@@ -236,7 +236,7 @@ public class ML_KeyboardControls
 			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
-				if(ml.display.window.showMediaWindow)
+				if(ml.display.window.setupPreferencesWindow)
 					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
 			}			
 		}
@@ -265,7 +265,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().showMetadata;
 			ml.world.setShowMetadata(state);
-			if(ml.display.window.setupMediaWindow)
+			if(ml.display.window.setupPreferencesWindow)
 				ml.display.window.chkbxShowMetadata.setSelected(state);
 		}
 

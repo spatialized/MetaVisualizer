@@ -70,6 +70,7 @@ public class ML_Display
 	private final float soundHue = 40.f;
 
 	/* Time View */
+	private boolean setupTimeView = false;		
 	private float timelineScreenSize, timelineHeight;
 	private float timelineStart = 0.f, timelineEnd = 0.f;
 	private float datelineStart = 0.f, datelineEnd = 0.f;
@@ -290,13 +291,14 @@ public class ML_Display
 						}
 						break;
 					case 2:								// Time View
+						if(!setupTimeView)
+							setupTimeView();
 						updateFieldTimeline(ml.world);
 						displayTimeView(ml.world);
  						break;
 					case 3:								// Library view
 						if(!setupLibraryView)
-							setupLibraryView(ml.world);
-						
+							setupLibraryView();
 						displayLibraryView(ml.world);
 						updateLibraryView(ml.world);		
 						break;
@@ -312,9 +314,62 @@ public class ML_Display
 	 * Setup Library View
 	 * @param world Parent world
 	 */
-	private void setupLibraryView(WMV_World world)
+	private void setupTimeView()
+	{
+		createTimeViewButtons();
+		setupTimeView = true;
+	}
+	
+	private void createTimeViewButtons()
+	{
+		buttons = new ArrayList<ML_Button>();
+		ML_Button scrollLeft, scrollRight;
+		ML_Button zoomIn, zoomOut;
+		ML_Button zoomToFit, zoomToSelection, zoomToTimeline;
+		
+		float x = hudCenterXOffset - buttonWidth * 0.5f;
+		float y = datelineYOffset + lineWidth;			// Starting vertical position
+
+		scrollLeft = new ML_Button(0, "Left", hudVerySmallTextSize, x-buttonWidth, x, y, y+buttonHeight);
+		x += buttonSpacing;
+		scrollRight = new ML_Button(1, "Right", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
+		
+		x = hudCenterXOffset - buttonWidth * 0.5f;
+		y += buttonHeight + buttonSpacing;			
+
+		zoomIn = new ML_Button(0, "In", hudVerySmallTextSize, x-buttonWidth, x, y, y+buttonHeight);
+		x += buttonSpacing;
+		zoomOut = new ML_Button(1, "Out", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
+		
+		buttons.add(scrollLeft);
+		buttons.add(scrollRight);
+		buttons.add(zoomIn);
+		buttons.add(zoomOut);
+
+//		ML_Button previous, next, current;
+//		
+//		x = hudCenterXOffset - buttonWidth * 1.5f;
+//		y += buttonHeight + buttonSpacing;												// Starting vertical position
+//
+//		previous = new ML_Button(10, "Previous (left)", hudVerySmallTextSize, x-buttonWidth*0.5f, x+=buttonWidth, y, y+buttonHeight);
+//		x += buttonSpacing;
+//		current = new ML_Button(12, "Current", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+//		x += buttonSpacing;
+//		next = new ML_Button(11, "Next (right)", hudVerySmallTextSize, x, x+=buttonWidth + buttonWidth * 0.5f, y, y+buttonHeight);
+//		
+//		buttons.add(previous);
+//		buttons.add(current);
+//		buttons.add(next);
+	}
+
+	/**
+	 * Setup Library View
+	 * @param world Parent world
+	 */
+	private void setupLibraryView()
 	{
 		createLibraryViewButtons();
+		setupLibraryView = true;
 	}
 	
 	/**
@@ -322,6 +377,7 @@ public class ML_Display
 	 */
 	private void createLibraryViewButtons()
 	{
+		buttons = new ArrayList<ML_Button>();
 		ML_Button cluster, field, library;
 		
 		float x = hudCenterXOffset - buttonWidth * 0.5f;
@@ -523,6 +579,17 @@ public class ML_Display
 		ml.textSize(hudVeryLargeTextSize);
 		ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
 
+		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+
+//		startDisplayHUD();
+//		ml.pushMatrix();
+		
+		for(ML_Button b : buttons)
+			b.display(p, 0.f, 0.f, 255.f);
+
+//		ml.popMatrix();
+//		endDisplayHUD();
+		
 		ml.textSize(hudLargeTextSize - 5.f);
 		String strDisplayDate = "";
 		
@@ -541,14 +608,24 @@ public class ML_Display
 		ml.textSize(hudMediumTextSize);
 		ml.fill(0, 0, 255, 255);
 		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthWide, 0);
+		
+//		ml.text("Scroll", xPos, yPos += hudLineWidth, 0);
+//		ml.text("Zoom", xPos, yPos += hudLineWidth, 0);
 
-		yPos = timelineYOffset + timelineHeight * 4.f;
+//		ml.popMatrix();
+//		endDisplayHUD();
+
+//		xPos = hudCenterXOffset;
+		ml.textSize(hudSmallTextSize);
+		yPos = datelineYOffset + lineWidth + buttonHeight * 0.5f;
+		ml.text("Scroll", xPos, yPos, 0);
+		ml.text("Zoom", xPos, yPos += buttonHeight + buttonSpacing, 0);
 
 		ml.popMatrix();
 		
 		if(fieldDatelineCreated) displayDateline(p);
 		if(fieldTimelineCreated) displayTimeline(p);
-		
+
 		endDisplayHUD();					// -- Added 6/29/17
 
 		updateTimelineMouse(p);
@@ -2096,7 +2173,6 @@ public class ML_Display
 //			currentDisplayField = 0;
 //		}
 
-
 		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 		startDisplayHUD();
@@ -2121,15 +2197,17 @@ public class ML_Display
 				
 				ml.pushMatrix();
 				
+				ml.fill(0.f, 0.f, 255.f, 255.f);
+				
 				ml.textSize(hudLargeTextSize);
 				if(ml.world.getFieldCount() == 1)
 				{
 					ml.text(ml.world.getCurrentField().getName(), x, y);
 					
-					y += lineWidthWide;
+					y += lineWidthWide + buttonHeight * 2.f + buttonSpacing * 2.f;
 					
 					ml.textSize(hudMediumTextSize);
-					ml.text("(Single Field)", x, y += lineWidth );
+					ml.text("(Single Field)", x, y );
 //					ml.text("No Current Library", x, y += lineWidthWide * 1.5f);
 				}
 				else
@@ -2161,7 +2239,7 @@ public class ML_Display
 				ml.textSize(hudVeryLargeTextSize);
 				ml.text(""+p.getCurrentField().getName(), x, y, 0);
 				
-				y += lineWidthWide;
+				y += hudLineWidthVeryWide + buttonHeight * 2.f + buttonSpacing * 2.f;
 
 				c = p.getCurrentCluster();
 				
@@ -2256,16 +2334,15 @@ public class ML_Display
 				ml.textSize(hudVeryLargeTextSize);
 				ml.text(""+p.getCurrentField().getName(), x, y, 0);
 	
-//				y += lineWidthWide + buttonHeight * 2.f + buttonSpacing * 2.f;
+				y += hudLineWidthVeryWide + buttonHeight * 2.f + buttonSpacing * 2.f;
 
-				y += hudLineWidthVeryWide + buttonHeight * 2.f;
 				ml.textSize(hudLargeTextSize);
 				c = f.getCluster(currentDisplayCluster);		// Get cluster to display info for
 				WMV_Cluster cl = p.getCurrentCluster();
 
 				if(c != null)
 				{
-					ml.text(" Point of Interest #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
+					ml.text(" Location #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
 					ml.textSize(hudMediumTextSize);
 					if(c.getState().images.size() > 0)
 						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
@@ -2632,13 +2709,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-					window.setTimeWindowControlsEnabled(false);
+//					window.setTimeWindowControlsEnabled(false);
 				}
-				if(window.setupLibraryViewWindow)
-				{
-					window.btnLibraryView.setEnabled(true);
-					window.setLibraryViewWindowControlsEnabled(false);
-				}
+//				if(window.setupPreferencesWindow)
+//				{
+//					window.btnLibraryView.setEnabled(true);
+//					window.setLibraryViewWindowControlsEnabled(false);
+//				}
 				break;
 				
 			case 1:														// Map View
@@ -2678,13 +2755,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-					window.setTimeWindowControlsEnabled(false);
+//					window.setTimeWindowControlsEnabled(false);
 				}
-				if(window.setupLibraryViewWindow)
-				{
-					window.btnLibraryView.setEnabled(true);
-					window.setLibraryViewWindowControlsEnabled(false);
-				}
+//				if(window.setupPreferencesWindow)
+//				{
+//					window.btnLibraryView.setEnabled(true);
+//					window.setLibraryViewWindowControlsEnabled(false);
+//				}
 				break;
 				
 			case 2:														// Timeline View
@@ -2704,13 +2781,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(false);
-					window.setTimeWindowControlsEnabled(true);
+//					window.setTimeWindowControlsEnabled(true);
 				}
-				if(window.setupLibraryViewWindow)
-				{
-					window.btnLibraryView.setEnabled(true);
-					window.setLibraryViewWindowControlsEnabled(false);
-				}
+//				if(window.setupPreferencesWindow)
+//				{
+//					window.btnLibraryView.setEnabled(true);
+//					window.setLibraryViewWindowControlsEnabled(false);
+//				}
 				zoomToTimeline(ml.world, true);
 				break;
 				
@@ -2745,13 +2822,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-					window.setTimeWindowControlsEnabled(false);
+//					window.setTimeWindowControlsEnabled(false);
 				}
-				if(window.setupLibraryViewWindow)
-				{
-					window.btnLibraryView.setEnabled(false);
-					window.setLibraryViewWindowControlsEnabled(true);
-				}
+//				if(window.setupPreferencesWindow)
+//				{
+//					window.btnLibraryView.setEnabled(false);
+//					window.setLibraryViewWindowControlsEnabled(true);
+//				}
 				break;
 			case 4:													// Media View
 				break;
@@ -2771,33 +2848,33 @@ public class ML_Display
 		else if( newLibraryViewMode >= 3) 
 			libraryViewMode = 0;
 
-		if(window.setupLibraryViewWindow)
+		if(window.setupPreferencesWindow)
 		{
-			switch(libraryViewMode)
-			{
-				case 0:
-					window.optLibraryViewWorldMode.setSelected(true);
-					window.optLibraryViewFieldMode.setSelected(false);
-					window.optLibraryViewClusterMode.setSelected(false);
-					window.lblLibraryViewText.setText(ml.library.getName(false));
-					break;
-	
-				case 1:
-					setDisplayItem(ml.world.getCurrentField().getID());
-					window.optLibraryViewWorldMode.setSelected(false);
-					window.optLibraryViewFieldMode.setSelected(true);
-					window.optLibraryViewClusterMode.setSelected(false);
-					window.lblLibraryViewText.setText("Field:");
-					break;
-	
-				case 2:
-					setDisplayItem(ml.world.viewer.getCurrentClusterID());
-					window.optLibraryViewWorldMode.setSelected(false);
-					window.optLibraryViewFieldMode.setSelected(false);
-					window.optLibraryViewClusterMode.setSelected(true);
-					window.lblLibraryViewText.setText("Interest Point:");
-					break;
-			}
+//			switch(libraryViewMode)
+//			{
+//				case 0:
+//					window.optLibraryViewWorldMode.setSelected(true);
+//					window.optLibraryViewFieldMode.setSelected(false);
+//					window.optLibraryViewClusterMode.setSelected(false);
+//					window.lblLibraryViewText.setText(ml.library.getName(false));
+//					break;
+//	
+//				case 1:
+//					setDisplayItem(ml.world.getCurrentField().getID());
+//					window.optLibraryViewWorldMode.setSelected(false);
+//					window.optLibraryViewFieldMode.setSelected(true);
+//					window.optLibraryViewClusterMode.setSelected(false);
+//					window.lblLibraryViewText.setText("Field:");
+//					break;
+//	
+//				case 2:
+//					setDisplayItem(ml.world.viewer.getCurrentClusterID());
+//					window.optLibraryViewWorldMode.setSelected(false);
+//					window.optLibraryViewFieldMode.setSelected(false);
+//					window.optLibraryViewClusterMode.setSelected(true);
+//					window.lblLibraryViewText.setText("Interest Point:");
+//					break;
+//			}
 		}
 	}
 

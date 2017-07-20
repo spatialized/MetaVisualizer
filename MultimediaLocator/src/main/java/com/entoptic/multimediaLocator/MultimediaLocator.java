@@ -1439,7 +1439,7 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	synchronized public void libraryViewWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	synchronized public void preferencesWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());

@@ -16,8 +16,8 @@ public class ML_DebugSettings
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_World and WMV_Field classes
-	public boolean input = true;					// Debug MultimediaLocator class
+	public boolean world = true;					// Debug WMV_World and WMV_Field classes
+	public boolean input = false;				// Debug MultimediaLocator class
 	public boolean library = false;				// Debug library and file handling
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean time = true;					// Debug time behavior

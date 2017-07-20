@@ -570,23 +570,23 @@ public class ML_Input
 					break;
 					
 				/* Library View */
-				case "OpenLibraryViewWindow":
-					if(!ml.display.window.showLibraryViewWindow)
-						ml.display.window.openLibraryViewWindow();
+				case "OpenPreferencesWindow":
+					if(!ml.display.window.showPreferencesWindow)
+						ml.display.window.openPreferencesWindow();
 					else
-						ml.display.window.closeLibraryViewWindow();
+						ml.display.window.closePreferencesWindow();
 					break;
-				case "CloseLibraryViewWindow":
-					ml.display.window.closeLibraryViewWindow();
+				case "ClosePreferencesWindow":
+					ml.display.window.closePreferencesWindow();
 					break;
-				case "ExitLibraryViewWindow":
+				case "ExitPreferencesWindow":
 					display.window.openMainMenu();
 					break;
 
-				case "SetLibraryView":
-					if(display.getDisplayView() != 3)
-						display.setDisplayView(ml.world, 3);
-					break;
+//				case "SetLibraryView":
+//					if(display.getDisplayView() != 3)
+//						display.setDisplayView(ml.world, 3);
+//					break;
 				
 				case "PreviousCluster":
 					ml.display.showPreviousItem();

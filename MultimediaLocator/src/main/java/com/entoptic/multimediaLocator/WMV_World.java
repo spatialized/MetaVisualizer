@@ -2217,7 +2217,7 @@ public class WMV_World
 			if(!s.isDisabled())
 				s.setHidden(false);						
 
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideSounds.setSelected(false);
 	}
 	
@@ -2235,7 +2235,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 			ml.display.window.chkbxHideSounds.setSelected(true);
 	}
 
@@ -2753,19 +2753,22 @@ public class WMV_World
 		if(ml.display.window.setupMediaWindow)
 		{
 			ml.display.window.chkbxShowModel.setSelected(newShowModel);
-			if(state.showModel)
-			{
-				ml.display.window.chkbxMediaToCluster.setEnabled(true);
+		}
+//		if(ml.display.window.setupPreferencesWindow)
+//		{
+//			if(state.showModel)
+//			{
+//				ml.display.window.chkbxMediaToCluster.setEnabled(true);
 //				ml.display.window.chkbxCaptureToMedia.setEnabled(true);
 //				ml.display.window.chkbxCaptureToCluster.setEnabled(true);
-			}
-			else
-			{
-				ml.display.window.chkbxMediaToCluster.setEnabled(false);
+//			}
+//			else
+//			{
+//				ml.display.window.chkbxMediaToCluster.setEnabled(false);
 //				ml.display.window.chkbxCaptureToMedia.setEnabled(false);
 //				ml.display.window.chkbxCaptureToCluster.setEnabled(false);
-			}
-		}
+//			}
+//		}
 	}
 	
 	/**

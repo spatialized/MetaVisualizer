@@ -49,19 +49,16 @@ public class ML_Input
 			{
 				keyboard.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 				
-				if(ml.display.inDisplayView())							
-				{
-					if(ml.display.getDisplayView() == 1)											 /* Map View */
-						keyboard.handleMapViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.getDisplayView() == 2)									 /* Time View */
-						keyboard.handleTimeViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.getDisplayView() == 3)									 /* Library View */
-						keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.getDisplayView() == 4)							 		/* Media View */
-						keyboard.handleMediaViewKeyPressed(ml, key, keyCode);
-				}
-				else
-					keyboard.handleWorldViewKeyPressed(ml, key, keyCode); 		/* Controls for World View only */
+				if(ml.display.getDisplayView() == 0)											 /* World View */
+					keyboard.handleWorldViewKeyPressed(ml, key, keyCode); 		
+				if(ml.display.getDisplayView() == 1)											 /* Map View */
+					keyboard.handleMapViewKeyPressed(ml, key, keyCode);
+				else if(ml.display.getDisplayView() == 2)									 /* Time View */
+					keyboard.handleTimeViewKeyPressed(ml, key, keyCode);
+//				else if(ml.display.getDisplayView() == 3)									 /* Library View */
+//					keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);
+//				else if(ml.display.getDisplayView() == 4)							 		/* Media View */
+//					keyboard.handleMediaViewKeyPressed(ml, key, keyCode);
 			}
 		}
 	}
@@ -72,10 +69,10 @@ public class ML_Input
 	 * @param key
 	 * @param keyCode
 	 */
-	public void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
-	{
-		keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
-	}
+//	public void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+//	{
+//		keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
+//	}
 
 	/**
 	 * Handle key pressed in List Item View
@@ -106,7 +103,21 @@ public class ML_Input
 	{
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
-			keyboard.handleUniversalKeyReleased(ml, display, key, keyCode);
+			if( !ml.state.interactive )
+			{
+				keyboard.handleAllViewsKeyReleased(ml, display, key, keyCode);
+				
+				if(ml.display.getDisplayView() == 0)											 /* World View */
+					keyboard.handleWorldViewKeyReleased(ml, key, keyCode);
+				else if(ml.display.getDisplayView() == 1)									 /* Map View */
+					keyboard.handleMapViewKeyReleased(ml, key, keyCode);
+				else if(ml.display.getDisplayView() == 2)									 /* Time View */
+					keyboard.handleTimeViewKeyReleased(ml, key, keyCode);
+				else if(ml.display.getDisplayView() == 3)									 /* Library View */
+					keyboard.handleLibraryViewKeyReleased(ml, key, keyCode);
+				else if(ml.display.getDisplayView() == 4)							 		 /* Media View */
+					keyboard.handleMediaViewKeyReleased(ml, key, keyCode);
+			}
 		}
 	}
 	

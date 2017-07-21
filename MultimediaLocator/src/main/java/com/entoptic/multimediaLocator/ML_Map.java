@@ -36,7 +36,7 @@ public class ML_Map
 	/* Map */
 	private UnfoldingMap satellite;				// , osm, large, small 
 	private final int mapDelay = 100;
-	
+
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
 	
@@ -85,7 +85,7 @@ public class ML_Map
 	private final float gpsTrackHue = 150.f, gpsTrackSaturation = 195.f, 
 						gpsTrackBrightness = 245.f, gpsTrackAlpha = 205.f;
 	
-	private final float clusterHue = 105.f, clusterSaturation = 160.f, clusterBrightness = 185.f, clusterTransparency = 145.f;
+	private final float clusterHue = 100.f, clusterSaturation = 175.f, clusterBrightness = 195.f, clusterTransparency = 185.f;
 	private final float clusterSelectedHue = 105.f, clusterSelectedBrightness = 255.f, clusterSelectedSaturation = 30.f;
 	
 	WMV_Utilities utilities;

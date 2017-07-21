@@ -58,7 +58,7 @@ public class ML_Map
 	/* Interaction */
 	public int mousePressedFrame = -1;
 	public int mouseDraggedFrame = -1;
-	private int selectedCluster = -1, selectedField = -1;
+	public int selectedCluster = -1, selectedField = -1;
 	private boolean zoomingIn = false, zoomingOut = false;
 	public boolean panningLeft = false, panningRight = false, panningUp = false, panningDown = false;
 
@@ -748,41 +748,6 @@ public class ML_Map
 		}
 	}
 
-	/**
-	 * Handle mouse released event on satellite map
-	 * @param world Parent world
-	 * @param mouseX Mouse x screen position
-	 * @param mouseY Mouse y screen position
-	 */
-	public void handleMouseReleased(WMV_World world, int mouseX, int mouseY)
-	{
-		if(mousePressedFrame > mouseDraggedFrame)
-		{
-			if(p.getDisplayView() == 1)				// In Map View
-			{
-				if(p.mapViewMode == 1)				// Field Mode
-				{
-					if(selectedCluster != world.viewer.getState().getCurrentClusterID())
-					{
-						if(selectedCluster >= 0 && selectedCluster < world.getCurrentField().getClusters().size())
-						{
-							zoomToCluster(world, world.getCurrentField().getCluster(selectedCluster), true);
-							world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
-						}
-					}
-				}
-				else if(p.mapViewMode == 0)			// World Mode
-				{
-					if(selectedField >= 0 && selectedField < world.getFields().size())
-					{
-						p.currentDisplayCluster = 0;
-						zoomToField(world.getField(selectedField), true);
-					}
-				}
-			}
-		}
-	}
-	
 	/**
 	 * Initialize map for all fields in world
 	 * @param world Parent world

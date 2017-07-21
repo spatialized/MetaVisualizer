@@ -60,7 +60,10 @@ public class ML_MouseControls
 		}
 		
 		if(display.getDisplayView() == 1)
-			display.map2D.handleMouseReleased(world, mouseX, mouseY);
+		{
+			display.handleMapViewMouseReleased(world, mouseX, mouseY);
+//			display.map2D.handleMouseReleased(world, mouseX, mouseY);
+		}
 		else if(display.getDisplayView() == 2)
 			display.handleTimeViewMouseReleased(world, mouseX, mouseY);
 		else if(display.getDisplayView() == 3)
@@ -84,8 +87,8 @@ public class ML_MouseControls
 
 	void handleMousePressed(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
-//		if(display.getDisplayView() == 1)
-//			display.map2D.handleMousePressed(world, mouseX, mouseY);
+		if(display.getDisplayView() == 1)
+			display.handleMapViewMousePressed(world, mouseX, mouseY);
 		if(display.getDisplayView() == 2)
 			display.handleTimeViewMousePressed(world, mouseX, mouseY);
 //		else if(display.getDisplayView() == 3)

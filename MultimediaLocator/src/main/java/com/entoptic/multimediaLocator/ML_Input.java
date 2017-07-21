@@ -373,19 +373,38 @@ public class ML_Input
 						ml.world.viewer.stopZooming();
 						break;
 	
-					case "MoveForward":								// -- Disabled
+					case "MoveForward":								
 						ml.world.viewer.stopMoveZTransition();
 						break;
-					case "MoveBackward":							// -- Disabled
+					case "MoveBackward":							
 						ml.world.viewer.stopMoveZTransition();
 						break;
-					case "MoveLeft":								// -- Disabled
+					case "MoveLeft":								
 						ml.world.viewer.stopMoveXTransition();
 						break;
-					case "MoveRight":								// -- Disabled
+					case "MoveRight":								
 						ml.world.viewer.stopMoveXTransition();
 						break;
-						
+					case "MoveUp":
+						ml.world.viewer.stopMoveYTransition();
+						break;
+					case "MoveDown":
+						ml.world.viewer.stopMoveYTransition();
+						break;
+
+					case "LookLeft":								
+						ml.world.viewer.stopRotateXTransition();
+						break;
+					case "LookRight":								
+						ml.world.viewer.stopRotateXTransition();
+						break;
+					case "LookUp":
+						ml.world.viewer.stopRotateYTransition();
+						break;
+					case "LookDown":
+						ml.world.viewer.stopRotateYTransition();
+						break;
+
 					case "StopViewer":
 						ml.world.viewer.stop(true);
 						break;
@@ -453,40 +472,41 @@ public class ML_Input
 						if(display.getDisplayView() != 1)
 							display.setDisplayView(ml.world, 1);
 						break;
-					case "PanUp":
-						if(ml.display.map2D.isPanning())
-							ml.display.map2D.stopPanning();
-						break;
-					case "PanLeft":
-						if(ml.display.map2D.isPanning())
-							ml.display.map2D.stopPanning();
-						break;
-					case "PanDown":
-						if(ml.display.map2D.isPanning())
-							ml.display.map2D.stopPanning();
-						break;
-					case "PanRight":
-						if(ml.display.map2D.isPanning())
-							ml.display.map2D.stopPanning();
-						break;
-					case "ZoomToViewer":
-						ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
-						break;
-					case "ZoomToField":
-							ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
-						break;
-					case "MapZoomIn":
-						if(ml.display.map2D.isZooming())
-							ml.display.map2D.stopZooming();
-						break;
-					case "ResetMapZoom":
-						ml.display.map2D.resetMapZoom(true);
-	//					ml.display.map2D.zoomToWorld(true);
-						break;
-					case "MapZoomOut":
-						if(ml.display.map2D.isZooming())
-							ml.display.map2D.stopZooming();
-						break;
+						
+//					case "PanUp":
+//						if(ml.display.map2D.isPanning())
+//							ml.display.map2D.stopPanning();
+//						break;
+//					case "PanLeft":
+//						if(ml.display.map2D.isPanning())
+//							ml.display.map2D.stopPanning();
+//						break;
+//					case "PanDown":
+//						if(ml.display.map2D.isPanning())
+//							ml.display.map2D.stopPanning();
+//						break;
+//					case "PanRight":
+//						if(ml.display.map2D.isPanning())
+//							ml.display.map2D.stopPanning();
+//						break;
+//					case "ZoomToViewer":
+//						ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+//						break;
+//					case "ZoomToField":
+//							ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
+//						break;
+//					case "MapZoomIn":
+//						if(ml.display.map2D.isZooming())
+//							ml.display.map2D.stopZooming();
+//						break;
+//					case "ResetMapZoom":
+//						ml.display.map2D.resetMapZoom(true);
+//	//					ml.display.map2D.zoomToWorld(true);
+//						break;
+//					case "MapZoomOut":
+//						if(ml.display.map2D.isZooming())
+//							ml.display.map2D.stopZooming();
+//						break;
 	//				case "ZoomToSelected":
 	//					break;
 					/* Media */
@@ -587,6 +607,10 @@ public class ML_Input
 					else
 						ml.display.window.closePreferencesWindow();
 					break;
+				case "SetLibraryView":
+					if(display.getDisplayView() != 3)
+						display.setDisplayView(ml.world, 3);
+					break;
 				case "ClosePreferencesWindow":
 					ml.display.window.closePreferencesWindow();
 					break;
@@ -594,10 +618,6 @@ public class ML_Input
 					display.window.openMainMenu();
 					break;
 
-//				case "SetLibraryView":
-//					if(display.getDisplayView() != 3)
-//						display.setDisplayView(ml.world, 3);
-//					break;
 				
 				case "PreviousCluster":
 					ml.display.showPreviousItem();
@@ -625,45 +645,106 @@ public class ML_Input
 				case "ZoomOut":
 					ml.world.viewer.zoomOut();
 					break;
+
+				case "MoveForward":
+					if(ml.world.viewer.getState().movingZ)
+						ml.world.viewer.stopMoveZTransition();
+					else
+						ml.world.viewer.walkForward();
+					break;
+				case "MoveLeft":
+					if(ml.world.viewer.getState().movingX)
+						ml.world.viewer.stopMoveXTransition();
+					else
+						ml.world.viewer.sidestepLeft();
+					break;
+				case "MoveRight":
+					if(ml.world.viewer.getState().movingX)
+						ml.world.viewer.stopMoveXTransition();
+					else
+						ml.world.viewer.sidestepRight();
+					break;
+				case "MoveBackward":
+					if(ml.world.viewer.getState().movingZ)
+						ml.world.viewer.stopMoveZTransition();
+					else
+						ml.world.viewer.walkBackward();
+					break;
+				case "MoveUp":
+					if(ml.world.viewer.getState().movingY)
+						ml.world.viewer.stopMoveYTransition();
+					else
+						ml.world.viewer.walkUp();
+					break;
+				case "MoveDown":
+					if(ml.world.viewer.getState().movingY)
+						ml.world.viewer.stopMoveYTransition();
+					else
+						ml.world.viewer.walkDown();
+					break;
 					
+				case "LookUp":
+					if(ml.world.viewer.getState().rotatingY)
+						ml.world.viewer.stopRotateYTransition();
+					else
+						ml.world.viewer.rotateY(-1);
+					break;
+				case "LookDown":
+					if(ml.world.viewer.getState().rotatingY)
+						ml.world.viewer.stopRotateYTransition();
+					else
+						ml.world.viewer.rotateY(1);
+					break;
+				case "LookLeft":
+					if(ml.world.viewer.getState().rotatingX)
+						ml.world.viewer.stopRotateXTransition();
+					else
+						ml.world.viewer.rotateX(-1);
+					break;
+				case "LookRight":
+					if(ml.world.viewer.getState().rotatingX)
+						ml.world.viewer.stopRotateXTransition();
+					else
+						ml.world.viewer.rotateX(1);
+					break;
+
 				/* Map */
-				case "PanUp":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					else
-						ml.display.map2D.panUp();
-					break;
-				case "PanLeft":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					else
-						ml.display.map2D.panLeft();
-					break;
-				case "PanDown":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					else
-						ml.display.map2D.panDown();
-					break;
-				case "PanRight":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					else
-						ml.display.map2D.panRight();
-					break;
-				case "MapZoomIn":
-					if(ml.display.map2D.isZooming())
-						ml.display.map2D.stopZooming();
-					else
-						ml.display.map2D.startZoomingIn(ml.world);
-					break;
-				case "MapZoomOut":
-//					System.out.println("MapZoomOut PRESSED...");
-					if(ml.display.map2D.isZooming())
-						ml.display.map2D.stopZooming();
-					else
-						ml.display.map2D.startZoomingOut(ml.world);
-					break;
+//				case "PanUp":
+//					if(ml.display.map2D.isPanning())
+//						ml.display.map2D.stopPanning();
+//					else
+//						ml.display.map2D.panUp();
+//					break;
+//				case "PanLeft":
+//					if(ml.display.map2D.isPanning())
+//						ml.display.map2D.stopPanning();
+//					else
+//						ml.display.map2D.panLeft();
+//					break;
+//				case "PanDown":
+//					if(ml.display.map2D.isPanning())
+//						ml.display.map2D.stopPanning();
+//					else
+//						ml.display.map2D.panDown();
+//					break;
+//				case "PanRight":
+//					if(ml.display.map2D.isPanning())
+//						ml.display.map2D.stopPanning();
+//					else
+//						ml.display.map2D.panRight();
+//					break;
+//				case "MapZoomIn":
+//					if(ml.display.map2D.isZooming())
+//						ml.display.map2D.stopZooming();
+//					else
+//						ml.display.map2D.startZoomingIn(ml.world);
+//					break;
+//				case "MapZoomOut":
+//					if(ml.display.map2D.isZooming())
+//						ml.display.map2D.stopZooming();
+//					else
+//						ml.display.map2D.startZoomingOut(ml.world);
+//					break;
 				
 				/* Timeline */
 //				case "TimelineZoomIn":
@@ -697,27 +778,56 @@ public class ML_Input
 		{
 			switch(button.tag)
 			{
+				/* Navigation */
 				case "ZoomIn":
 					ml.world.viewer.stopZooming();
 					break;
 				case "ZoomOut":
 					ml.world.viewer.stopZooming();
 					break;
+				case "MoveForward":
+					ml.world.viewer.stopMoveZTransition();
+					break;
+				case "MoveBackward":
+					ml.world.viewer.stopMoveZTransition();
+					break;
+				case "MoveLeft":
+					ml.world.viewer.stopMoveXTransition();
+					break;
+				case "MoveRight":
+					ml.world.viewer.stopMoveXTransition();
+					break;
+				case "MoveUp":
+					ml.world.viewer.stopMoveYTransition();
+					break;
+				case "MoveDown":
+					ml.world.viewer.stopMoveYTransition();
+					break;
 					
+				case "LookLeft":								
+					ml.world.viewer.stopRotateXTransition();
+					break;
+				case "LookRight":								
+					ml.world.viewer.stopRotateXTransition();
+					break;
+				case "LookUp":
+					ml.world.viewer.stopRotateYTransition();
+					break;
+				case "LookDown":
+					ml.world.viewer.stopRotateYTransition();
+					break;
+
 				/* Map */
-				case "PanUp":
-				case "PanLeft":
-				case "PanDown":
-				case "PanRight":
-					display.map2D.stopPanning();
-//					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
-					break;
-				case "MapZoomIn":
-				case "MapZoomOut":
-//					System.out.println("MapZoomIn/Out RELEASED...");
-					display.map2D.stopZooming();
-//					System.out.println("Stopped zooming...");
-					break;
+//				case "PanUp":
+//				case "PanLeft":
+//				case "PanDown":
+//				case "PanRight":
+//					display.map2D.stopPanning();
+//					break;
+//				case "MapZoomIn":
+//				case "MapZoomOut":
+//					display.map2D.stopZooming();
+//					break;
 					
 				/* Timeline */
 //				case "TimelineZoomIn":
@@ -733,19 +843,6 @@ public class ML_Input
 //					ml.display.stopScrolling();
 //					break;
 				
-				/* Navigation -- Disabled */
-//				case "MoveForward":
-//					ml.world.viewer.stopMoveZTransition();
-//					break;
-//				case "MoveBackward":
-//					ml.world.viewer.stopMoveZTransition();
-//					break;
-//				case "MoveLeft":
-//					ml.world.viewer.stopMoveXTransition();
-//					break;
-//				case "MoveRight":
-//					ml.world.viewer.stopMoveXTransition();
-//					break;
 			}
 		}
 	}

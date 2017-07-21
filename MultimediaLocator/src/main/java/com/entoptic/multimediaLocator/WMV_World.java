@@ -2752,7 +2752,7 @@ public class WMV_World
 	public void setShowModel(boolean newShowModel)
 	{
 		state.showModel = newShowModel;
-		if(ml.display.window.setupMediaWindow)
+		if(ml.display.window.setupPreferencesWindow)
 		{
 			ml.display.window.chkbxShowModel.setSelected(newShowModel);
 		}

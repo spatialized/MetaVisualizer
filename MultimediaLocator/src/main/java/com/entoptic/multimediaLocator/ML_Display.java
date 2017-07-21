@@ -289,20 +289,21 @@ public class ML_Display
 //						for(ML_Button b : buttons)
 //							b.display(ml.world, 0.f, 0.f, 255.f);
 
-						if(mapViewMode == 0)			// World Mode
-						{
-							if(initializedMaps) map2D.displayWorldMap(ml.world);
-							map2D.update(ml.world);		// -- Added 6/22
-						}
-						else if(mapViewMode == 1)		// Field Mode
-						{
-							if(initializedMaps) map2D.displaySatelliteMap(ml.world);
-							if(ml.state.interactive) displayInteractiveClustering(ml.world);
-							map2D.update(ml.world);
-						}
-						
-						for(ML_Button b : buttons)
-							b.display(ml.world, 0.f, 0.f, 255.f);
+						displayMapView();
+//						if(mapViewMode == 0)			// World Mode
+//						{
+//							if(initializedMaps) map2D.displayWorldMap(ml.world);
+//							map2D.update(ml.world);		// -- Added 6/22
+//						}
+//						else if(mapViewMode == 1)		// Field Mode
+//						{
+//							if(initializedMaps) map2D.displaySatelliteMap(ml.world);
+//							if(ml.state.interactive) displayInteractiveClustering(ml.world);
+//							map2D.update(ml.world);
+//						}
+//						
+//						for(ML_Button b : buttons)
+//							b.display(ml.world, 0.f, 0.f, 255.f);
 
 						updateMapView(ml.world);
 						break;
@@ -398,38 +399,53 @@ public class ML_Display
 	private void createMapViewButtons()
 	{
 		buttons = new ArrayList<ML_Button>();
-		ML_Button fieldMap, worldMap;
+		ML_Button fieldMap, worldMap, viewer;
 		ML_Button panUp, panDown;
 		ML_Button panLeft, panRight;
 		
 		float x = hudLeftMargin + buttonWidth * 0.5f;
 		float y = hudTopMargin;   // + lineWidth;			// Starting vertical position
 
-		fieldMap = new ML_Button(0, "Field", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		viewer = new ML_Button(0, "Viewer", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
 		x += buttonSpacing;
-		worldMap = new ML_Button(1, "World", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		fieldMap = new ML_Button(1, "Field", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		x += buttonSpacing;
+		worldMap = new ML_Button(2, "World", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
 		
 		x = hudLeftMargin + buttonWidth + buttonSpacing * 0.5f;
 		y += buttonHeight + buttonSpacing;			
-		panUp = new ML_Button(2, "Up", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		panUp = new ML_Button(3, "Up", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
 		
 		x = hudLeftMargin;
 		y += buttonHeight + buttonSpacing;	
-		panLeft = new ML_Button(3, "Left", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		panLeft = new ML_Button(4, "Left", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
 		x += buttonSpacing;
 		
-		panRight = new ML_Button(4, "Right", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
+		panRight = new ML_Button(5, "Right", hudVerySmallTextSize, x+=buttonWidth, x+=buttonWidth, y, y+buttonHeight);
 		
 		x = hudLeftMargin + buttonWidth + buttonSpacing * 0.5f;
 		y += buttonHeight + buttonSpacing;			
-		panDown = new ML_Button(5, "Down", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		panDown = new ML_Button(6, "Down", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
 		
+		buttons.add(viewer);
 		buttons.add(fieldMap);
 		buttons.add(worldMap);
 		buttons.add(panUp);
 		buttons.add(panLeft);
 		buttons.add(panRight);
 		buttons.add(panDown);
+
+		ML_Button zoomIn, zoomOut;
+
+		x = hudLeftMargin + buttonWidth * 0.5f;
+		y += buttonHeight + buttonSpacing;			
+
+		zoomIn = new ML_Button(7, "In", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		x += buttonSpacing;
+		zoomOut = new ML_Button(8, "Out", hudVerySmallTextSize, x, x+=buttonWidth, y, y+buttonHeight);
+		
+		buttons.add(zoomIn);
+		buttons.add(zoomOut);
 
 //		lblMap = new GLabel(navigationWindow, x, y-3, navigationWindow.width, iSmallBoxHeight, "Map");
 //		lblMap.setLocalColorScheme(G4P.SCHEME_10);
@@ -620,6 +636,45 @@ public class ML_Display
 	public void setupProgress(float progress)
 	{
 		setupProgress = progress;
+	}
+	
+	public void displayMapView()
+	{
+		if(mapViewMode == 0)			// World Mode
+		{
+			if(initializedMaps) map2D.displayWorldMap(ml.world);
+			map2D.update(ml.world);		// -- Added 6/22
+		}
+		else if(mapViewMode == 1)		// Field Mode
+		{
+			if(initializedMaps) map2D.displaySatelliteMap(ml.world);
+			if(ml.state.interactive) displayInteractiveClustering(ml.world);
+			map2D.update(ml.world);
+		}
+		
+//		startDisplayHUD();
+		ml.pushMatrix();
+		
+		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+
+		float x = hudLeftMargin;
+		float y = hudTopMargin + buttonSpacing * 0.75f;  		// + lineWidth;			// Starting vertical position
+
+		ml.fill(0, 0, 255, 255);
+
+		ml.textSize(hudMediumTextSize);
+		ml.text("Zoom To:", x - buttonSpacing * 0.5f, y, 0);
+		
+		x = hudLeftMargin + buttonWidth * 1.5f + buttonSpacing * 0.5f;
+		y += buttonHeight * 2.f + buttonSpacing * 1.75f;
+		ml.text("Pan", x, y, 0);
+
+		ml.popMatrix();
+		
+//		endDisplayHUD();					// -- Added 6/29/17
+
+		for(ML_Button b : buttons)
+			b.display(ml.world, 0.f, 0.f, 255.f);
 	}
 
 	/**
@@ -1863,6 +1918,327 @@ public class ML_Display
 		updateFieldTimeline = true;
 	}
 	
+	/**
+	 * Handle mouse released event
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
+	public void handleMapViewMouseReleased(WMV_World p, float mouseX, float mouseY)
+	{
+		updateMapViewMouse(p);
+		
+		for(ML_Button b : buttons)
+		{
+			if( b.isSelected() && b.containsPoint(new PVector(mouseX, mouseY) ))
+			{
+				switch(b.getID())
+				{
+					case 0:				// Zoom to Viewer
+						map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+						break;
+					case 1:				// Zoom to Field
+						map2D.zoomToField(ml.world.getCurrentField(), true);
+						break;
+					case 2:				// Zoom to World
+						map2D.resetMapZoom(true);
+	//					map2D.zoomToWorld(true);
+						break;
+					case 3:				// Pan Up
+						map2D.stopPanning();
+						break;
+					case 4:				// Pan Left
+						map2D.stopPanning();
+						break;
+					case 5:				// Pan Right
+						map2D.stopPanning();
+						break;
+					case 6:				// Pan Down
+						map2D.stopPanning();
+						break;
+					case 7:				// Zoom In
+						map2D.stopZooming();
+						break;
+					case 8:				// Zoom Out
+						map2D.stopZooming();
+						break;
+
+//					PRESSED
+//					case "MapZoomIn":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						else
+//							map2D.startZoomingIn(ml.world);
+//						break;
+//					case "MapZoomOut":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						else
+//							map2D.startZoomingOut(ml.world);
+//						break;
+
+//						case "PanUp":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panUp();
+//						break;
+//					case "PanLeft":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panLeft();
+//						break;
+//					case "PanDown":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panDown();
+//						break;
+//					case "PanRight":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panRight();
+//						break;
+
+//						CLICKED
+//					case "PanUp":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanLeft":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanDown":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanRight":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "ZoomToViewer":
+//						map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+//						break;
+//					case "ZoomToField":
+//							map2D.zoomToField(ml.world.getCurrentField(), true);
+//						break;
+//					case "MapZoomIn":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						break;
+//					case "ResetMapZoom":
+//						map2D.resetMapZoom(true);
+//	//					map2D.zoomToWorld(true);
+//						break;
+//					case "MapZoomOut":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						break;		
+//						
+//						RELEASED
+//						case "PanUp":
+//						case "PanLeft":
+//						case "PanDown":
+//						case "PanRight":
+//							display.map2D.stopPanning();
+//							break;
+//						case "MapZoomIn":
+//						case "MapZoomOut":
+//							display.map2D.stopZooming();
+//							break;
+				}
+				
+				b.setSelected(false);
+			}
+		}
+		
+		if(map2D.mousePressedFrame > map2D.mouseDraggedFrame)
+		{
+			if(getDisplayView() == 1)				// In Map View
+			{
+				if(mapViewMode == 1)				// Field Mode
+				{
+					if(selectedCluster != ml.world.viewer.getState().getCurrentClusterID())
+					{
+						if(selectedCluster >= 0 && selectedCluster < ml.world.getCurrentField().getClusters().size())
+						{
+							map2D.zoomToCluster(ml.world, ml.world.getCurrentField().getCluster(selectedCluster), true);
+							ml.world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
+						}
+					}
+				}
+				else if(mapViewMode == 0)			// World Mode
+				{
+					if(map2D.selectedField >= 0 && map2D.selectedField < ml.world.getFields().size())
+					{
+						currentDisplayCluster = 0;
+						map2D.zoomToField(ml.world.getField(map2D.selectedField), true);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handle mouse released event
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
+	public void handleMapViewMousePressed(WMV_World p, float mouseX, float mouseY)
+	{
+		updateMapViewMouse(p);
+		
+		for(ML_Button b : buttons)
+		{
+			if( b.isSelected() && b.containsPoint(new PVector(mouseX, mouseY)) )
+			{
+				switch(b.getID())
+				{
+//					case 0:				// Zoom to Viewer
+//						map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+//						break;
+//					case 1:				// Zoom to Field
+//						map2D.zoomToField(ml.world.getCurrentField(), true);
+//						break;
+//					case 2:				// Zoom to World
+//						map2D.resetMapZoom(true);
+//	//					map2D.zoomToWorld(true);
+//						break;
+
+					case 3:				// Pan Up
+						if(map2D.isPanning())
+							map2D.stopPanning();
+						else
+							map2D.panUp();
+						break;
+					case 4:				// Pan Left
+						if(map2D.isPanning())
+							map2D.stopPanning();
+						else
+							map2D.panLeft();
+						break;
+					case 5:				// Pan Right
+						if(map2D.isPanning())
+							map2D.stopPanning();
+						else
+							map2D.panRight();
+						break;
+					case 6:				// Pan Down
+						if(map2D.isPanning())
+							map2D.stopPanning();
+						else
+							map2D.panDown();
+						break;
+					case 7:				// Zoom In
+						if(map2D.isZooming())
+							map2D.stopZooming();
+						else
+							map2D.startZoomingIn(ml.world);
+						break;
+					case 8:				// Zoom Out
+						if(map2D.isZooming())
+							map2D.stopZooming();
+						else
+							map2D.startZoomingOut(ml.world);
+						break;
+
+//					PRESSED
+//						
+//						case "MapZoomIn":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						else
+//							map2D.startZoomingIn(ml.world);
+//						break;
+//					case "MapZoomOut":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						else
+//							map2D.startZoomingOut(ml.world);
+//						break;
+
+//						case "PanUp":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panUp();
+//						break;
+//					case "PanLeft":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panLeft();
+//						break;
+//					case "PanDown":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panDown();
+//						break;
+//					case "PanRight":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						else
+//							map2D.panRight();
+//						break;
+
+//						CLICKED
+//					case "PanUp":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanLeft":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanDown":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "PanRight":
+//						if(map2D.isPanning())
+//							map2D.stopPanning();
+//						break;
+//					case "ZoomToViewer":
+//						map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+//						break;
+//					case "ZoomToField":
+//							map2D.zoomToField(ml.world.getCurrentField(), true);
+//						break;
+//					case "MapZoomIn":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						break;
+//					case "ResetMapZoom":
+//						map2D.resetMapZoom(true);
+//	//					map2D.zoomToWorld(true);
+//						break;
+//					case "MapZoomOut":
+//						if(map2D.isZooming())
+//							map2D.stopZooming();
+//						break;		
+//						
+//						RELEASED
+//						case "PanUp":
+//						case "PanLeft":
+//						case "PanDown":
+//						case "PanRight":
+//							display.map2D.stopPanning();
+//							break;
+//						case "MapZoomIn":
+//						case "MapZoomOut":
+//							display.map2D.stopZooming();
+//							break;
+				}
+				
+				b.setSelected(false);
+			}
+		}
+	}
 	
 	/**
 	 * Handle mouse released event
@@ -1888,79 +2264,79 @@ public class ML_Display
 				switch(b.getID())
 				{
 					case 0:				// Scroll left
-						ml.display.stopScrolling();
+						stopScrolling();
 						break;
 					case 1:				// Scroll right
-						ml.display.stopScrolling();
+						stopScrolling();
 						break;
 					case 2:				// Zoom in
-						ml.display.stopZooming();
+						stopZooming();
 						break;
 					case 3:				// Zoom out
-						ml.display.stopZooming();
+						stopZooming();
 						break;
 
 //					PRESSED
 //						
 //					case "TimelineZoomIn":
-//						if(ml.display.isZooming())
-//							ml.display.stopZooming();
+//						if(isZooming())
+//							stopZooming();
 //						else
-//							ml.display.zoom(ml.world, -1, true);
+//							zoom(ml.world, -1, true);
 //						break;
 //					case "TimelineZoomOut":
-//						if(ml.display.isZooming())
-//							ml.display.stopZooming();
+//						if(isZooming())
+//							stopZooming();
 //						else
-//							ml.display.zoom(ml.world, 1, true);
+//							zoom(ml.world, 1, true);
 //						break;
 //					case "TimelineReverse":
-//						if(ml.display.isScrolling())
-//							ml.display.stopScrolling();
+//						if(isScrolling())
+//							stopScrolling();
 //						else
-//							ml.display.scroll(ml.world, -1);
+//							scroll(ml.world, -1);
 //						break;
 //					case "TimelineForward":
-//						if(ml.display.isScrolling())
-//							ml.display.stopScrolling();
+//						if(isScrolling())
+//							stopScrolling();
 //						else
-//							ml.display.scroll(ml.world, 1);
+//							scroll(ml.world, 1);
 //						break;
 
 //						CLICKED
 
 //					case "TimelineZoomIn":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomOut":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomToFit":
-//						ml.display.zoomToTimeline(ml.world, true);
+//						zoomToTimeline(ml.world, true);
 //						break;
 //					case "TimelineZoomToSelected":
-//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//						zoomToCurrentSelectableTimeSegment(ml.world, true);
 //						break;
 //					case "TimelineZoomToDate":
-//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//						zoomToCurrentSelectableDate(ml.world, true);
 //						break;
 //					case "TimelineZoomToFull":
-//						ml.display.resetZoom(ml.world, true);
+//						resetZoom(ml.world, true);
 //						break;
 					
 //						RELEASED
 
 //					case "TimelineZoomIn":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomOut":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineReverse":
-//						ml.display.stopScrolling();
+//						stopScrolling();
 //						break;
 //					case "TimelineForward":
-//						ml.display.stopScrolling();
+//						stopScrolling();
 //						break;
 
 				}
@@ -1994,91 +2370,91 @@ public class ML_Display
 				switch(b.getID())
 				{
 					case 0:				// Scroll left
-						if(ml.display.isScrolling())
-							ml.display.stopScrolling();
+						if(isScrolling())
+							stopScrolling();
 						else
-							ml.display.scroll(ml.world, -1);
+							scroll(ml.world, -1);
 						break;
 					case 1:				// Scroll right
-						if(ml.display.isScrolling())
-							ml.display.stopScrolling();
+						if(isScrolling())
+							stopScrolling();
 						else
-							ml.display.scroll(ml.world, 1);
+							scroll(ml.world, 1);
 						break;
 					case 2:				// Zoom in
-						if(ml.display.isZooming())
-							ml.display.stopZooming();
+						if(isZooming())
+							stopZooming();
 						else
-							ml.display.zoom(ml.world, -1, true);
+							zoom(ml.world, -1, true);
 						break;
 					case 3:				// Zoom out
-						if(ml.display.isZooming())
-							ml.display.stopZooming();
+						if(isZooming())
+							stopZooming();
 						else
-							ml.display.zoom(ml.world, 1, true);						
+							zoom(ml.world, 1, true);						
 						break;
 
 //					PRESSED
 //						
 //					case "TimelineZoomIn":
-//						if(ml.display.isZooming())
-//							ml.display.stopZooming();
+//						if(isZooming())
+//							stopZooming();
 //						else
-//							ml.display.zoom(ml.world, -1, true);
+//							zoom(ml.world, -1, true);
 //						break;
 //					case "TimelineZoomOut":
-//						if(ml.display.isZooming())
-//							ml.display.stopZooming();
+//						if(isZooming())
+//							stopZooming();
 //						else
-//							ml.display.zoom(ml.world, 1, true);
+//							zoom(ml.world, 1, true);
 //						break;
 //					case "TimelineReverse":
-//						if(ml.display.isScrolling())
-//							ml.display.stopScrolling();
+//						if(isScrolling())
+//							stopScrolling();
 //						else
-//							ml.display.scroll(ml.world, -1);
+//							scroll(ml.world, -1);
 //						break;
 //					case "TimelineForward":
-//						if(ml.display.isScrolling())
-//							ml.display.stopScrolling();
+//						if(isScrolling())
+//							stopScrolling();
 //						else
-//							ml.display.scroll(ml.world, 1);
+//							scroll(ml.world, 1);
 //						break;
 
 //						CLICKED
 
 //					case "TimelineZoomIn":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomOut":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomToFit":
-//						ml.display.zoomToTimeline(ml.world, true);
+//						zoomToTimeline(ml.world, true);
 //						break;
 //					case "TimelineZoomToSelected":
-//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//						zoomToCurrentSelectableTimeSegment(ml.world, true);
 //						break;
 //					case "TimelineZoomToDate":
-//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//						zoomToCurrentSelectableDate(ml.world, true);
 //						break;
 //					case "TimelineZoomToFull":
-//						ml.display.resetZoom(ml.world, true);
+//						resetZoom(ml.world, true);
 //						break;
 					
 //						RELEASED
 
 //					case "TimelineZoomIn":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineZoomOut":
-//						ml.display.stopZooming();
+//						stopZooming();
 //						break;
 //					case "TimelineReverse":
-//						ml.display.stopScrolling();
+//						stopScrolling();
 //						break;
 //					case "TimelineForward":
-//						ml.display.stopScrolling();
+//						stopScrolling();
 //						break;
 				}
 				
@@ -2119,10 +2495,10 @@ public class ML_Display
 							setLibraryViewMode(0);
 						break;
 					case 10:				// Previous Location
-						ml.display.showPreviousItem();
+						showPreviousItem();
 						break;
 					case 11:				// Next Location
-						ml.display.showNextItem();
+						showNextItem();
 						break;
 					case 12:				// Current Location
 						if(getLibraryViewMode() == 1)
@@ -2507,7 +2883,7 @@ public class ML_Display
 		endDisplayHUD();
 		
 		
-		WMV_Cluster c;
+		WMV_Cluster c = null;
 		float x = hudCenterXOffset;
 //		float y = hudTopMargin + buttonHeight * 2.f + buttonSpacing * 2.f;			// Starting vertical position
 		float y = hudTopMargin;			// Starting vertical position
@@ -2659,12 +3035,17 @@ public class ML_Display
 				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
 
 				ml.textSize(hudLargeTextSize);
-				c = f.getCluster(currentDisplayCluster);		// Get cluster to display info for
+				if(currentDisplayCluster != -1)
+					c = f.getCluster(currentDisplayCluster);		// Get cluster to display info for
+
 				WMV_Cluster cl = p.getCurrentCluster();
 
 				if(c != null)
 				{
 					ml.text(" Location #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
+					
+					y += hudLineWidthWide;
+
 					ml.textSize(hudMediumTextSize);
 					if(c.getState().images.size() > 0)
 						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);

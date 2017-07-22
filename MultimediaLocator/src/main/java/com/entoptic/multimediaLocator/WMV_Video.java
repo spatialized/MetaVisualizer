@@ -1284,6 +1284,34 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 	
 	/**
+	 * Fade focus distance to given target while rescaling images 
+	 * @param target New focus distance
+	 */
+	public void startFadingFocusDistance(float target, int frameCount)
+	{
+		setFadingFocusDistance(true);
+		
+		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
+		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+//		state.fadingFocusDistanceStartFrame = frameCount;					
+//		state.fadingFocusDistanceEndFrame = frameCount + 1;			// Set flag for continuous fading
+
+		state.fadingFocusDistanceStart = metadata.focusDistance;
+		state.fadingFocusDistanceTarget = target;
+	}
+
+	/**
+	 * Fade focus distance to given target while rescaling images 
+	 * @param target New focus distance
+	 */
+	public void stopFadingFocusDistance()
+	{
+		setFadingFocusDistance(false);
+		setFocusDistance( state.fadingFocusDistanceTarget );	// Set focus distance
+		calculateVertices();  								// Update vertices given new focus distance
+	}
+
+	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
 	public void updateFadingFocusDistance()
@@ -1292,7 +1320,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if (getWorldState().frameCount >= state.fadingFocusDistanceEndFrame)
 		{
-			setFadingFocusDistance(false);
+			if(state.fadingFocusDistanceEndFrame - state.fadingFocusDistanceStartFrame > 1)
+				setFadingFocusDistance(false);
 			newFocusDistance = state.fadingFocusDistanceTarget;
 		} 
 		else

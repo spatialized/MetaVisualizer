@@ -3457,7 +3457,7 @@ public class WMV_Field
 	 * Fade object distance for each media point in field
 	 * @param multiple Multiple to scale object distance by
 	 */
-	public void fadeObjectDistances(float multiple)
+	public void transitionFocusDistances(float multiple)
 	{
 		for(WMV_Image i:images)
 		{
@@ -3465,16 +3465,63 @@ public class WMV_Field
 			i.fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 
-		for(WMV_Panorama n:panoramas)
-		{
-			float newRadius = n.getOrigRadius() * multiple;
-			n.setRadius(newRadius);
-		}
+//		for(WMV_Panorama n:panoramas)						// -- In progress
+//		{
+//			float newRadius = n.getOrigRadius() * multiple;
+//			n.setRadius(newRadius);
+//		}
 
 		for(WMV_Video v:videos)
 		{
 			float newFocusDistance = v.getFocusDistance() * multiple;
 			v.fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
+		}
+	}
+
+	/**
+	 * Start fading object distance for each media point in field
+	 * @param incMultiple Multiple to scale object distance by each frame
+	 */
+	public void fadeFocusDistances(float incMultiple)
+	{
+		for(WMV_Image i:images)
+		{
+			float newFocusDistance = i.getFocusDistance() * incMultiple;
+			i.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
+		}
+
+//		for(WMV_Panorama n:panoramas)						// -- In progress
+//		{
+//			float newRadius = n.getOrigRadius() * multiple;
+//			n.setRadius(newRadius);
+//		}
+
+		for(WMV_Video v:videos)
+		{
+			float newFocusDistance = v.getFocusDistance() * incMultiple;
+			v.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
+		}
+	}
+
+	/**
+	 * Stop object distances for each media point in field
+	 */
+	public void stopFadingFocusDistances()
+	{
+		for(WMV_Image i:images)
+		{
+			i.stopFadingFocusDistance();
+		}
+
+//		for(WMV_Panorama n:panoramas)						// -- In progress
+//		{
+//			float newRadius = n.getOrigRadius() * multiple;
+//			n.setRadius(newRadius);
+//		}
+
+		for(WMV_Video v:videos)
+		{
+			v.stopFadingFocusDistance();
 		}
 	}
 

@@ -283,34 +283,34 @@ public class ML_Input
 					display.window.lblStartupWindowText.setVisible(false);
 					break;
 
-				/* Text Entry */
-				case "EnteredText":
-					switch(ml.display.window.textEntryWindowResultCode)
-					{
-						case 0:						// 0: Field Name 
-							String fieldName = ml.display.window.txfInputText.getText();
-//							System.out.println("Input.buttonPressed()... Field name input text:"+fieldName);
-							ml.world.getField(ml.state.namingField).setName(fieldName);
-							ml.display.window.closeTextEntryWindow();
-							break;
-						case 1:						// 1: Library Name
-							String libraryName = ml.display.window.txfInputText.getText();
-//							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
-							ml.library.rename(libraryName);
-							ml.world.updateMediaFilePaths();		// Update media file paths with new library name
-							ml.state.libraryNamed = true;
-							ml.state.fieldsNamed = false;
-							ml.display.window.closeTextEntryWindow();
-							break;
-						case 2:						// 2: Exiftool Path
-							String exiftoolPath = ml.display.window.txfInputText.getText();
-							System.out.println("Input.buttonPressed()... Set exiftoolPath:"+exiftoolPath);
-							ml.setExiftoolPath(exiftoolPath);
-							if(!ml.state.gettingExiftoolPath)
-								ml.display.window.closeTextEntryWindow();	// Close Text Entry Window if found valid Exiftool path
-							break;
-					}
-					break;
+					/* Text Entry */
+					case "EnteredText":
+						switch(ml.display.window.textEntryWindowResultCode)
+						{
+							case 0:						// 0: Field Name 
+								String fieldName = ml.display.window.txfInputText.getText();
+	//							System.out.println("Input.buttonPressed()... Field name input text:"+fieldName);
+								ml.world.getField(ml.state.namingField).setName(fieldName);
+								ml.display.window.closeTextEntryWindow();
+								break;
+							case 1:						// 1: Library Name
+								String libraryName = ml.display.window.txfInputText.getText();
+	//							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
+								ml.library.rename(libraryName);
+								ml.world.updateMediaFilePaths();		// Update media file paths with new library name
+								ml.state.libraryNamed = true;
+								ml.state.fieldsNamed = false;
+								ml.display.window.closeTextEntryWindow();
+								break;
+							case 2:						// 2: Exiftool Path
+								String exiftoolPath = ml.display.window.txfInputText.getText();
+								System.out.println("Input.buttonPressed()... Set exiftoolPath:"+exiftoolPath);
+								ml.setExiftoolPath(exiftoolPath);
+								if(!ml.state.gettingExiftoolPath)
+									ml.display.window.closeTextEntryWindow();	// Close Text Entry Window if found valid Exiftool path
+								break;
+						}
+						break;
 	
 					/* Navigation */
 					case "SetWorldView":
@@ -408,15 +408,21 @@ public class ML_Input
 					case "StopViewer":
 						ml.world.viewer.stop(true);
 						break;
-	
+
 					/* Model */
 					case "SubjectDistanceDown":
-						ml.world.getCurrentField().fadeObjectDistances(0.85f);
+//						System.out.println("" + ml.frameCount + " SubjectDistanceDown CLICKED...");
+						ml.display.window.subjectDistanceDownBtnDown = false;
+						ml.world.getCurrentField().stopFadingFocusDistances();
+//						ml.world.getCurrentField().transitionFocusDistances(0.85f);
 						break;
 					case "SubjectDistanceUp":
-						ml.world.getCurrentField().fadeObjectDistances(1.176f);
+//						System.out.println("" + ml.frameCount + " SubjectDistanceUp CLICKED...");
+						ml.display.window.subjectDistanceUpBtnDown = false;
+						ml.world.getCurrentField().stopFadingFocusDistances();
+//						ml.world.getCurrentField().transitionFocusDistances(1.176f);
 						break;
-		
+
 					/* Help */
 					case "OpenHelpWindow":
 						if(!ml.display.window.showHelpWindow)
@@ -707,6 +713,20 @@ public class ML_Input
 					else
 						ml.world.viewer.rotateX(1);
 					break;
+					
+				/* Model */
+				case "SubjectDistanceDown":
+					System.out.println("" + ml.frameCount + " SubjectDistanceDown PRESSED...");
+					ml.display.window.subjectDistanceDownBtnDown = true;
+					ml.world.getCurrentField().fadeFocusDistances(0.985f);
+//					ml.world.getCurrentField().startFadingFocusDistances(0.98f);
+					break;
+				case "SubjectDistanceUp":
+					System.out.println("" + ml.frameCount + " SubjectDistanceUp PRESSED...");
+					ml.display.window.subjectDistanceUpBtnDown = true;
+					ml.world.getCurrentField().fadeFocusDistances(1.015228f);
+//					ml.world.getCurrentField().startFadingFocusDistances(1.0204f);
+					break;
 
 				/* Map */
 //				case "PanUp":
@@ -816,6 +836,28 @@ public class ML_Input
 				case "LookDown":
 					ml.world.viewer.stopRotateYTransition();
 					break;
+					
+				/* Model */
+				case "SubjectDistanceDown":
+					System.out.println("" + ml.frameCount + " SubjectDistanceDown RELEASED...");
+					ml.display.window.subjectDistanceDownBtnDown = false;
+					ml.world.getCurrentField().stopFadingFocusDistances();
+					break;
+				case "SubjectDistanceUp":
+					System.out.println("" + ml.frameCount + " SubjectDistanceUp RELEASED...");
+					ml.display.window.subjectDistanceUpBtnDown = false;
+					ml.world.getCurrentField().stopFadingFocusDistances();
+					break;
+
+//					/* Model */
+//				case "SubjectDistanceDown":
+//					ml.world.getCurrentField().startFadingFocusDistances(0.98f);
+//					ml.world.getCurrentField().transitionFocusDistances(0.85f);
+//					break;
+//				case "SubjectDistanceUp":
+//					ml.world.getCurrentField().startFadingFocusDistances(1.0204f);
+//					ml.world.getCurrentField().transitionFocusDistances(1.176f);
+//					break;
 
 				/* Map */
 //				case "PanUp":
@@ -885,14 +927,14 @@ public class ML_Input
 //				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
 				break;
 				
-			case "SetMapViewWorldMode":
-				display.setMapViewMode(0);
-				if(option.isSelected()) display.window.optMapViewFieldMode.setSelected(false);	
-				break;
-			case "SetMapViewFieldMode":
-				display.setMapViewMode(1);
-				if(option.isSelected()) display.window.optMapViewWorldMode.setSelected(false);	
-				break;
+//			case "SetMapViewWorldMode":
+//				display.setMapViewMode(0);
+////				if(option.isSelected()) display.window.optMapViewFieldMode.setSelected(false);	
+//				break;
+//			case "SetMapViewFieldMode":
+//				display.setMapViewMode(1);
+////				if(option.isSelected()) display.window.optMapViewWorldMode.setSelected(false);	
+//				break;
 
 			/* Navigation */
 			case "NavigationTeleport":

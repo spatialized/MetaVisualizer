@@ -920,25 +920,62 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
+	 * Fade focus distance to given target while rescaling images 
+	 * @param target New focus distance
+	 */
+	public void startFadingFocusDistance(float target, int frameCount)
+	{
+		
+		setFadingFocusDistance(true);
+		
+		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
+		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+//		state.fadingFocusDistanceStartFrame = frameCount;					
+//		state.fadingFocusDistanceEndFrame = frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+
+//		System.out.println("startFadingFocusDistance()... Image ID #"+getID()+" frameCount:"+state.fadingFocusDistanceStartFrame+" state.fadingFocusDistanceEndFrame:"+state.fadingFocusDistanceEndFrame);
+		
+		state.fadingFocusDistanceStart = metadata.focusDistance;
+		state.fadingFocusDistanceTarget = target;
+	}
+
+	/**
+	 * Fade focus distance to given target while rescaling images 
+	 * @param target New focus distance
+	 */
+	public void stopFadingFocusDistance()
+	{
+//		System.out.println("stopFadingFocusDistance()... Image ID #"+getID());
+
+		setFadingFocusDistance(false);
+		setFocusDistance( state.fadingFocusDistanceTarget );	// Set focus distance
+		calculateVertices();  								// Update vertices given new focus distance
+	}
+
+	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
 	public void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
+//		System.out.println("updateFadingFocusDistance()... Image ID #"+getID()+" frameCount:"+state.fadingFocusDistanceStartFrame+" state.fadingFocusDistanceEndFrame:"+state.fadingFocusDistanceEndFrame);
 
 		if (getWorldState().frameCount >= state.fadingFocusDistanceEndFrame)
 		{
-			setFadingFocusDistance(false);
+			if(state.fadingFocusDistanceEndFrame - state.fadingFocusDistanceStartFrame > 1)
+				setFadingFocusDistance(false);
+			
 			newFocusDistance = state.fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( getWorldState().frameCount, state.fadingFocusDistanceStartFrame, state.fadingFocusDistanceEndFrame, 
-					state.fadingFocusDistanceStart, state.fadingFocusDistanceTarget);      // Fade with distance from current time
+			newFocusDistance = PApplet.map( getWorldState().frameCount, state.fadingFocusDistanceStartFrame, 
+					state.fadingFocusDistanceEndFrame, state.fadingFocusDistanceStart, 
+					state.fadingFocusDistanceTarget);     				 	// Fade with distance from current time
 		}
-
+		
 		setFocusDistance( newFocusDistance );	// Set focus distance
-		calculateVertices();  					// Update state.vertices given new width
+		calculateVertices();  					// Update vertices given focus distance
 	}
 
 	/**

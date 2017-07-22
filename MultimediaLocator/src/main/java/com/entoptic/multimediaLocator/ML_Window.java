@@ -94,7 +94,7 @@ public class ML_Window
 	/* Main Window */
 	private GButton btnNavigationWindow, btnMediaWindow, btnPreferencesWindow, btnMapWindow, btnTimeWindow, btnHelpWindow;
 	private GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
-	private GLabel lblViewMode, lblWindows, lblCommands, lblSpaceBar;
+	private GLabel lblViewMode, lblWindows, lblLibraryCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
 	public GOption optWorldView, optMapView, optTimelineView, optLibraryView;
 	private int mainMenuHeight;
@@ -133,7 +133,7 @@ public class ML_Window
 	public GToggleGroup tgMapViewMode;	
 //	int mapWindowHeight;
 
-	private GLabel lblTimeNavigation, lblManualNavigation, lblAutoNavigation, lblNearest, lblPathNavigation, 			/* Navigation Window Labels */
+	private GLabel lblTimeNavigation, lblManualNavigation, lblAutoNavigation, lblNearby, lblPathNavigation, 			/* Navigation Window Labels */
 	lblTeleportLength, lblPathWaitLength, lblNoGPSTracks, lblGPSTrackSpeed, lblTeleportSettings;
 //	public GLabel lblShift1;
 	private GButton btnNavigationWindowExit, btnNavigationWindowClose;		
@@ -155,6 +155,8 @@ public class ML_Window
 	public GLabel lblGraphics, lblGraphicsModes, lblOutput, lblZoom;
 	public GOption optTimeline, optGPSTrack, optMemory; 
 	public GToggleGroup tgFollow;	
+	public boolean subjectDistanceDownBtnDown = false;
+	public boolean subjectDistanceUpBtnDown = false;
 
 	public GCheckbox chkbxSelectionMode, chkbxMultiSelection, chkbxSegmentSelection, chkbxShowMetadata; 	/* Media Window Options */
 	public GCheckbox chkbxShowModel, chkbxMediaToCluster, chkbxCaptureToMedia, chkbxCaptureToCluster;
@@ -247,38 +249,19 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mainMenuHeight = mediumWindowHeight - 125;
+		mainMenuHeight = shortWindowHeight + 95;
 		startupWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 60;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
+		navigationWindowHeight = mediumWindowHeight + 90;		
+		navigationWindowWidth = windowWidth;
+		mediaWindowHeight = mediumWindowHeight - 40;
+		mediaWindowWidth = windowWidth;
+		timeWindowHeight = shortWindowHeight - 20;
 		preferencesWindowHeight = mediumWindowHeight + 130;
 		helpWindowHeight = mediumWindowHeight + 100;
-//		mapWindowHeight = shortWindowHeight - 25;
-		timeWindowHeight = shortWindowHeight + 55;
-		mediaWindowHeight = mediumWindowHeight + 35;
-		mediaWindowWidth = windowWidth;
-
-		navigationWindowHeight = mediumWindowHeight + 135;		
-		navigationWindowWidth = windowWidth;
-
-//		if(world.ml.displayHeight < tallWindowHeight + 10)					// Small screen: compress windows
-//		{
-////			navigationWindowHeight = compressedNavigationWindowHeight;	
-////			navigationWindowWidth = windowWidth * 2;
-////			mediaWindowHeight = compressedMediaWindowHeight;
-////			mediaWindowWidth = windowWidth * 2;
-//			compressTallWindows = true;
-//		}
-//		else																// Large screen
-//		{
-////			navigationWindowHeight = tallWindowHeight;		
-////			navigationWindowWidth = windowWidth;
-////			mediaWindowHeight = tallWindowHeight - 90;
-////			mediaWindowWidth = windowWidth;
-//			compressTallWindows = false;
-//		}
 	}
 
 	/**
@@ -305,19 +288,19 @@ public class ML_Window
 		world.ml.delay(delayAmount);
 
 		int x = 0, y = iTopMargin;
-		lblViewMode = new GLabel(mainMenu, x, y, mainMenu.width, iMediumBoxHeight, "Display");
+		lblViewMode = new GLabel(mainMenu, x, y, mainMenu.width, iMediumBoxHeight, "View");
 		lblViewMode.setLocalColorScheme(G4P.SCHEME_10);
 		lblViewMode.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblViewMode.setTextAlign(GAlign.CENTER, null);
 //		lblViewMode.setTextBold();
 
-		x = 45;
+		x = 25;
 		y += iLargeBoxHeight;
-		optWorldView = new GOption(mainMenu, x, y, 125, iVerySmallBoxHeight, "World View (1)");
+		optWorldView = new GOption(mainMenu, x, y, 145, iVerySmallBoxHeight, "Environment (1)");
 		optWorldView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
 		optWorldView.tag = "SceneView";
-		optMapView = new GOption(mainMenu, x += 135, y, 80, iVerySmallBoxHeight, "Map (2)");
+		optMapView = new GOption(mainMenu, x += 160, y, 80, iVerySmallBoxHeight, "Map (2)");
 		optMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optMapView.setLocalColorScheme(G4P.SCHEME_10);
 		optMapView.tag = "MapView";
@@ -329,13 +312,13 @@ public class ML_Window
 //		lblViewMode.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 //		lblViewMode.setLocalColorScheme(G4P.SCHEME_10);
 		
-		x = 45;
+		x = 25;
 		y += iMediumBoxHeight;
 		optTimelineView = new GOption(mainMenu, x, y, 125, iVerySmallBoxHeight, "Timeline (3)");
 		optTimelineView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optTimelineView.setLocalColorScheme(G4P.SCHEME_10);
 		optTimelineView.tag = "TimelineView";
-		optLibraryView = new GOption(mainMenu, x += 135, y, 115, iVerySmallBoxHeight, "Library (4)");
+		optLibraryView = new GOption(mainMenu, x += 160, y, 115, iVerySmallBoxHeight, "Library (4)");
 		optLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optLibraryView.setLocalColorScheme(G4P.SCHEME_10);
 		optLibraryView.tag = "LibraryView";
@@ -383,8 +366,34 @@ public class ML_Window
 
 		x = 0;
 		y += iMediumBoxHeight;
+		lblLibraryCommands = new GLabel(mainMenu, x, y, mainMenu.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblLibraryCommands.setText("Library");
+		lblLibraryCommands.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		lblLibraryCommands.setLocalColorScheme(G4P.SCHEME_10);
+		lblLibraryCommands.setTextAlign(GAlign.CENTER, null);
+
+		x = 85;
+		y += iMediumBoxHeight;
+		btnSaveLibrary = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Library  ⇧S");
+		btnSaveLibrary.tag = "SaveWorld";
+		btnSaveLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		y += iSmallBoxHeight;
+		btnSaveField = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
+		btnSaveField.tag = "SaveField";
+		btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		world.ml.delay(delayAmount);
+
+		y += iSmallBoxHeight;
+		btnRestart = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Close Library  ⇧R");
+		btnRestart.tag = "CloseLibrary";
+		btnRestart.setLocalColorScheme(G4P.ORANGE_SCHEME);
+
+		x = 0;
+		y += iMediumBoxHeight;
 		lblWindows = new GLabel(mainMenu, x, y, mainMenu.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblWindows.setText("Windows");
+		lblWindows.setText("Open Window");
 		lblWindows.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblWindows.setLocalColorScheme(G4P.SCHEME_10);
 		lblWindows.setTextAlign(GAlign.CENTER, null);
@@ -412,34 +421,8 @@ public class ML_Window
 		btnPreferencesWindow.tag = "OpenPreferencesWindow";
 		btnPreferencesWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 0;
-		y += iMediumBoxHeight;
-		lblCommands = new GLabel(mainMenu, x, y, mainMenu.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblCommands.setText("Commands");
-		lblCommands.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		lblCommands.setLocalColorScheme(G4P.SCHEME_10);
-		lblCommands.setTextAlign(GAlign.CENTER, null);
-
-		x = 85;
-		y += iMediumBoxHeight;
-		btnSaveLibrary = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Library  ⇧S");
-		btnSaveLibrary.tag = "SaveWorld";
-		btnSaveLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		y += iSmallBoxHeight;
-		btnSaveField = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
-		btnSaveField.tag = "SaveField";
-		btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		world.ml.delay(delayAmount);
-
-		y += iSmallBoxHeight;
-		btnRestart = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Close Library  ⇧R");
-		btnRestart.tag = "CloseLibrary";
-		btnRestart.setLocalColorScheme(G4P.ORANGE_SCHEME);
-
 		x = 105;
-		y += iSmallBoxHeight;
+		y += iMediumBoxHeight;
 		btnQuit = new GButton(mainMenu, x, y, 100, iVerySmallBoxHeight, "Quit  ⇧Q");
 		btnQuit.tag = "Quit";
 		btnQuit.setLocalColorScheme(G4P.RED_SCHEME);
@@ -469,9 +452,9 @@ public class ML_Window
 	public void setupNavigationWindow(boolean open)
 	{
 		if(world.getFields().size() == 1) 
-			navigationWindowHeight = mediumWindowHeight + 115;							// Single field, fewer buttons
+			navigationWindowHeight = mediumWindowHeight + 90;							// Single field, fewer buttons
 		else
-			navigationWindowHeight = mediumWindowHeight + 155;
+			navigationWindowHeight = mediumWindowHeight + 130;
 		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - navigationWindowHeight / 2;
@@ -491,33 +474,33 @@ public class ML_Window
 		navigationWindow.addKeyHandler(world.ml, "navigationWindowKey");
 //		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
-		world.ml.delay(delayAmount * 3 / 2);
-
-		int x = 0, y = iTopMargin;
-		
-		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iMediumBoxHeight, "Navigation");
-		lblNavigationWindow.setLocalColorScheme(G4P.SCHEME_10);
-		lblNavigationWindow.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
-		lblNavigationWindow.setTextAlign(GAlign.CENTER, null);
-		lblNavigationWindow.setTextBold();
-
 		world.ml.delay(delayAmount);
 
-		x = iLeftMargin+2;
-		y += iLargeBoxHeight + 3;
-		btnWorldView = new GButton(navigationWindow, x, y, 155, iVerySmallBoxHeight, "Open World View (1)");
-		btnWorldView.tag = "SetWorldView";
-		btnWorldView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		btnWorldView.setLocalColorScheme(G4P.GREEN_SCHEME);
-		if(world.ml.display.getDisplayView() == 0) btnWorldView.setEnabled(false);
+		int x = iLeftMargin + 2, y = iTopMargin;
+		
+//		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iMediumBoxHeight, "Navigation");
+//		lblNavigationWindow.setLocalColorScheme(G4P.SCHEME_10);
+//		lblNavigationWindow.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+//		lblNavigationWindow.setTextAlign(GAlign.CENTER, null);
+//		lblNavigationWindow.setTextBold();
 
-		x += 165;
+//		world.ml.delay(delayAmount);
+
+//		x = iLeftMargin+2;
 //		y += iLargeBoxHeight + 3;
-		btnMapView = new GButton(navigationWindow, x, y, 115, iVerySmallBoxHeight, "View Map (2)");
-		btnMapView.tag = "SetMapView";
-		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		btnMapView.setLocalColorScheme(G4P.GREEN_SCHEME);
-		if(world.ml.display.getDisplayView() == 1) btnMapView.setEnabled(false);
+//		btnWorldView = new GButton(navigationWindow, x, y, 155, iVerySmallBoxHeight, "Open World View (1)");
+//		btnWorldView.tag = "SetWorldView";
+//		btnWorldView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+//		btnWorldView.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		if(world.ml.display.getDisplayView() == 0) btnWorldView.setEnabled(false);
+
+//		x += 165;
+//		y += iLargeBoxHeight + 3;
+//		btnMapView = new GButton(navigationWindow, x, y, 115, iVerySmallBoxHeight, "View Map (2)");
+//		btnMapView.tag = "SetMapView";
+//		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+//		btnMapView.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		if(world.ml.display.getDisplayView() == 1) btnMapView.setEnabled(false);
 
 
 //		x = 0;
@@ -530,9 +513,9 @@ public class ML_Window
 
 		/* Moving */
 		x = 90;
-		y += iMediumBoxHeight;
-		navigationWindowLineBreakY_1 = y;
-		y+=10;
+//		y += iMediumBoxHeight;
+//		navigationWindowLineBreakY_1 = y;
+//		y+=10;
 
 		btnMoveUp = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Up (e)");
 		btnMoveUp.tag = "MoveUp";
@@ -645,25 +628,25 @@ public class ML_Window
 //		x = 0;
 		y += iLargeBoxHeight;
 		navigationWindowLineBreakY_4 = y;
-
-		x = 200;
 		y += 10;
-		lblAutoNavigation = new GLabel(navigationWindow, x, y-1, 65, iSmallBoxHeight, "To:");
-		lblAutoNavigation.setLocalColorScheme(G4P.SCHEME_10);
-		lblAutoNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		lblAutoNavigation.setTextAlign(GAlign.CENTER, null);
+
+//		x = 200;
+//		lblAutoNavigation = new GLabel(navigationWindow, x, y, 65, iSmallBoxHeight, "To:");
+//		lblAutoNavigation.setLocalColorScheme(G4P.SCHEME_10);
+//		lblAutoNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize-1));
+//		lblAutoNavigation.setTextAlign(GAlign.CENTER, null);
 //		lblAutoNavigation.setTextBold();
 		
 		world.ml.delay(delayAmount);
 
-		x = 50;
+		x = 55;
 		optMove = new GOption(navigationWindow, x, y, 56, iSmallBoxHeight, "Move");
 		optMove.setLocalColorScheme(G4P.SCHEME_10);
 		optMove.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize-1));
 		optMove.tag = "NavigationMove";
 
 		x = 120;
-		optTeleport = new GOption(navigationWindow, x, y, 115, iSmallBoxHeight, "Teleport");
+		optTeleport = new GOption(navigationWindow, x, y, 135, iSmallBoxHeight, "Teleport to:");
 		optTeleport.setLocalColorScheme(G4P.SCHEME_10);
 		optTeleport.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize-1));
 		optTeleport.tag = "NavigationTeleport";
@@ -703,23 +686,30 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = 25;
+//		x = 25;
+		x = 0;
 		y += iLargeBoxHeight;
-		lblNearest = new GLabel(navigationWindow, x, y+iMediumBoxHeight*0.5f, 85, iVerySmallBoxHeight, "Nearby");
-		lblNearest.setLocalColorScheme(G4P.SCHEME_10);
-		lblNearest.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		lblNearby = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Nearby");
+		lblNearby.setLocalColorScheme(G4P.SCHEME_10);
+		lblNearby.setTextAlign(GAlign.CENTER, null);
+		lblNearby.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		
-		x = 105;
-//		y += iMediumBoxHeight;
+		x = 30;
+		y += iMediumBoxHeight;
+		btnMoveToNearestCluster = new GButton(navigationWindow, x, y+iMediumBoxHeight * 0.5f, 75, iVerySmallBoxHeight, "Any (m)");
+		btnMoveToNearestCluster.tag = "NearestCluster";
+		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		x = 115;
 		btnMoveToNearestImage = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Image (i)");
 		btnMoveToNearestImage.tag = "NearestImage";
 		btnMoveToNearestImage.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		btnMoveToNearestPanorama = new GButton(navigationWindow, x+=90, y, 100, iVerySmallBoxHeight, "Panorama (p)");
+		btnMoveToNearestPanorama = new GButton(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Pano (p)");
 		btnMoveToNearestPanorama.tag = "NearestPanorama";
 		btnMoveToNearestPanorama.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 105;
+		x = 115;
 		y += iMediumBoxHeight;
 		btnMoveToNearestVideo = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Video (v)");
 		btnMoveToNearestVideo.tag = "NearestVideo";
@@ -731,19 +721,15 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 		
-		x = 25;
+		x = 70;
 		y += iMediumBoxHeight;
-		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Last (l)");
+		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 170, iVerySmallBoxHeight, "Go to Last Location (l)");
 		btnMoveToLastCluster.tag = "LastCluster";
 		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 95;
-		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Nearest (m)");
-		btnMoveToNearestCluster.tag = "NearestCluster";
-		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x = 195;
-		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Random (j)");
+//		x = 155;
+		y += iMediumBoxHeight;
+		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 170, iVerySmallBoxHeight, "Go to Random Location (j)");
 		btnJumpToRandomCluster.tag = "RandomCluster";
 		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -790,11 +776,11 @@ public class ML_Window
 //		}
 		navigationWindowLineBreakY_5 = y - 10;
 
-		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Path Navigation");
+		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Follow Path");
 		lblPathNavigation.setLocalColorScheme(G4P.SCHEME_10);
-		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblPathNavigation.setTextAlign(GAlign.CENTER, null);
-		lblPathNavigation.setTextBold();
+//		lblPathNavigation.setTextBold();
 		
 		world.ml.delay(delayAmount);
 
@@ -953,31 +939,31 @@ public class ML_Window
 		world.ml.delay(delayAmount * 2);
 
 //		if(compressTallWindows) x = 115;
-		lblMedia = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Media");
-		lblMedia.setLocalColorScheme(G4P.SCHEME_10);
-		lblMedia.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
-		if(!compressTallWindows) lblMedia.setTextAlign(GAlign.CENTER, null);
-		lblMedia.setTextBold();
+//		lblMedia = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Media");
+//		lblMedia.setLocalColorScheme(G4P.SCHEME_10);
+//		lblMedia.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+//		if(!compressTallWindows) lblMedia.setTextAlign(GAlign.CENTER, null);
+//		lblMedia.setTextBold();
+//		
+//		x = 70;
+//		y += iLargeBoxHeight + 3;
+//		btnLibraryView = new GButton(mediaWindow, x, y, 177, iVerySmallBoxHeight, "Open Library View (4)");
+//		btnLibraryView.tag = "SetLibraryView";
+//		btnLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+//		btnLibraryView.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		if(world.ml.display.getDisplayView() == 3) btnLibraryView.setEnabled(false);
+//
+//		x = 0;
+//		y += iLargeBoxHeight;
+//		mediaWindowLineBreakY_1 = y;
 		
-		x = 70;
-		y += iLargeBoxHeight + 3;
-		btnLibraryView = new GButton(mediaWindow, x, y, 177, iVerySmallBoxHeight, "Open Library View (4)");
-		btnLibraryView.tag = "SetLibraryView";
-		btnLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		btnLibraryView.setLocalColorScheme(G4P.GREEN_SCHEME);
-		if(world.ml.display.getDisplayView() == 3) btnLibraryView.setEnabled(false);
-
-		x = 0;
-		y += iLargeBoxHeight;
-		mediaWindowLineBreakY_1 = y;
-		
-		y += 10;
+//		y += 10;
 		
 		lblGraphics = new GLabel(mediaWindow, x, y, mediaWindow.width, iVerySmallBoxHeight, "Graphics");
 		lblGraphics.setLocalColorScheme(G4P.SCHEME_10);
 		lblGraphics.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		if(!compressTallWindows) lblGraphics.setTextAlign(GAlign.CENTER, null);
-		lblGraphics.setTextBold();
+//		lblGraphics.setTextBold();
 
 		world.ml.delay(delayAmount / 2);
 
@@ -1081,14 +1067,15 @@ public class ML_Window
 		lblModel.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 //		if(!compressTallWindows)
 			lblModel.setTextAlign(GAlign.CENTER, null);
-		lblModel.setTextBold();
+//		lblModel.setTextBold();
 
 		x = 65;
 		y += iMediumBoxHeight;
 		btnSubjectDistanceDown = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "-");
 		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
 		btnSubjectDistanceDown.setLocalColorScheme(G4P.CYAN_SCHEME);
-
+		btnSubjectDistanceDown.fireAllEvents(true);
+		
 		x += 42;
 		lblSubjectDistance = new GLabel(mediaWindow, x, y, 110, iVerySmallBoxHeight, "Subject Distance");
 		lblSubjectDistance.setLocalColorScheme(G4P.SCHEME_10);
@@ -1100,6 +1087,7 @@ public class ML_Window
 		btnSubjectDistanceUp = new GButton(mediaWindow, x+=115, y, 30, iVerySmallBoxHeight, "+");
 		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
 		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnSubjectDistanceUp.fireAllEvents(true);
 
 		x = 120;
 		y += 10;
@@ -1166,7 +1154,7 @@ public class ML_Window
 		lblSelection.setLocalColorScheme(G4P.SCHEME_10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		lblSelection.setTextBold();
+//		lblSelection.setTextBold();
 
 		x = 185;
 //		if(compressTallWindows) x += windowWidth;
@@ -1287,24 +1275,24 @@ public class ML_Window
 		timeWindow.addKeyHandler(world.ml, "timelineWindowKey");
 //		timeWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
-		int x = 0, y = iTopMargin;
+		int x = 75, y = iTopMargin + 10;
 		world.ml.delay(delayAmount);
 
-		lblTimeWindow = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight, "Time");
-		lblTimeWindow.setLocalColorScheme(G4P.SCHEME_10);
-		lblTimeWindow.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
-		lblTimeWindow.setTextAlign(GAlign.CENTER, null);
-		lblTimeWindow.setTextBold();
+//		lblTimeWindow = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight, "Time");
+//		lblTimeWindow.setLocalColorScheme(G4P.SCHEME_10);
+//		lblTimeWindow.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+//		lblTimeWindow.setTextAlign(GAlign.CENTER, null);
+//		lblTimeWindow.setTextBold();
 
-		x = 75;
-		y += iVeryLargeBoxHeight;
-		btnTimeView = new GButton(timeWindow, x, y, 160, iVerySmallBoxHeight, "Show Timeline (3)");
-		btnTimeView.tag = "SetTimeView";
-		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		btnTimeView.setLocalColorScheme(G4P.GREEN_SCHEME);
+//		x = 75;
+//		y += iVeryLargeBoxHeight;
+//		btnTimeView = new GButton(timeWindow, x, y, 160, iVerySmallBoxHeight, "Show Timeline (3)");
+//		btnTimeView.tag = "SetTimeView";
+//		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+//		btnTimeView.setLocalColorScheme(G4P.GREEN_SCHEME);
 
 		x = 90;
-		y += iLargeBoxHeight;
+//		y += iLargeBoxHeight;
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 165, iVerySmallBoxHeight, "On / Off (f)");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
@@ -1313,7 +1301,7 @@ public class ML_Window
 
 		x = iLeftMargin;
 		y += iMediumBoxHeight * 0.5f;
-		lblTimeCycle = new GLabel(timeWindow, x, y, 85, iVerySmallBoxHeight, "Cycle");
+		lblTimeCycle = new GLabel(timeWindow, x, y, 85, iVerySmallBoxHeight, "Time");
 		lblTimeCycle.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeCycle.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
@@ -2472,7 +2460,7 @@ public class ML_Window
 		applet.colorMode(PConstants.HSB);
 		applet.stroke(0, 0, 65, 255);
 		applet.strokeWeight(1);
-		applet.line(0, navigationWindowLineBreakY_1, windowWidth, navigationWindowLineBreakY_1);
+//		applet.line(0, navigationWindowLineBreakY_1, windowWidth, navigationWindowLineBreakY_1);
 		applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
 		applet.line(0, navigationWindowLineBreakY_3, windowWidth, navigationWindowLineBreakY_3);
 		applet.line(0, navigationWindowLineBreakY_4, windowWidth, navigationWindowLineBreakY_4);
@@ -2524,15 +2512,24 @@ public class ML_Window
 		applet.colorMode(PConstants.HSB);
 		applet.stroke(0, 0, 75, 255);
 		applet.strokeWeight(1);
-		applet.line(0, mediaWindowLineBreakY_1, windowWidth, mediaWindowLineBreakY_1);
+//		applet.line(0, mediaWindowLineBreakY_1, windowWidth, mediaWindowLineBreakY_1);
 		applet.line(0, mediaWindowLineBreakY_2, windowWidth, mediaWindowLineBreakY_2);
 		applet.line(0, mediaWindowLineBreakY_3, windowWidth, mediaWindowLineBreakY_3);
 		applet.line(0, mediaWindowLineBreakY_4, windowWidth, mediaWindowLineBreakY_4);
 
 		if(setupMediaWindow)
 		{
+//			if(subjectDistanceDownBtnDown)
+//			{
+//				world.getCurrentField().fadeFocusDistances(0.985f);
+//			}
+//			else if(subjectDistanceUpBtnDown)
+//			{
+//				world.getCurrentField().fadeFocusDistances(1.015228f);
+//			}
+			
 			if(world.state.timeFading && !world.state.paused)
-				sdrVisibleAngle.setValue(world.viewer.getFieldOfView());
+				sdrVisibleAngle.setValue(world.viewer.getFieldOfView());		// -- Move this
 		}
 	}
 

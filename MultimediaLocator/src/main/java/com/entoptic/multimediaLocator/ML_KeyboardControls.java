@@ -239,6 +239,21 @@ public class ML_KeyboardControls
 					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
 			}			
 		}
+		
+		if (key == '_') 
+		{
+			ml.display.window.subjectDistanceDownBtnDown = true;
+			ml.world.getCurrentField().fadeFocusDistances(0.985f);
+		}
+//			ml.world.getCurrentField().transitionFocusDistances(0.85f);
+
+		if (key == '+')
+		{
+			ml.display.window.subjectDistanceUpBtnDown = true;
+			ml.world.getCurrentField().fadeFocusDistances(1.015228f);
+		}
+//			ml.world.getCurrentField().transitionFocusDistances(1.176f);
+
 
 		if (key == 'e')									// Move UP
 			ml.world.viewer.walkUp();
@@ -458,6 +473,7 @@ public class ML_KeyboardControls
 	 */
 	public void handleWorldViewKeyReleased(MultimediaLocator ml, char key, int keyCode)
 	{
+		
 		if (key == 'M') 
 		{
 			boolean state = !ml.world.getState().showMetadata;
@@ -530,12 +546,20 @@ public class ML_KeyboardControls
 		if( key == 'L' )
 			ml.world.viewer.lookAtNearestMedia();
 
-		if (key == '_') 
-			ml.world.getCurrentField().fadeObjectDistances(0.85f);
+//		if (key == '_') 
+//		{
+//			ml.display.window.subjectDistanceDownBtnDown = false;
+//			ml.world.getCurrentField().stopFadingFocusDistances();
+////			ml.world.getCurrentField().transitionFocusDistances(0.85f);
+//		}
+//
+//		if (key == '+')
+//		{
+//			ml.display.window.subjectDistanceUpBtnDown = false;
+//			ml.world.getCurrentField().stopFadingFocusDistances();
+////			ml.world.getCurrentField().transitionFocusDistances(1.176f);
+//		}
 
-		if (key == '+')
-			ml.world.getCurrentField().fadeObjectDistances(1.176f);
-		
 		if (key == 'E')
 		{
 			boolean state = !ml.world.getState().useBlurMasks;
@@ -710,25 +734,25 @@ public class ML_KeyboardControls
 		if(key == 'L')
 		{
 			ml.display.setMapViewMode(0);
-			if(ml.display.window.setupNavigationWindow) 
-			{
-				ml.display.window.optMapViewWorldMode.setEnabled(true);
-				ml.display.window.optMapViewFieldMode.setEnabled(true);
-				ml.display.window.optMapViewWorldMode.setSelected(true);	
-				ml.display.window.optMapViewFieldMode.setSelected(false);	
-			}
+//			if(ml.display.window.setupNavigationWindow) 
+//			{
+//				ml.display.window.optMapViewWorldMode.setEnabled(true);
+//				ml.display.window.optMapViewFieldMode.setEnabled(true);
+//				ml.display.window.optMapViewWorldMode.setSelected(true);	
+//				ml.display.window.optMapViewFieldMode.setSelected(false);	
+//			}
 		}
 	
 		if(key == 'F')
 		{
 			ml.display.setMapViewMode(1);
-			if(ml.display.window.setupNavigationWindow) 
-			{
-				ml.display.window.optMapViewWorldMode.setEnabled(true);
-				ml.display.window.optMapViewFieldMode.setEnabled(true);
-				ml.display.window.optMapViewWorldMode.setSelected(false);	
-				ml.display.window.optMapViewFieldMode.setSelected(true);	
-			}
+//			if(ml.display.window.setupNavigationWindow) 
+//			{
+//				ml.display.window.optMapViewWorldMode.setEnabled(true);
+//				ml.display.window.optMapViewFieldMode.setEnabled(true);
+//				ml.display.window.optMapViewWorldMode.setSelected(false);	
+//				ml.display.window.optMapViewFieldMode.setSelected(true);	
+//			}
 		}
 
 		/* Map Controls Specific to View Mode */
@@ -1155,6 +1179,28 @@ public class ML_KeyboardControls
 				ml.systemMessage("Keyboard.handleAllViewsKeyReleased()... coded key:"+key+" keyCode:"+keyCode);
 			else
 				ml.systemMessage("Keyboard.handleAllViewsKeyReleased()... key:"+key);
+		}
+		
+		if (key == '_' || key == '-') 
+//		if (key == '_') 
+		{
+			if(ml.display.window.subjectDistanceDownBtnDown)
+			{
+				ml.display.window.subjectDistanceDownBtnDown = false;
+				ml.world.getCurrentField().stopFadingFocusDistances();
+			}
+//			ml.world.getCurrentField().transitionFocusDistances(0.85f);
+		}
+
+		if (key == '+' || key == '=') 
+//		if (key == '+')
+		{
+			if(ml.display.window.subjectDistanceUpBtnDown)
+			{
+				ml.display.window.subjectDistanceUpBtnDown = false;
+				ml.world.getCurrentField().stopFadingFocusDistances();
+			}
+//			ml.world.getCurrentField().transitionFocusDistances(1.176f);
 		}
 
 		/* Coded Keys */

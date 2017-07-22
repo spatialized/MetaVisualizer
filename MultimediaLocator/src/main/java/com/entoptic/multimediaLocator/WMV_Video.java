@@ -1322,6 +1322,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if(state.fadingFocusDistanceEndFrame - state.fadingFocusDistanceStartFrame > 1)
 				setFadingFocusDistance(false);
+			
 			newFocusDistance = state.fadingFocusDistanceTarget;
 		} 
 		else
@@ -1337,7 +1338,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	
 	void resetFocusDistance()
 	{
-		setFocusDistance(state.origFocusDistance);
+//		setFocusDistance(state.origFocusDistance);
+		float newFocusDistance = state.origFocusDistance;
+		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 	}
 	
 	/**	

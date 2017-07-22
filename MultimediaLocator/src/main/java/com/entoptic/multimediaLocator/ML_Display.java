@@ -337,14 +337,10 @@ public class ML_Display
 				}
 			}
 			
-			if(window.subjectDistanceDownBtnDown)
-			{
-				ml.world.getCurrentField().fadeFocusDistances(0.985f);
-			}
-			else if(window.subjectDistanceUpBtnDown)
-			{
-				ml.world.getCurrentField().fadeFocusDistances(1.015228f);
-			}
+			if(window.subjectDistanceUpBtnDown)
+				ml.world.getCurrentField().fadeFocusDistances(ml.world, 0.985f);
+			else if(window.subjectDistanceDownBtnDown)
+				ml.world.getCurrentField().fadeFocusDistances(ml.world, 1.015228f);
 		}
 	}
 	
@@ -398,6 +394,7 @@ public class ML_Display
 
 		buttons.add(btnZoomToFit);
 		buttons.add(btnZoomToSelection);
+		buttons.add(btnZoomToCurrentDate);
 		buttons.add(btnZoomToTimeline);
 
 //		ML_Button btnZoomToFit, btnZoomToSelection, btnZoomToTimeline;
@@ -2045,17 +2042,18 @@ public class ML_Display
 		
 		if(map2D.mousePressedFrame > map2D.mouseDraggedFrame)
 		{
-			if(getDisplayView() == 1)				// In Map View
+
+			if(getDisplayView() == 1)			// In Map View
 			{
 				if(mapViewMode == 1)				// Field Mode
 				{
-					if(selectedCluster != ml.world.viewer.getState().getCurrentClusterID())
+					System.out.println("Display.handleMapViewMouseReleased()... map2D.selectedCluster:"+map2D.selectedCluster+"  getCurrentField().getClusters().size():"+ml.world.getCurrentField().getClusters().size()+"...");
+					if(map2D.selectedCluster >= 0 && map2D.selectedCluster < ml.world.getCurrentField().getClusters().size())
 					{
-						if(selectedCluster >= 0 && selectedCluster < ml.world.getCurrentField().getClusters().size())
-						{
-							map2D.zoomToCluster(ml.world, ml.world.getCurrentField().getCluster(selectedCluster), true);
-							ml.world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
-						}
+						if(map2D.selectedCluster != ml.world.viewer.getState().getCurrentClusterID())
+							map2D.zoomToCluster(ml.world, ml.world.getCurrentField().getCluster(map2D.selectedCluster), true);
+						System.out.println("Display.handleMapViewMouseReleased()... Started zooming, will moveToClusterOnMap()...");
+						ml.world.viewer.moveToClusterOnMap(map2D.selectedCluster, true);	// Move to cluster on map and stay in Map View
 					}
 				}
 				else if(mapViewMode == 0)			// World Mode
@@ -2063,6 +2061,7 @@ public class ML_Display
 					if(map2D.selectedField >= 0 && map2D.selectedField < ml.world.getFields().size())
 					{
 						currentDisplayCluster = 0;
+						map2D.selectedCluster = -1;
 						map2D.zoomToField(ml.world.getField(map2D.selectedField), true);
 					}
 				}
@@ -2881,31 +2880,25 @@ public class ML_Display
 		for(ML_Button b : buttons)
 			b.display(p, 0.f, 0.f, 255.f);
 		
-//		ml.pushMatrix();
 		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
-//		float x = hudLeftMargin;
-		
-
-		
 		float x = hudCenterXOffset - buttonWidth * 2.f - buttonSpacing * 4.f;
 		float y = hudTopMargin + buttonHeight * 2.5f;			// Starting vertical position
-//		float y = hudTopMargin;  		// + lineWidth;			// Starting vertical position
 
 		ml.fill(0, 0, 255, 255);
 		ml.textSize(hudSmallTextSize);
 
-		ml.text("Current View:", x + buttonSpacing, y - buttonSpacing * 0.15f, 0);
+		ml.text("Current View:", x, y - buttonSpacing * 0.15f, 0);
 		
 		y += buttonHeight * 2.f + buttonSpacing * 1.75f;			// --???
 		
 		switch(libraryViewMode)
 		{
 			case	 1:					// Field
-				ml.text("Go To Field:", x, y, 0);
+				ml.text("Go To Field:", x - buttonSpacing * 0.5f, y, 0);
 				break;
 			case	 2:					// Location (Cluster)
-				ml.text("Go To Location:", x, y, 0);
+				ml.text("Go To Location:", x - buttonSpacing * 0.5f, y, 0);
 				break;
 		}
 
@@ -2939,7 +2932,7 @@ public class ML_Display
 				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
 //				y += hudLineWidthWide + buttonHeight * 2.f + buttonSpacing * 2.f;
 
-				ml.textSize(hudLargeTextSize);
+				ml.textSize(hudMediumTextSize);
 				ml.text(ml.world.getCurrentField().getName(), x, y);
 				ml.textSize(hudMediumTextSize);
 //					ml.text("Single Field Environment", x, y );
@@ -2985,7 +2978,7 @@ public class ML_Display
 				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
 //				y += hudLineWidthVeryWide + buttonHeight * 2.f + buttonSpacing * 2.f;
 
-				ml.textSize(hudLargeTextSize);
+				ml.textSize(hudMediumTextSize);
 				ml.text(ml.world.getCurrentField().getName(), x, y);
 
 				y += buttonHeight + buttonSpacing;

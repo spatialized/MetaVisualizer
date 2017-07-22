@@ -371,7 +371,7 @@ public class WMV_Sound extends WMV_Media
 	void fadeSoundIn()
 	{
 		if(getDebugSettings().sound) System.out.println("Sound.fadeSoundIn()...");
-		if(state.volume < getWorldSettings().videoMaxVolume)
+		if(state.volume < getWorldSettings().soundMaxVolume)
 		{
 			state.fadingVolume = true;
 			state.volumeFadingStartFrame = getWorldState().frameCount; 

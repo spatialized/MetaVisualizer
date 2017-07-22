@@ -142,11 +142,11 @@ public class WMV_World
 		if(state.fadingAlpha)  updateFadingAlpha();							/* Update global alpha fading */
 		if(viewer.getState().fadingToTime) viewer.updateTimeTransition();		/* Update fading transition between time segments */
 		
-		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
+		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();			/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
-		if(ml.frameCount % 120 == 0) checkForOrphanedMedia();			/* Check for orphaned media */
+		if(ml.frameCount % 120 == 0) checkForOrphanedMedia();				/* Check for orphaned media */
 		ml.display.window.update();										/* Update windows */
-//		if(viewer.getSettings().mouseNavigation)						/* Update mouse navigation   -- Disabled */
+//		if(viewer.getSettings().mouseNavigation)							/* Update mouse navigation   -- Disabled */
 //		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
@@ -232,10 +232,10 @@ public class WMV_World
 					updateFieldTimeMode();
 				break;
 
-			case 2:													// Single Time Mode
-				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
-					updateSingleTimeMode();
-				break;
+//			case 2:													// Media Time Mode
+//				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
+//					updateSingleTimeMode();
+//				break;
 				
 			case 3:													// Flexible Time Mode -- In progress
 				break;
@@ -587,13 +587,16 @@ public class WMV_World
 	{
 		if(!state.paused)
 		{
-			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
-			if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
+			if(!viewer.isMoving() && !viewer.isTeleporting())
 			{
-				if(ml.debug.world)
-					ml.systemMessage("Reached end of Field Time Cycle...");
+				state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
+				if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
+				{
+					if(ml.debug.world)
+						ml.systemMessage("Reached end of Field Time Cycle...");
 
-				state.setCurrentTimeCycleFrame( 0 );
+					state.setCurrentTimeCycleFrame( 0 );
+				}
 			}
 		}
 	}
@@ -2689,6 +2692,17 @@ public class WMV_World
 			}
 		}
 	}
+
+
+//	public void updateSelectionMaxDistance()
+//	{
+//	//	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
+//	//	public float selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;			// Maximum distance user can select media item
+//	
+//		viewer.setSelectionMaxDistance( viewer.getSettings().selectionMaxDistanceFactor * 
+//									    viewer.getSettings().defaultFocusDistance );
+//	}
+	
 
 	/**
 	 * Get mask image resource

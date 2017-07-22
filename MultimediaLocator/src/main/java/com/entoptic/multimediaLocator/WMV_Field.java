@@ -3457,8 +3457,11 @@ public class WMV_Field
 	 * Fade object distance for each media point in field
 	 * @param multiple Multiple to scale object distance by
 	 */
-	public void transitionFocusDistances(float multiple)
+	public void transitionFocusDistances(WMV_World world, float multiple)
 	{
+		world.viewer.setSelectionMaxDistance( world.viewer.getSettings().selectionMaxDistanceFactor * 
+											 world.viewer.getSelectionMaxDistance() * multiple );
+
 		for(WMV_Image i:images)
 		{
 			float newFocusDistance = i.getFocusDistance() * multiple;
@@ -3476,17 +3479,21 @@ public class WMV_Field
 			float newFocusDistance = v.getFocusDistance() * multiple;
 			v.fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
+		
 	}
 
 	/**
-	 * Start fading object distance for each media point in field
-	 * @param incMultiple Multiple to scale object distance by each frame
+	 * Start (continuously) fading object distance for each media point in field
+	 * @param multiple Multiple to scale object distance by each frame
 	 */
-	public void fadeFocusDistances(float incMultiple)
+	public void fadeFocusDistances(WMV_World world, float multiple)
 	{
+		world.viewer.setSelectionMaxDistance( world.viewer.getSettings().selectionMaxDistanceFactor * 
+											 world.viewer.getSelectionMaxDistance() * multiple );
+
 		for(WMV_Image i:images)
 		{
-			float newFocusDistance = i.getFocusDistance() * incMultiple;
+			float newFocusDistance = i.getFocusDistance() * multiple;
 			i.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 
@@ -3498,7 +3505,7 @@ public class WMV_Field
 
 		for(WMV_Video v:videos)
 		{
-			float newFocusDistance = v.getFocusDistance() * incMultiple;
+			float newFocusDistance = v.getFocusDistance() * multiple;
 			v.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 	}
@@ -3528,8 +3535,9 @@ public class WMV_Field
 	/**
 	 * Reset object distances for each media point in field to original
 	 */
-	public void resetObjectDistances()
+	public void resetFocusDistances(WMV_World world)
 	{
+//		System.out.println("Field.resetFocusDistances()... ");
 		for(WMV_Image i:images)
 			i.resetFocusDistance();
 
@@ -3538,6 +3546,14 @@ public class WMV_Field
 
 		for(WMV_Video v:videos)
 			v.resetFocusDistance();
+		
+//		public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
+//		public float selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;			// Maximum distance user can select media item
+
+		world.viewer.resetSelectionMaxDistance();
+
+//		world.updateSelectionMaxDistance();
+//		world.viewer.getSettings().selectionMaxDistance = selectionMaxDistanceFactor;
 	}
 
 	/**

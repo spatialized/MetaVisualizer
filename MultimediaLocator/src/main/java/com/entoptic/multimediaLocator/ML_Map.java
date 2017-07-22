@@ -646,14 +646,15 @@ public class ML_Map
 			float panAmount = satellite.getZoomLevel();
 			satellite.panBy(0.f, -panAmount);
 		}
-		updateMouse(world);
+		
+		updateMouseHovering(world);
 	}
 	
 	/**
 	 * Update map settings based on current mouse position
 	 * @param world Parent world
 	 */
-	public void updateMouse(WMV_World world)
+	public void updateMouseHovering(WMV_World world)
 	{
 		if(p.getDisplayView() == 1)							// In Map View
 		{
@@ -894,7 +895,7 @@ public class ML_Map
 	 */
 	public void setSelectedClusterID( int newCluster )
 	{
-		System.out.println("setSelectedClusterID()... newCluster: "+newCluster);
+//		System.out.println("setSelectedClusterID()... newCluster: "+newCluster);
 		selectedCluster = newCluster;
 	}
 

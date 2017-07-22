@@ -912,6 +912,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void fadeFocusDistance(float target, int frameCount)
 	{
+//		System.out.println("Image.fadeFocusDistance()... #"+getID()+" frameCount:"+frameCount+" state.fadingFocusDistanceLength:"+state.fadingFocusDistanceLength);
 		setFadingFocusDistance(true);
 		state.fadingFocusDistanceStartFrame = frameCount;					
 		state.fadingFocusDistanceEndFrame = frameCount + state.fadingFocusDistanceLength;	
@@ -945,7 +946,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void stopFadingFocusDistance()
 	{
-//		System.out.println("stopFadingFocusDistance()... Image ID #"+getID());
+//		System.out.println("Image.stopFadingFocusDistance()... Image ID #"+getID());
 
 		setFadingFocusDistance(false);
 		setFocusDistance( state.fadingFocusDistanceTarget );	// Set focus distance
@@ -958,7 +959,6 @@ public class WMV_Image extends WMV_Media
 	public void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
-//		System.out.println("updateFadingFocusDistance()... Image ID #"+getID()+" frameCount:"+state.fadingFocusDistanceStartFrame+" state.fadingFocusDistanceEndFrame:"+state.fadingFocusDistanceEndFrame);
 
 		if (getWorldState().frameCount >= state.fadingFocusDistanceEndFrame)
 		{
@@ -1242,7 +1242,8 @@ public class WMV_Image extends WMV_Media
 	 */
 	void resetFocusDistance()
 	{
-		setFocusDistance(state.origFocusDistance);
+		float newFocusDistance = state.origFocusDistance;
+		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 	}
 
 	/**

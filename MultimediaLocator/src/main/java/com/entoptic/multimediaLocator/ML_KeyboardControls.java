@@ -242,15 +242,15 @@ public class ML_KeyboardControls
 		
 		if (key == '_') 
 		{
-			ml.display.window.subjectDistanceDownBtnDown = true;
-			ml.world.getCurrentField().fadeFocusDistances(0.985f);
+			ml.display.window.subjectDistanceUpBtnDown = true;
+			ml.world.getCurrentField().fadeFocusDistances(ml.world, 0.985f);
 		}
 //			ml.world.getCurrentField().transitionFocusDistances(0.85f);
 
 		if (key == '+')
 		{
-			ml.display.window.subjectDistanceUpBtnDown = true;
-			ml.world.getCurrentField().fadeFocusDistances(1.015228f);
+			ml.display.window.subjectDistanceDownBtnDown = true;
+			ml.world.getCurrentField().fadeFocusDistances(ml.world, 1.015228f);
 		}
 //			ml.world.getCurrentField().transitionFocusDistances(1.176f);
 
@@ -527,6 +527,9 @@ public class ML_KeyboardControls
 
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);				// Jump (teleport) to random cluster
+
+		if (key == 'J') 
+			ml.world.getCurrentField().resetFocusDistances(ml.world);
 
 		if (key == 'i') 		// Go to nearest cluster ID with image
 			ml.world.viewer.moveToNearestClusterWithType(0, false, ml.world.viewer.getNavigationTeleport(), true);
@@ -977,17 +980,19 @@ public class ML_KeyboardControls
 			}
 		}
 
-		if (key == '-' || key == '_') 
-		{
-			int newLibraryViewMode = ml.display.getLibraryViewMode()+1;
-			ml.display.setLibraryViewMode(newLibraryViewMode);
-		}
-
-		if (key == '=' || key == '+') 
-		{
-			int newLibraryViewMode = ml.display.getLibraryViewMode()-1;
-			ml.display.setLibraryViewMode(newLibraryViewMode);
-		}
+//		if (key == '=' || key == '+') 
+////		if (key == '-' || key == '_') 
+//		{
+//			int newLibraryViewMode = ml.display.getLibraryViewMode()+1;
+//			ml.display.setLibraryViewMode(newLibraryViewMode);
+//		}
+//
+//		if (key == '-' || key == '_') 
+////		if (key == '=' || key == '+') 
+//		{
+//			int newLibraryViewMode = ml.display.getLibraryViewMode()-1;
+//			ml.display.setLibraryViewMode(newLibraryViewMode);
+//		}
 
 		if (key == PApplet.CODED) 					
 		{
@@ -1182,22 +1187,22 @@ public class ML_KeyboardControls
 		}
 		
 		if (key == '_' || key == '-') 
-//		if (key == '_') 
+//		if (key == '+' || key == '=') 
 		{
-			if(ml.display.window.subjectDistanceDownBtnDown)
+			if(ml.display.window.subjectDistanceUpBtnDown)
 			{
-				ml.display.window.subjectDistanceDownBtnDown = false;
+				ml.display.window.subjectDistanceUpBtnDown = false;
 				ml.world.getCurrentField().stopFadingFocusDistances();
 			}
 //			ml.world.getCurrentField().transitionFocusDistances(0.85f);
 		}
 
 		if (key == '+' || key == '=') 
-//		if (key == '+')
+//		if (key == '_' || key == '-') 
 		{
-			if(ml.display.window.subjectDistanceUpBtnDown)
+			if(ml.display.window.subjectDistanceDownBtnDown)
 			{
-				ml.display.window.subjectDistanceUpBtnDown = false;
+				ml.display.window.subjectDistanceDownBtnDown = false;
 				ml.world.getCurrentField().stopFadingFocusDistances();
 			}
 //			ml.world.getCurrentField().transitionFocusDistances(1.176f);

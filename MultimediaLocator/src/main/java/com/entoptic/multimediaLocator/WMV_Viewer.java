@@ -4916,7 +4916,16 @@ public class WMV_Viewer
 	{
 		settings.farViewingDistance = newFarViewingDistance;
 	}
-
+	
+	/**
+	 * Set far viewing distance
+	 * @param newFarHearingDistance New far viewing distance
+	 */
+	public void setFarHearingDistance( float newFarHearingDistance )
+	{
+		settings.farHearingDistance = newFarHearingDistance;
+	}
+	
 	/**
 	 * Set model far viewing distance
 	 * @param newModelDistanceVisibilityFactorFar New far viewing distance
@@ -5063,6 +5072,21 @@ public class WMV_Viewer
 		return state.slowing;
 	}
 
+	public void setSelectionMaxDistance(float newValue)
+	{
+		settings.selectionMaxDistance = newValue;
+	}
+	
+	public float getSelectionMaxDistance()
+	{
+		return settings.selectionMaxDistance;
+	}
+	
+	public void resetSelectionMaxDistance()
+	{
+		settings.selectionMaxDistance = settings.defaultFocusDistance * settings.selectionMaxDistanceFactor;
+	}
+	
 	public void setTurningX(boolean newTurningX)
 	{
 		state.turningX = newTurningX;

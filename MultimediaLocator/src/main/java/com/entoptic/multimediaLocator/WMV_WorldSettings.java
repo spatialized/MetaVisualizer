@@ -15,8 +15,8 @@ public class WMV_WorldSettings
 	public boolean copyLargeImageFiles = false;
 	public boolean copyLargeVideoFiles = false;
 	
-	public final float defaultFocusDistance = 15.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
-	public final float defaultAltitudeScalingFactor = 0.66f;		// Adjust altitude for ease of viewing
+	public final float defaultFocusDistance = 14.0f;				// Default focus distance for images and videos (m.)	-- Duplicated in viewer settings!
+	public final float defaultAltitudeScalingFactor = 0.5f;		// Adjust altitude for ease of viewing
 	public float subjectSizeRatio = 0.18f;						// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public final float panoramaFocusDistanceFactor = 1.1f;		// Scaling from defaultFocusDistance to panorama radius
 	public final float videoFocusDistanceFactor = 0.8f;			// Scaling from defaultFocusDistance to video focus distance
@@ -81,8 +81,10 @@ public class WMV_WorldSettings
 	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled
 
 	/* Video */
-	public final float videoMaxVolume = 0.85f;				// Maximum video volume
-	public final float soundMaxVolume = 0.8f;				// Maximum sound volume
+	public float soundMaxVolume = 0.8f;				// Maximum sound volume
+	public float videoMaxVolumeMax = 0.85f;				// Maximum video volume
+	public float videoMaxVolume = 0.85f;				// Maximum video volume
+	public float soundMaxVolumeMax = 0.8f;				// Maximum sound volume
 	public final float assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;	// How long a photo can be taken before a video and still become associated;
 															// (WMV assumes videographers will take a photo with Theodolite shortly before hitting record,

@@ -166,6 +166,22 @@ public class ML_Input
 				world.getCurrentField().recalculateGeometries();			// Recalculate media geometries at new locations
 				world.getCurrentField().createClusters();					// Recalculate cluster locations
 			}
+			
+			if (slider.tag == "VideoVolumeMax")
+			{
+				world.settings.videoMaxVolume = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;	// -- Should smoothly fade
+			}
+			
+			if (slider.tag == "SoundVolumeMax")
+			{
+				world.settings.soundMaxVolume = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;	// -- Should smoothly fade
+			}
+			
+			if (slider.tag == "FarHearingDistance")
+			{
+//				world.viewer.setFarViewingDistance( PApplet.round(slider.getValueF() * 1000.f) * 0.001f );	// -- Should smoothly fade
+				world.viewer.setFarHearingDistance( PApplet.round(slider.getValueF() * 1000.f) * 0.001f );	// -- Should smoothly fade
+			}
 		}
 		
 		if(display.window.setupTimeWindow)
@@ -410,17 +426,20 @@ public class ML_Input
 						break;
 
 					/* Model */
-					case "SubjectDistanceDown":
+					case "SubjectDistanceUp":
 //						System.out.println("" + ml.frameCount + " SubjectDistanceDown CLICKED...");
-						ml.display.window.subjectDistanceDownBtnDown = false;
+						ml.display.window.subjectDistanceUpBtnDown = false;
 						ml.world.getCurrentField().stopFadingFocusDistances();
 //						ml.world.getCurrentField().transitionFocusDistances(0.85f);
 						break;
-					case "SubjectDistanceUp":
+					case "SubjectDistanceDown":
 //						System.out.println("" + ml.frameCount + " SubjectDistanceUp CLICKED...");
-						ml.display.window.subjectDistanceUpBtnDown = false;
+						ml.display.window.subjectDistanceDownBtnDown = false;
 						ml.world.getCurrentField().stopFadingFocusDistances();
 //						ml.world.getCurrentField().transitionFocusDistances(1.176f);
+						break;
+					case "SubjectDistanceReset":
+						ml.world.getCurrentField().resetFocusDistances(ml.world);
 						break;
 
 					/* Help */
@@ -715,19 +734,23 @@ public class ML_Input
 					break;
 					
 				/* Model */
-				case "SubjectDistanceDown":
-					System.out.println("" + ml.frameCount + " SubjectDistanceDown PRESSED...");
-					ml.display.window.subjectDistanceDownBtnDown = true;
-					ml.world.getCurrentField().fadeFocusDistances(0.985f);
+				case "SubjectDistanceUp":
+//					System.out.println("" + ml.frameCount + " SubjectDistanceDown PRESSED...");
+					ml.display.window.subjectDistanceUpBtnDown = true;
+					ml.world.getCurrentField().fadeFocusDistances(ml.world, 0.985f);
 //					ml.world.getCurrentField().startFadingFocusDistances(0.98f);
 					break;
-				case "SubjectDistanceUp":
-					System.out.println("" + ml.frameCount + " SubjectDistanceUp PRESSED...");
-					ml.display.window.subjectDistanceUpBtnDown = true;
-					ml.world.getCurrentField().fadeFocusDistances(1.015228f);
+				case "SubjectDistanceDown":
+//					System.out.println("" + ml.frameCount + " SubjectDistanceUp PRESSED...");
+					ml.display.window.subjectDistanceDownBtnDown = true;
+					ml.world.getCurrentField().fadeFocusDistances(ml.world, 1.015228f);
 //					ml.world.getCurrentField().startFadingFocusDistances(1.0204f);
 					break;
 
+//				case "SubjectDistanceReset":
+//					ml.world.getCurrentField().resetObjectDistances();
+//					break;
+					
 				/* Map */
 //				case "PanUp":
 //					if(ml.display.map2D.isPanning())
@@ -838,15 +861,18 @@ public class ML_Input
 					break;
 					
 				/* Model */
+				case "SubjectDistanceUp":
+//					System.out.println("" + ml.frameCount + " SubjectDistanceDown RELEASED...");
+					ml.display.window.subjectDistanceUpBtnDown = false;
+					ml.world.getCurrentField().stopFadingFocusDistances();
+					break;
 				case "SubjectDistanceDown":
-					System.out.println("" + ml.frameCount + " SubjectDistanceDown RELEASED...");
+//					System.out.println("" + ml.frameCount + " SubjectDistanceUp RELEASED...");
 					ml.display.window.subjectDistanceDownBtnDown = false;
 					ml.world.getCurrentField().stopFadingFocusDistances();
 					break;
-				case "SubjectDistanceUp":
-					System.out.println("" + ml.frameCount + " SubjectDistanceUp RELEASED...");
-					ml.display.window.subjectDistanceUpBtnDown = false;
-					ml.world.getCurrentField().stopFadingFocusDistances();
+				case "SubjectDistanceReset":
+					ml.world.getCurrentField().resetFocusDistances(ml.world);
 					break;
 
 //					/* Model */

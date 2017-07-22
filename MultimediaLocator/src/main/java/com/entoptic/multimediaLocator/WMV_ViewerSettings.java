@@ -53,6 +53,7 @@ public class WMV_ViewerSettings
 	public boolean autoPlaySounds = true;					// Automatically play videos near viewer
 	public int autoPlayMaxSoundCount = 3;					// Maximum videos to auto play simultaneously
 	public float farHearingDistance = 36.f; 				// Far distance (m.) at which media start fading out
+	public float farHearingDistanceMax = 50.f; 				// Far distance (m.) at which media start fading out
 	public int soundFadingLength = 30;						// Frame length of sounds, including video sound, to fade in and out 
 	public boolean hideSounds = false;						// Whether to hide videos
 	
@@ -95,8 +96,9 @@ public class WMV_ViewerSettings
 	public boolean groupSelection = false;				// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
-	public float selectionMaxDistance;					// Maximum distance user can select a photo
-	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
+	
+	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistance to selectionMaxDistance
+	public float selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;			// Maximum distance user can select media item
 
 	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle	-- Disabled
 	public int lockToClusterWaitLength = 100;			// Delay before "locking" viewer to center of cluster		-- Disabled

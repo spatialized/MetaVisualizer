@@ -1266,8 +1266,25 @@ public class WMV_Utilities
 	{
 		PVector newCaptureLocation = new PVector(0,0,0);
 		
-		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
-				model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
+		float highLongitude = model.getState().lowLongitude;
+		float lowLongitude = model.getState().highLongitude;
+		float highLatitude = model.getState().highLatitude;
+		float lowLatitude = model.getState().lowLatitude;
+		float lowAltitude = model.getState().lowAltitude;
+		float highAltitude = model.getState().highAltitude;
+
+		 if(lowAltitude == 1000000.f && highAltitude != -1000000.f) 			// Adjust for fields with no altitude variation
+			 lowAltitude = highAltitude;
+		 else if(highAltitude == -1000000.f && lowAltitude != 1000000.f) 
+			 highAltitude = lowAltitude;
+		 
+		 if(lowAltitude == 1000000.f || highAltitude == -1000000.f) 			// Adjust for fields with no altitude variation
+			 System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR: highAltitude:"+model.getState().highAltitude+" lowAltitude:"+model.getState().lowAltitude);
+		 
+//		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
+//				model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
+		if( highLongitude != -1000000.f && lowLongitude != 1000000.f && highLatitude != -1000000.f && 
+			lowLatitude != 1000000.f && highAltitude != -1000000.f && lowAltitude != 1000000.f )
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
 			{

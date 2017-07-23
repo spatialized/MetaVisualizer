@@ -62,6 +62,7 @@ public class WMV_WorldSettings
 	public boolean depthTesting = false;						// Enable depth testing		-- Not recommended
 	
 	/* Time */
+	public final float clusterTimePrecision = 0.000066f;		// Precision of timesHistogram (no. of bins)
 	public int timeCycleLength = 250;						// Length of main time loop in frames
 	final public int defaultTimeCycleLength = 250;			// Default length of main time loop in frames
 	
@@ -75,7 +76,6 @@ public class WMV_WorldSettings
 	public final int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
 	public int defaultMediaLength = initDefaultMediaLength;						// Default frame length of media in time cycle
 //	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
-	public final float clusterTimePrecision = 0.000033f;		// Precision of timesHistogram (no. of bins)
 	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
 	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled

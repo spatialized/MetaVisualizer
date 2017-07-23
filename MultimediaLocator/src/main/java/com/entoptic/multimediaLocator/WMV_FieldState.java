@@ -43,7 +43,8 @@ public class WMV_FieldState
 	/* Media */
 	public int imagesInRange = 0;							// Number of images in visible range
 	public int panoramasInRange = 0;						// Number of panoramas in visible range
-	public int videosInRange = 0;							// Number of videos in visible range
+	public int videosInVisibleRange = 0;							// Number of videos in visible range
+	public int videosInAudibleRange = 0;							// Number of videos in visible range
 	public int soundsInRange = 0; 							// Number of sounds in audible range
 
 	public int imagesVisible = 0, imagesSeen = 0;				// Number of visible photos / currently seen
@@ -100,7 +101,7 @@ public class WMV_FieldState
 		/* Graphics */
 		imagesInRange = 0;			// Number of images in visible range
 		panoramasInRange = 0;		// Number of panoramas in visible range
-		videosInRange = 0;			 // Number of videos in visible range
+		videosInAudibleRange = 0;			 // Number of videos in visible range
 		soundsInRange = 0; 			// Number of sounds in audible range
 
 		imagesVisible = 0; imagesSeen = 0;				// Number of visible photos and currently seen

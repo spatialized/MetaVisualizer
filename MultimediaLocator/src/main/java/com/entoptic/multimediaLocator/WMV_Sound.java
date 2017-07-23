@@ -475,7 +475,7 @@ public class WMV_Sound extends WMV_Media
 		float hearingDist = getHearingDistance();
 		float audibility = 1.f;
 
-		float inaudiblePoint = getViewerSettings().farHearingDistance;	// Distance where transparency reaches zero
+		float inaudiblePoint = getViewerSettings().getFarHearingDistance();	// Distance where transparency reaches zero
 		float maxVolume = getWorldSettings().soundMaxVolume;
 		if(hearingDist < inaudiblePoint)
 			audibility = PApplet.constrain( maxVolume - PApplet.map(hearingDist, 0.f, inaudiblePoint, 0.f, maxVolume), 0.f, maxVolume );    // Fade out until inaudible point

@@ -245,15 +245,12 @@ public class ML_KeyboardControls
 			ml.display.window.subjectDistanceUpBtnDown = true;
 			ml.world.getCurrentField().fadeFocusDistances(ml.world, 0.985f);
 		}
-//			ml.world.getCurrentField().transitionFocusDistances(0.85f);
 
 		if (key == '+')
 		{
 			ml.display.window.subjectDistanceDownBtnDown = true;
 			ml.world.getCurrentField().fadeFocusDistances(ml.world, 1.015228f);
 		}
-//			ml.world.getCurrentField().transitionFocusDistances(1.176f);
-
 
 		if (key == 'e')									// Move UP
 			ml.world.viewer.walkUp();
@@ -1031,10 +1028,10 @@ public class ML_KeyboardControls
 		if (key == PApplet.CODED) 					
 		{
 			if (keyCode == PApplet.UP) 					// Timeline zoom in 
-				ml.display.zoom(ml.world, -1, true);
+				ml.display.zoomTimeline(ml.world, -1, true);
 			
 			if (keyCode == PApplet.DOWN) 				// Timeline zoom out
-				ml.display.zoom(ml.world, 1, true);
+				ml.display.zoomTimeline(ml.world, 1, true);
 
 			if (keyCode == PApplet.LEFT)  				// Start timeline scrolling left
 				ml.display.scroll(ml.world, -1);
@@ -1187,25 +1184,21 @@ public class ML_KeyboardControls
 		}
 		
 		if (key == '_' || key == '-') 
-//		if (key == '+' || key == '=') 
 		{
 			if(ml.display.window.subjectDistanceUpBtnDown)
 			{
 				ml.display.window.subjectDistanceUpBtnDown = false;
 				ml.world.getCurrentField().stopFadingFocusDistances();
 			}
-//			ml.world.getCurrentField().transitionFocusDistances(0.85f);
 		}
 
 		if (key == '+' || key == '=') 
-//		if (key == '_' || key == '-') 
 		{
 			if(ml.display.window.subjectDistanceDownBtnDown)
 			{
 				ml.display.window.subjectDistanceDownBtnDown = false;
 				ml.world.getCurrentField().stopFadingFocusDistances();
 			}
-//			ml.world.getCurrentField().transitionFocusDistances(1.176f);
 		}
 
 		/* Coded Keys */

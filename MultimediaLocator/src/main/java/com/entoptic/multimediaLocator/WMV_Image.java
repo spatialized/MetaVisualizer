@@ -926,13 +926,12 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void startFadingFocusDistance(float target, int frameCount)
 	{
-		
 		setFadingFocusDistance(true);
 		
-		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
-		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
-//		state.fadingFocusDistanceStartFrame = frameCount;					
-//		state.fadingFocusDistanceEndFrame = frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+//		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
+//		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+		state.fadingFocusDistanceStartFrame = frameCount;					
+		state.fadingFocusDistanceEndFrame = frameCount + 1;		// Only one frame between start and end indicates continuous fading 
 
 //		System.out.println("startFadingFocusDistance()... Image ID #"+getID()+" frameCount:"+state.fadingFocusDistanceStartFrame+" state.fadingFocusDistanceEndFrame:"+state.fadingFocusDistanceEndFrame);
 		
@@ -1240,10 +1239,11 @@ public class WMV_Image extends WMV_Media
 	/**
 	 * Reset focus distance to original value
 	 */
-	void resetFocusDistance()
+	void resetFocusDistance(int frameCount)
 	{
 		float newFocusDistance = state.origFocusDistance;
-		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
+		fadeFocusDistance(newFocusDistance, frameCount);
+//		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 	}
 
 	/**

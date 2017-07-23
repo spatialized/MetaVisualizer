@@ -3554,21 +3554,25 @@ public class WMV_Viewer
 
 			state.gpsTrackLocationIdx++;
 			if(state.gpsTrackLocationIdx < gpsTrack.size())
+			{
 				transitionToGPSTrackPointID( state.gpsTrackLocationIdx );			// Reached end of GPS track
+			}
 			else			
 			{
+				if(p.ml.debug.gps || p.ml.debug.viewer)
+					p.ml.systemMessage("Reached end of GPS Track... will stop following...");		// -- Not reached??
 				stop(true);
 			}
 		}
 		else							// Perform interpolation between points
 		{
-			if(state.gpsTrackLocationIdx > 0)
+			if(state.gpsTrackLocationIdx > 0)													// If past first track location
 			{
 				float framePosition = p.ml.frameCount - state.gpsTrackTransitionStart;				// 0 to gpsTrackTransitionLength
 				float percent = p.ml.utilities.mapValue(framePosition, 0.f, state.gpsTrackTransitionLength, 0.f, 1.f);
 				setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), true, false );
 			}
-			else p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... path index 0... not updating location...");
+//			else p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... path index 0... not updating location...");
 		}
 	}
 	
@@ -4116,6 +4120,7 @@ public class WMV_Viewer
 				p.ml.display.window.chkbxPathFollowing.setSelected(false);
 		}
 	}
+	
 	/**
 	 * Move to cluster whose associated media contains first time segment in field
 	 * @param ignoreDate Move to first time segment (i.e. earliest time) on any date
@@ -4407,12 +4412,12 @@ public class WMV_Viewer
 			}
 			else if(closestVideoDist < closestImageDist && closestVideoDist < closestSoundDist && closestVideoID != -1)	// Video closer than image
 			{
-				if(debug.viewer) 	p.ml.systemMessage("Selected video in front: "+closestVideoID);
+				if(debug.viewer) 	p.ml.systemMessage("Viewer.chooseMediaInFront()... Selected video in front: "+closestVideoID);
 				p.getCurrentField().getVideo(closestVideoID).setSelected(select);
 			}
 			else if(closestSoundDist < closestImageDist && closestSoundDist < closestVideoDist && closestSoundID != -1)	// Video closer than image
 			{
-				if(debug.viewer) 	p.ml.systemMessage("Selected sound in front: "+closestSoundID);
+				if(debug.viewer) 	p.ml.systemMessage("Viewer.chooseMediaInFront()... Selected sound in front: "+closestSoundID);
 				p.getCurrentField().getSound(closestSoundID).setSelected(select);
 			}
 		}
@@ -4429,7 +4434,7 @@ public class WMV_Viewer
 				v.stopVideo();
 			
 			if(debug.viewer) 
-				p.ml.systemMessage("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
+				p.ml.systemMessage("Viewer.chooseMediaInFront()... Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
 		}
 	}
 	

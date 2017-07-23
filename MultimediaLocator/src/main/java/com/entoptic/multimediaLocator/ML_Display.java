@@ -1060,7 +1060,7 @@ public class ML_Display
 			scroll(p, transitionScrollDirection);
 
 		if(timelineZooming)
-			zoom(p, transitionZoomDirection, true);
+			zoomTimeline(p, transitionZoomDirection, true);
 	}
 
 	/**
@@ -1753,27 +1753,28 @@ public class ML_Display
 	 * @param direction -1: In  1: Out
 	 * @param transition Whether to use smooth zooming transition
 	 */
-	public void zoom(WMV_World p, int direction, boolean transition)
+	public void zoomTimeline(WMV_World p, int direction, boolean transition)
 	{
 		boolean zoom = true;
 		transitionZoomDirection = direction;
+		
 		float length = timelineEnd - timelineStart;
 		float newLength;
 		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 		
-		if(transitionZoomDirection == -1)
+		if(transitionZoomDirection == -1)						// Zooming in
 			newLength = length * transitionZoomInIncrement;
-		else
+		else														// Zooming out
 			newLength = length * transitionZoomOutIncrement;
 
 		float newTimelineStart, newTimelineEnd;
-		if(transitionZoomDirection == -1)
+		if(transitionZoomDirection == -1)						// Zooming in
 		{
 			float diff = length - newLength;
 			newTimelineStart = timelineStart + diff / 2.f;
 			newTimelineEnd = timelineEnd - diff / 2.f;
 		}
-		else
+		else														// Zooming out
 		{
 			float diff = newLength - length;
 			newTimelineStart = timelineStart - diff / 2.f;
@@ -1815,7 +1816,8 @@ public class ML_Display
 
 			if(transition)
 			{
-				timelineTransition(timelineStart, newTimelineEnd, 10, ml.frameCount);
+				timelineTransition( newTimelineStart, newTimelineEnd, 10, ml.frameCount );
+//				timelineTransition( timelineStart, newTimelineEnd, 10, ml.frameCount );
 				timelineZooming = true;
 			}
 			else
@@ -2398,13 +2400,13 @@ public class ML_Display
 						if(isZooming())
 							stopZooming();
 						else
-							zoom(ml.world, -1, true);
+							zoomTimeline(ml.world, -1, true);
 						break;
 					case 3:				// Zoom out
 						if(isZooming())
 							stopZooming();
 						else
-							zoom(ml.world, 1, true);						
+							zoomTimeline(ml.world, 1, true);						
 						break;
 
 //					PRESSED
@@ -3448,23 +3450,13 @@ public class ML_Display
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(false);
 					window.optLibraryView.setSelected(false);
-				}
-				if(window.setupNavigationWindow)
-				{
-//					window.setMapControlsEnabled(false);
-//					window.btnMapView.setEnabled(true);
-//					window.btnWorldView.setEnabled(false);
+					window.btnSaveLibrary.setEnabled(true);
+					window.btnSaveField.setEnabled(true);
 				}
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-//					window.setTimeWindowControlsEnabled(false);
 				}
-//				if(window.setupPreferencesWindow)
-//				{
-//					window.btnLibraryView.setEnabled(true);
-//					window.setLibraryViewWindowControlsEnabled(false);
-//				}
 				
 				if(setupMapView) setupMapView = false;
 				if(setupTimeView) setupTimeView = false;
@@ -3499,23 +3491,13 @@ public class ML_Display
 					window.optMapView.setSelected(true);
 					window.optTimelineView.setSelected(false);
 					window.optLibraryView.setSelected(false);
-				}
-				if(window.setupNavigationWindow)
-				{
-//					window.setMapControlsEnabled(true);
-//					window.btnMapView.setEnabled(false);
-//					window.btnWorldView.setEnabled(true);
+					window.btnSaveLibrary.setEnabled(false);
+					window.btnSaveField.setEnabled(false);
 				}
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-//					window.setTimeWindowControlsEnabled(false);
 				}
-//				if(window.setupPreferencesWindow)
-//				{
-//					window.btnLibraryView.setEnabled(true);
-//					window.setLibraryViewWindowControlsEnabled(false);
-//				}
 				
 				if(setupTimeView) setupTimeView = false;
 				if(setupLibraryView) setupLibraryView = false;
@@ -3529,6 +3511,8 @@ public class ML_Display
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(true);
 					window.optLibraryView.setSelected(false);
+					window.btnSaveLibrary.setEnabled(false);
+					window.btnSaveField.setEnabled(false);
 				}
 				if(window.setupNavigationWindow)
 				{
@@ -3560,8 +3544,6 @@ public class ML_Display
 						setDisplayItem(p.viewer.getCurrentClusterID());
 						break;
 				}
-//				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
-//				updateSelectableMedia = true;
 
 				if(window.setupMainMenu)
 				{
@@ -3569,11 +3551,12 @@ public class ML_Display
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(false);
 					window.optLibraryView.setSelected(true);
+					window.btnSaveLibrary.setEnabled(false);
+					window.btnSaveField.setEnabled(false);
 				}
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
-//					window.setTimeWindowControlsEnabled(false);
 				}
 
 				if(setupTimeView) setupTimeView = false;

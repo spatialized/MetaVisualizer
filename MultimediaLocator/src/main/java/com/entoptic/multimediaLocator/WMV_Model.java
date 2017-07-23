@@ -316,9 +316,9 @@ public class WMV_Model
 			 }
 		 }
 		 
-		 if(state.lowAltitude == 1000000.f && state.highAltitude != -1000000.f) 			// Adjust for fields with no altitude variation
+		 if(state.lowAltitude == 1000000.0f && state.highAltitude > -1000000.0f) 			// Adjust for fields with no altitude variation
 			 state.lowAltitude = state.highAltitude;
-		 else if(state.highAltitude == -1000000.f && state.lowAltitude != 1000000.f) 
+		 else if(state.highAltitude == -1000000.0f && state.lowAltitude < 1000000.0f) 
 			 state.highAltitude = state.lowAltitude;
 
 		 if (debug.world && debug.detailed) 							// Display results for debugging

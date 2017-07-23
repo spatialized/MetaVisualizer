@@ -313,7 +313,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		else
 		{
-			System.out.println("Video.updateVolume()... ERROR... video #"+getID()+" has no length!");
+			System.out.println("Video.updateVolume()... ERROR... video #"+getID()+" has no length! frameLength:"+frameLength);
 		}
 	}
 
@@ -364,7 +364,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			{
 				if(!state.loaded) loadMedia(ml); 						// Request video frames from disk
 				if(ml.debug.video)
-					System.out.println("Video.updateFading()... will fade in video id#"+getID());
+					System.out.println("Video.calculateFadingVisibility()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());
 			}
 		}
@@ -374,7 +374,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			{
 				if(!state.loaded) loadMedia(ml);
 				if(ml.debug.video)
-					System.out.println("Video.updateFading()... will fade in video id#"+getID());
+					System.out.println("Video.calculateFadingVisibility()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());											// Fade in
 			}
 		}
@@ -396,7 +396,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(hasFadedOut()) 
 		{
-			fadeSoundOut(false);			// Fade sound out and clear video once finished
+//			fadeSoundOut(false);			// Fade sound out and clear video once finished
 			setFadedOut(false);						
 		}
 		
@@ -755,7 +755,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * @param vanishingDistance Distance beyond far viewing distance when image fades to invisible
 	 * @return Distance visibility multiplier between 0. and 1.
 	 */
-//	public float getDistanceBrightness(WMV_Viewer viewer, float farViewingDistance)
 	public float getDistanceBrightness(WMV_Viewer viewer, float farViewingDistance, float vanishingDistance)									
 	{
 		float viewDist = getViewingDistance(viewer);
@@ -1291,10 +1290,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		setFadingFocusDistance(true);
 		
-		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
-		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
-//		state.fadingFocusDistanceStartFrame = frameCount;					
-//		state.fadingFocusDistanceEndFrame = frameCount + 1;			// Set flag for continuous fading
+//		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
+//		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + 1;		// Only one frame between start and end indicates continuous fading 
+		state.fadingFocusDistanceStartFrame = frameCount;					
+		state.fadingFocusDistanceEndFrame = frameCount + 1;			// Set flag for continuous fading
 
 		state.fadingFocusDistanceStart = metadata.focusDistance;
 		state.fadingFocusDistanceTarget = target;
@@ -1336,11 +1335,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	
-	void resetFocusDistance()
+	void resetFocusDistance(int frameCount)
 	{
-//		setFocusDistance(state.origFocusDistance);
 		float newFocusDistance = state.origFocusDistance;
-		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
+		fadeFocusDistance(newFocusDistance, frameCount);
+//		fadeFocusDistance(newFocusDistance, getWorldState().frameCount);
 	}
 	
 	/**	
@@ -1386,7 +1385,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	public int getLengthInFrames(float frameRate)
 	{
-//		System.out.println("Video.getLengthInFrames()... state.length:"+state.length+" video.duration"+video.duration());
+		System.out.println("Video.getLengthInFrames()... state.length:"+state.length+" video.duration"+video.duration());
 		if(state.length != 0)
 			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
 		else if(video != null)

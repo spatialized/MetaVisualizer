@@ -257,7 +257,9 @@ public class WMV_World
 		{
 			if(v.isPlaying())
 			{
-				if(!v.isVisible())
+				boolean outOfRange = v.getCaptureDistanceFrom(viewer.getLocation()) > viewer.getSettings().farHearingDistance;
+//				if(!v.isVisible())
+				if(outOfRange)
 				{
 					v.stopVideo();
 					if(ml.debug.ml || ml.debug.video)
@@ -269,7 +271,9 @@ public class WMV_World
 		{
 			if(s.isPlaying())
 			{
-				if(!s.isVisible())
+				boolean outOfRange = s.getCaptureDistanceFrom(viewer.getLocation()) > viewer.getSettings().farHearingDistance;
+//				if(!s.isVisible())
+				if(outOfRange)
 				{
 					s.stopSound();
 					if(ml.debug.ml || ml.debug.video)

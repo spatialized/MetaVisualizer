@@ -119,7 +119,7 @@ public class WMV_Field
 
 		state.imagesInRange = 0;			// Number of images in visible range
 		state.panoramasInRange = 0;			// Number of panoramas in visible range
-		state.videosInRange = 0;			// Number of videos in visible range
+		state.videosInAudibleRange = 0;			// Number of videos in visible range
 		state.soundsInRange = 0; 			// Number of sounds in audible range
 
 		state.imagesSeen = 0;				// -- Fix
@@ -361,7 +361,12 @@ public class WMV_Field
 	 */
 	private void updateVideos(MultimediaLocator ml)
 	{
+		float inaudiblePoint = viewerSettings.farHearingDistance;			// Distance where volume reaches zero
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+
+		//		fadeSoundOut(false);			// Fade sound out and clear video once finished
+		//		fadeSoundOut(false);			// Fade sound out and clear video once finished
+		//		fadeSoundOut(false);			// Fade sound out and clear video once finished
 
 		for (WMV_Video v : videos)  		// Update videos
 		{
@@ -369,6 +374,7 @@ public class WMV_Field
 			{
 				float distance = v.getViewingDistance(ml.world.viewer);	 // Estimate video distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
+				boolean inAudibleRange = (distance < inaudiblePoint);
 
 				if ( v.isVisible() && !inVisibleRange )
 					v.fadeOut(this, false);
@@ -376,18 +382,27 @@ public class WMV_Field
 				if(worldState.timeFading)
 					v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
 
-				if(inVisibleRange)
+				if(inAudibleRange)
 				{
-					state.videosInRange++;
+					state.videosInAudibleRange++;
 					updateVideo(ml, v);
+					if(inVisibleRange)
+					{
+						state.videosInVisibleRange++;
+					}
+					else
+					{
+						if(v.isVisible())
+							v.fadeOut(this, false);
+					}
 				}
 				else
 				{
 					if(v.isFading() || v.isFadingVolume())
 						updateVideo(ml, v);
 
-					if(v.isVisible())
-						v.fadeOut(this, false);
+					if(v.isPlaying())
+						v.fadeSoundOut(false);					// Fade sound out and clear video
 				}
 			}
 		}
@@ -551,22 +566,29 @@ public class WMV_Field
 				boolean wasVisible = v.isVisible();
 				v.calculateVisibility(ml.world.viewer, utilities);
 				if(!clusterIsVisible(v.getAssociatedClusterID())) v.setVisible( false );		
-				v.calculateFadingVisibility(ml, wasVisible);								// Update fading due to visibility
-				if(v.isLoaded() && v.isPlaying()) v.updateVolume(ml);		// Update volume fading at start and end
+				v.calculateFadingVisibility(ml, wasVisible);				// Update fading due to visibility
+				if(v.isLoaded() && v.isPlaying()) 
+					v.updateVolume(ml);									// Update volume fading at start and end
 
-				if(getViewerSettings().orientationMode)
+				if( getViewerSettings().inOrientationMode() )
 				{
-					for(int id : getViewerState().getClustersVisible())
-						if( v.getMediaState().getClusterID() == id && !v.isLoaded())
+					if(!v.isLoaded())
+					{
+						for(int id : getViewerState().getClustersVisible())
 						{
-//							System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID());
-							v.loadMedia(ml); 					// Load video frames from disk
+							if( v.getMediaState().getClusterID() == id )
+							{
+								if(debug.video) ml.systemMessage("Field.updateVideo()... Will call loadMedia() for video #"+getID());
+								v.loadMedia(ml); 					// Load video frames from disk
+							}
 						}
+					}
 				}
-				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
+//				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
+				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarHearingDistance() && !v.isLoaded() )
 				{
 					if(debug.video)
-						ml.systemMessage("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
+						ml.systemMessage("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible()+" v.getViewingDistance():"+v.getViewingDistance(ml.world.viewer));
 					v.loadMedia(ml); 							// Load video frames from disk
 				}
 			}
@@ -625,7 +647,7 @@ public class WMV_Field
 		int maxVisiblePanoramas = ml.world.getSettings().maxVisiblePanoramas;
 		boolean overMaxPanoramas = (state.panoramasInRange > maxVisiblePanoramas);
 		int maxVisibleVideos = ml.world.getSettings().maxVisibleVideos;
-		boolean overMaxVideos = (state.videosInRange > maxVisibleVideos);
+		boolean overMaxVideos = (state.videosInAudibleRange > maxVisibleVideos);
 		int maxAudibleSounds = ml.world.getSettings().maxAudibleSounds;
 		boolean overMaxSounds = (state.soundsInRange > maxAudibleSounds);
 		
@@ -3490,26 +3512,30 @@ public class WMV_Field
 	{
 		world.viewer.setSelectionMaxDistance( world.viewer.getSettings().selectionMaxDistanceFactor * 
 											 world.viewer.getSelectionMaxDistance() * multiple );
-
+		
 		for(WMV_Image i:images)
 		{
 			float newFocusDistance = i.getFocusDistance() * multiple;
-			i.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
+			if( newFocusDistance > world.viewer.getSettings().minFocusDistance && 
+				newFocusDistance < world.viewer.getSettings().maxFocusDistance )
+				i.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
-
+		
 //		for(WMV_Panorama n:panoramas)						// -- In progress
 //		{
 //			float newRadius = n.getOrigRadius() * multiple;
 //			n.setRadius(newRadius);
 //		}
-
+		
 		for(WMV_Video v:videos)
 		{
 			float newFocusDistance = v.getFocusDistance() * multiple;
-			v.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
+			if( newFocusDistance > world.viewer.getSettings().minFocusDistance && 
+				newFocusDistance < world.viewer.getSettings().maxFocusDistance )
+				v.startFadingFocusDistance(newFocusDistance, getWorldState().frameCount);
 		}
 	}
-
+	
 	/**
 	 * Stop object distances for each media point in field
 	 */
@@ -3539,13 +3565,13 @@ public class WMV_Field
 	{
 //		System.out.println("Field.resetFocusDistances()... ");
 		for(WMV_Image i:images)
-			i.resetFocusDistance();
+			i.resetFocusDistance(world.ml.frameCount);
 
 		for(WMV_Panorama n:panoramas)
 			n.resetRadius();
 
 		for(WMV_Video v:videos)
-			v.resetFocusDistance();
+			v.resetFocusDistance(world.ml.frameCount);
 		
 //		public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 //		public float selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;			// Maximum distance user can select media item

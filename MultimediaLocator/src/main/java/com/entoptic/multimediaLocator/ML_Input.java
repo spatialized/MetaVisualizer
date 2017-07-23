@@ -977,7 +977,7 @@ public class ML_Input
 				break;
 				
 			case "FollowTimeline":
-				System.out.println("FollowTimeline");
+//				System.out.println("FollowTimeline");
 				if(option.isSelected())
 				{
 					world.viewer.setPathNavigationMode( 0 );
@@ -986,7 +986,7 @@ public class ML_Input
 				}
 				break;
 	  		case "FollowGPSTrack":
-				System.out.println("FollowGPSTrack");
+//				System.out.println("FollowGPSTrack");
 				if(option.isSelected())
 				{
 					world.viewer.setPathNavigationMode( 1 );
@@ -995,7 +995,7 @@ public class ML_Input
 				}
 				break;
 	  		case "FollowMemory":
-				System.out.println("FollowGPSTrack");
+//				System.out.println("FollowMemory");
 				if(option.isSelected())
 				{
 					world.viewer.setPathNavigationMode( 2 );

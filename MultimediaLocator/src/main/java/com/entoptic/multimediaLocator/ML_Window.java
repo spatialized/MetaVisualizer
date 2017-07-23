@@ -997,7 +997,7 @@ public class ML_Window
 		x = 65;
 		y += iMediumBoxHeight;
 		btnSubjectDistanceDown = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "-");
-		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
+		btnSubjectDistanceDown.tag = "SubjectDistanceUp";
 		btnSubjectDistanceDown.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnSubjectDistanceDown.fireAllEvents(true);
 		
@@ -1010,7 +1010,7 @@ public class ML_Window
 		world.ml.delay(delayAmount);
 
 		btnSubjectDistanceUp = new GButton(mediaWindow, x+=115, y, 30, iVerySmallBoxHeight, "+");
-		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
+		btnSubjectDistanceUp.tag = "SubjectDistanceDown";
 		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnSubjectDistanceUp.fireAllEvents(true);
 

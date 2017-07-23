@@ -12,13 +12,15 @@ public class WMV_WorldState
 	private int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 	public int frameCount = 0;							// Frame count
-	public int timeMode = 0;								// Time Mode: {0: cluster, 1: field}		(2 = media)
-
+	public int timeMode = 0;								// Time Mode: {0: Cluster, 1: Field}		(2 = media)
+	public boolean turningOffTimeFading = false;			// Whether to turn off Time Fading after fading out
+	public boolean turningOnTimeFading = false;			// Whether to turn on Time Fading after fading in
 	/* Model */
 	public final float modelBrightness = 255.f;
 	public final float modelAlpha = 205.f;
 	public final float modelDistanceVisibilityFactorClose = 5.f;		// Near distance at which media model becomes invisible
 	public float modelDistanceVisibilityFactorFar = 18.f;				// Far distance at which media model becomes invisible
+	
 	/* Graphics */
 	public boolean loadedMasks = false;
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?

@@ -162,15 +162,18 @@ public class WMV_Viewer
 		
 		if( state.walking && p.ml.frameCount % 15 == 0)			/* Update current cluster while walking */
 			updateCurrentCluster(false);						
-		
-		if(worldState.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
+
+		if(worldState.timeFading && worldState.getTimeMode() == 2)		// -- Disabled
 		{
-			if(worldState.frameCount % 5 == 0.f)
+			if( isMoving() || isFollowing() || isWalking() )
+			{
+				if(worldState.frameCount % 5 == 0.f)
+					p.createTimeCycle();
+			}
+			else if(worldSettings.timeCycleLength == -1 && worldState.frameCount % 5 == 0.f)	// Flag viewer to keep calling method until clusters are visible
+			{
 				p.createTimeCycle();
-		}
-		else if(worldSettings.timeCycleLength == -1 && worldState.frameCount % 5 == 0.f)	// Flag viewer to keep calling method until clusters are visible
-		{
-			p.createTimeCycle();
+			}
 		}
 		
 		if(settings.lockToCluster && !state.walking)								// Update locking to nearest cluster 

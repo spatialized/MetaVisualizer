@@ -246,6 +246,41 @@ public class WMV_World
 			if(ml.display.window.setupTimeWindow)
 				ml.display.window.sdrCurrentTime.setValue(getCurrentTime());
 		}
+		
+		if(state.turningOffTimeFading || state.turningOnTimeFading) 
+			updateTimeFadingStateChange();						/* Update turning on / off Time Fading */
+
+	}
+	
+	/**
+	 * Update change in Time Fading state
+	 */
+	private void updateTimeFadingStateChange()
+	{
+		if(!getCurrentField().mediaAreFading())
+		{
+			if( ml.debug.time )
+				ml.systemMessage("World.updateTimeFadingStateChange()... Media faded out... frameCount:"+ml.frameCount);
+
+			if(state.turningOnTimeFading	)
+			{
+				setTimeFading(true);
+				state.turningOnTimeFading = false;
+			}
+			if(state.turningOffTimeFading)
+			{
+				setTimeFading(false);
+				state.turningOffTimeFading = false;
+			}
+		}
+		else
+		{
+			if( ml.debug.time && ml.debug.detailed )
+			{
+				if(ml.frameCount % 5 == 0)
+					ml.systemMessage("World.updateTimeFadingStateChange()... waiting for media to fade out... frameCount:"+ml.frameCount);
+			}
+		}
 	}
 	
 	/**
@@ -545,7 +580,17 @@ public class WMV_World
 		settings.timeCycleLength = newTimeCycleLength;
 		settings.timeInc = settings.timeCycleLength / 30.f;	
 		
-		createTimeCycle();			// Added 7-19-17
+//		createTimeCycle();											// Added 7-19-17
+		getCurrentField().updateAllMediaStates();
+	}
+
+	/**
+	 * Set cluster length
+	 * @param newClusterLength New cluster length
+	 */
+	public void setClusterLength(float newClusterLength)
+	{
+		settings.clusterLength = newClusterLength;
 	}
 	
 	/**
@@ -1919,7 +1964,7 @@ public class WMV_World
 	{
 		if(state.timeMode == 0 || state.timeMode == 1)
 		{
-			settings.timeCycleLength = settings.defaultTimeCycleLength;
+//			settings.timeCycleLength = settings.defaultTimeCycleLength;
 		}
 		else if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
 		{
@@ -2735,7 +2780,46 @@ public class WMV_World
 	 * Set Time Fading setting
 	 * @param newShowMetadata New Time Fading setting
 	 */
-	public void setTimeFading( boolean newTimeFading )
+	public void turnTimeFadingOn()
+	{
+		state.turningOnTimeFading = true;
+		fadeOutAllMedia();
+		
+//		state.timeFading = true;
+		
+//		if(ml.world.getSettings().screenMessagesOn)
+//		{
+//			if(newTimeFading)
+//				ml.display.message(ml, "Time Fading ON");
+//			else
+//				ml.display.message(ml, "Time Fading OFF");
+//		}
+	}
+	/**
+	 * Set Time Fading setting
+	 * @param newShowMetadata New Time Fading setting
+	 */
+	public void turnTimeFadingOff()
+	{
+		state.turningOffTimeFading = true;
+		fadeOutAllMedia();
+
+//		state.timeFading = false;
+		
+//		if(ml.world.getSettings().screenMessagesOn)
+//		{
+//			if(newTimeFading)
+//				ml.display.message(ml, "Time Fading ON");
+//			else
+//				ml.display.message(ml, "Time Fading OFF");
+//		}
+	}
+	
+	/**
+	 * Set Time Fading setting
+	 * @param newShowMetadata New Time Fading setting
+	 */
+	private void setTimeFading( boolean newTimeFading )
 	{
 		state.timeFading = newTimeFading;
 		if(ml.world.getSettings().screenMessagesOn)

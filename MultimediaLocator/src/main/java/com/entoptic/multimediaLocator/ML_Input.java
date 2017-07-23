@@ -191,14 +191,14 @@ public class ML_Input
 				switch(world.state.timeMode)
 				{
 					case 0:														// Cluster
-						world.setClusterTimeCycleLength(slider.getValueI());
+						world.setClusterTimeCycleLength( slider.getValueI() );
 						break;
 					case 1:														// Field
-						world.setTimeCycleLength(slider.getValueI());
+						world.setTimeCycleLength( slider.getValueI() );
 						break;
-					case 2:														// Media
-						break;
-					default:
+//					case 2:														// Media			-- Disabled
+//						break;
+					default: 
 						break;
 				}
 			}
@@ -207,7 +207,10 @@ public class ML_Input
 				world.setCurrentTime(slider.getValueF(), world.state.getTimeMode() == 1, false);		// Set current time relative to current Time Mode
 			
 			if (slider.tag == "ClusterLength") 
-				world.settings.clusterLength = slider.getValueF();
+			{
+//				world.settings.clusterLength = slider.getValueF();
+				world.setClusterLength(slider.getValueF());
+			}
 		}
 	}
 
@@ -1040,8 +1043,10 @@ public class ML_Input
 //				break;
 				
 			case "TimeFading":
-				world.setTimeFading(option.isSelected());
-//				world.getState().timeFading = option.isSelected();
+				if(option.isSelected())
+					world.turnTimeFadingOn();
+				else
+					world.turnTimeFadingOff();
 				break;
 			case "Paused":
 				world.getState().paused = option.isSelected();

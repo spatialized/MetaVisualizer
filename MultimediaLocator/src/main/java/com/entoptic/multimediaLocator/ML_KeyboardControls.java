@@ -187,7 +187,12 @@ public class ML_KeyboardControls
 		if (key == 'f') 
 		{
 			boolean state = !ml.world.getState().timeFading;
-			ml.world.setTimeFading(state);
+//			ml.world.setTimeFading(state);
+			if(state)
+				ml.world.turnTimeFadingOn();
+			else
+				ml.world.turnTimeFadingOff();
+				
 			if(ml.display.window.setupTimeWindow)
 				ml.display.window.chkbxTimeFading.setSelected(state);
 		}

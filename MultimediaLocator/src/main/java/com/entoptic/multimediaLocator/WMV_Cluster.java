@@ -1418,7 +1418,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public void setCurrentTime(float newTimePoint)
 	{
-		state.currentTime = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, state.timeCycleLength);
+		state.currentTimeCycleFrame = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, state.timeCycleLength);
 	}
 
 	/**
@@ -1427,7 +1427,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public float getCurrentTime()
 	{
-		return utilities.mapValue(state.currentTime, 0, state.timeCycleLength, 0.f, 1.f);
+		return utilities.mapValue(state.currentTimeCycleFrame, 0, state.timeCycleLength, 0.f, 1.f);
 	}
 
 	/**
@@ -1436,16 +1436,16 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	private void setCurrentTimeCycleFrame(int newTimeCycleFrame)
 	{
-		state.currentTime = newTimeCycleFrame;
+		state.currentTimeCycleFrame = newTimeCycleFrame;
 	}
 
 	/**
 	 * Get current frame in cluster time cycle
 	 * @return Current frame in time cycle
 	 */
-	public float getCurrentTimeCycleFrame()
+	public int getCurrentTimeCycleFrame()
 	{
-		return state.currentTime;
+		return state.currentTimeCycleFrame;
 	}
 	
 	/** 
@@ -1455,15 +1455,15 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	{
 		if(state.timeFading && !state.dateFading && worldState.frameCount % state.timeUnitLength == 0)
 		{
-			state.currentTime++;															// Increment cluster time
-			if(state.currentTime > state.timeCycleLength)
+			state.currentTimeCycleFrame++;															// Increment cluster time
+			if(state.currentTimeCycleFrame > state.timeCycleLength)
 				setCurrentTimeCycleFrame(0);
 		}
 		
 		if(state.timeFading && state.dateFading && worldState.frameCount % state.timeUnitLength == 0)
 		{
-			state.currentTime++;															// Increment cluster time
-			if(state.currentTime > state.timeCycleLength)
+			state.currentTimeCycleFrame++;															// Increment cluster time
+			if(state.currentTimeCycleFrame > state.timeCycleLength)
 			{
 				setCurrentTimeCycleFrame(0);
 				state.currentDate++;															// Increment cluster date

@@ -18,7 +18,19 @@ public class WMV_ClusterState
 	public boolean active = false; 		// Currently active
 	public boolean empty = false;		// Currently empty
 	public boolean single = false;		// Only one media point in cluster?
+
+	/* Media */
+	public List<Integer> images = new ArrayList<Integer>();			// List of associated image IDs
+	public List<Integer> panoramas = new ArrayList<Integer>();		// List of associated panorama IDs
+	public List<Integer> videos = new ArrayList<Integer>();			// List of associated video IDs
+	public List<Integer> sounds = new ArrayList<Integer>();			// List of associated sound IDs
 	
+	public int mediaCount;								// Number of media associated with this cluster
+	private boolean hasImage = false;					// -- Obsolete?					
+	private boolean hasPanorama = false;				
+	private boolean hasVideo = false;
+	private boolean hasSound = false;
+
 	/* Segmentation */
 	public int numSegments = 0;							// Number of segments of the cluster
 	
@@ -32,7 +44,7 @@ public class WMV_ClusterState
 	public boolean paused = false;						// Time is paused
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
-	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+	public int currentTimeCycleFrame = 0;				// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Current date in timeline	-- Need to implement!!
 	public int timeCycleLength = 250;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
@@ -44,18 +56,6 @@ public class WMV_ClusterState
 	public float clusterGravity = 0.1333f;				// Cluster gravitational pull
 	public float farMassFactor = 8.f;					// How much more mass to give distant attractors to speed up navigation?
 	public float mass = 1.5f;					// Cluster mass for calculating attraction force
-
-	/* Media */
-	public List<Integer> images = new ArrayList<Integer>();			// List of associated image IDs
-	public List<Integer> panoramas = new ArrayList<Integer>();		// List of associated panorama IDs
-	public List<Integer> videos = new ArrayList<Integer>();			// List of associated video IDs
-	public List<Integer> sounds = new ArrayList<Integer>();			// List of associated sound IDs
-	
-	public int mediaCount;								// Number of media associated with this cluster
-	private boolean hasImage = false;					// -- Obsolete?					
-	private boolean hasPanorama = false;				
-	private boolean hasVideo = false;
-	private boolean hasSound = false;
 	
 	/* Interaction */
 	public boolean selected = false;

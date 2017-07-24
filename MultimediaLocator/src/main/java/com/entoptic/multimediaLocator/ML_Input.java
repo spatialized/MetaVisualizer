@@ -138,8 +138,6 @@ public class ML_Input
 				world.viewer.setTeleportLength( slider.getValueI() );
 			if (slider.tag == "PathWaitLength")
 				world.viewer.setPathWaitLength( slider.getValueI() );
-			if (slider.tag == "MediaLength") 
-				world.settings.defaultMediaLength = slider.getValueI();
 		}
 		
 		if(display.window.setupMediaWindow)
@@ -179,7 +177,6 @@ public class ML_Input
 			
 			if (slider.tag == "FarHearingDistance")
 			{
-//				world.viewer.setFarViewingDistance( PApplet.round(slider.getValueF() * 1000.f) * 0.001f );	// -- Should smoothly fade
 				world.viewer.setFarHearingDistance( PApplet.round(slider.getValueF() * 1000.f) * 0.001f );	// -- Should smoothly fade
 			}
 		}
@@ -196,15 +193,23 @@ public class ML_Input
 					case 1:														// Field
 						world.setTimeCycleLength( slider.getValueI() );
 						break;
-//					case 2:														// Media			-- Disabled
-//						break;
 					default: 
 						break;
+				}
+				if (slider.tag == "MediaLength") 
+				{
+//					world.settings.defaultMediaLength = slider.getValueI();
+					world.setStaticMediaLength(slider.getValueI());
 				}
 			}
 
 			if (slider.tag == "SetCurrentTime") 
-				world.setCurrentTime(slider.getValueF(), world.state.getTimeMode() == 1, false);		// Set current time relative to current Time Mode
+			{
+				if(world.state.getTimeMode() == 0)
+					world.setCurrentClusterTime(slider.getValueF(), false);		// Set current time relative to current Time Mode
+				else
+					world.setCurrentFieldTime(slider.getValueF(), false);		// Set current time relative to current Time Mode
+			}
 			
 			if (slider.tag == "ClusterLength") 
 			{

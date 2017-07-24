@@ -29,13 +29,19 @@ public class WMV_ViewerState
 	public boolean followCurrentMediaInTime = false;	// In Single Time Mode, whether to turn and look at current media  -- bugs
 	public int nearbyClusterTimelineMediaCount = 0;		// Number of media in nearbyClusterTimeline
 	
-	public boolean fadingToTime = false;							// Whether in time fading transition
+	public boolean fadingToTime = false;							// Whether in Field Mode time fading transition
 	public int timeTransitionStartID = -1;						// Time transition start segment ID
 	public float timeTransitionStartTimePoint = 0.f;				// Time transition start (absolute) time point {0.f - 1.f}
 	public int timeTransitionGoalID = -1;						// Time transition goal segment ID
 	public float timeTransitionGoalTimePoint = 0.f;				// Time transition goal (absolute) time point {0.f - 1.f}
 	public final int timeTransitionLength = 30;					// Frame length of time transition
 	public int timeTransitionStartFrame, timeTransitionEndFrame;	// Time transition start / end frame
+
+	public boolean fadingToClusterTime = false;					// Whether in Cluster Mode time fading transition
+	public float clusterTimeTransitionStartTimePoint = 0.f;		// Cluster time transitionstart (absolute) time point {0.f - 1.f}
+	public float clusterTimeTransitionGoalTimePoint = 0.f;		// Cluster time transitiongoal (absolute) time point {0.f - 1.f}
+	public final int clusterTimeTransitionLength = 30;			// Frame length of cluster time transition
+	public int clusterTimeTransitionStartFrame, clusterTimeTransitionEndFrame;	// Cluster time transition start / end frame
 
 	/* Navigation */
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field

@@ -1419,8 +1419,8 @@ public class ML_Window
 		y += 10;
 		sdrMediaLength = new GSlider(timeWindow, x, y, 160, 80, 20);
 		sdrMediaLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrMediaLength.setLimits(world.settings.defaultMediaLength, 5.f, 250.f);	// setLimits (int initValue, int start, int end)
-		sdrMediaLength.setValue(world.settings.defaultMediaLength);
+		sdrMediaLength.setLimits(world.settings.staticMediaLength, 10.f, 250.f);	// setLimits (int initValue, int start, int end)
+		sdrMediaLength.setValue(world.settings.staticMediaLength);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrMediaLength.setEasing(0);
 		sdrMediaLength.setShowValue(true);

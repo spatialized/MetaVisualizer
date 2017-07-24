@@ -74,8 +74,7 @@ public class WMV_WorldSettings
 	public float dateInc = dateCycleLength / 30.f;			
 
 	public final int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
-	public int defaultMediaLength = initDefaultMediaLength;						// Default frame length of media in time cycle
-//	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
+	public int staticMediaLength = initDefaultMediaLength;	// Frame length of static media (i.e. images and panoramas) in time cycle
 	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
 	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled
@@ -140,7 +139,7 @@ public class WMV_WorldSettings
 		dateUnitLength = 1;				
 		dateInc = dateCycleLength / 30.f;			
 
-		defaultMediaLength = initDefaultMediaLength;		
+		staticMediaLength = initDefaultMediaLength;		
 		clusterLength = 1.f;									// Time interval for which close media become visible, as % of timeline length
 
 		/* Stitching */

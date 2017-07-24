@@ -308,7 +308,12 @@ public class WMV_Field
 					if(m.getAssociatedClusterID() < clusters.size())
 						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
 					else
+					{
 						ml.systemMessage("Field.updateImages()... ERROR: Image #"+m.getID()+" is associated with cluster #"+m.getAssociatedClusterID()+" but field only has:"+getClusters().size());
+						ml.systemMessage(">>> Setting Image # to disabled...");
+						m.setDisabled(true);
+						return;
+					}
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))

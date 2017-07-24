@@ -11,7 +11,7 @@ public class ML_DebugSettings
 	
 	/* Output Methods */
 	public boolean print = true;					// Print all user messages
-	public boolean messages = true;				// On screen debug messages
+	public boolean messages = false;				// On screen debug messages
 	public boolean file = true;					// Output debug messages to file
 	
 	/* Main */

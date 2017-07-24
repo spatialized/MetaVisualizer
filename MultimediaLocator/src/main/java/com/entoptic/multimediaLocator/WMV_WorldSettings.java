@@ -29,16 +29,16 @@ public class WMV_WorldSettings
 	public final float clusterCenterSize = 1.f;					// Size of cluster center, where autoNavigation stops
 	
 	public float mediaPointMass = 0.05f;							// Mass contribution of each media point
-	public float attractorMass = 1.25f;							// Mass of ordinary attractor point
-	public float pathAttractorMass = 0.5f;						// Mass of path attractor point
-	public float attractorMassDistanceFactor = 0.25f;				// Distance factor for attractor + path attractor mass calculation
+	public float attractorMass = 1.33f;							// Mass of ordinary attractor point
+	public float pathAttractorMass = 1.f;						// Mass of path attractor point
+	public float attractorMassDistanceFactor = 0.33f;				// Distance factor for attractor / path attractor mass calculation
 	public float minAttractorMass = 0.1f;						// Minimum attractor point mass
 	public float maxAttractorMass = 20.f;						// Maximum attractor point mass
-	public float minPathAttractorMass = 0.05f;					// Minimum attractor point mass
-	public float maxPathAttractorMass = 10.f;					// Maximum attractor point mass
+	public float minPathAttractorMass = 0.05f;					// Minimum path attractor point mass
+	public float maxPathAttractorMass = 10.f;					// Maximum path attractor point mass
 	
-	public final float farDistanceFactor = 4.f;					// Multiplier for defaultFocusDistance to get farDistance
-	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
+	public final float clusterFarDistanceFactor = 4.f;			// Multiplier to calculate clusterFarDistance from defaultFocusDistance 
+	public float clusterFarDistance = defaultFocusDistance * clusterFarDistanceFactor;			// Distance to apply greater attraction force on viewer
 	public float minClusterDistance = 3.f; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
 	public float maxClusterDistance = 16.f;						// Maximum distance between cluster center and media
 	public final float maxClusterDistanceConstant = 0.33f;		// Divisor to set maxClusterDistance based on mediaDensity
@@ -120,7 +120,7 @@ public class WMV_WorldSettings
 
 		kMeansClusteringEpsilon = 0.005f;					
 		mediaPointMass = 0.05f;								
-		clusterFarDistance = defaultFocusDistance * farDistanceFactor;
+		clusterFarDistance = defaultFocusDistance * clusterFarDistanceFactor;
 		minClusterDistance = 3.f; 							
 		maxClusterDistance = 16.f;							
 		maxClusterDistanceFactor = 5.f;	

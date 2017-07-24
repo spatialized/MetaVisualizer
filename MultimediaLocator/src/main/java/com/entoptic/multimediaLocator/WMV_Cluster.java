@@ -1148,7 +1148,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public WMV_Time getClosestTimeToClusterTime( float clusterTimePoint )
 	{
-		float nearestDist = 100.f;
+		float nearestDist = 1000000.f;
 		int nearestID = -1;
 		WMV_Time nearest = null;
 
@@ -1177,7 +1177,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			}
 		}
 		
-		if(nearestDist == 100.f || nearestID == -1)
+		if(nearestDist == 1000000.f || nearestID == -1)
 		{
 			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" orig. timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
 			return null;
@@ -1369,12 +1369,47 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			setCurrentTime( newTimePoint );
 			
 			if(debug.cluster || debug.time)
-				System.out.println("Cluster.setCurrentTimeFromFieldTime()... id #"+getID()+" newFieldTimePoint:"+newAbsoluteTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTime()+" lower:"+lower+" upper:"+upper);
+				System.out.println("Cluster.setCurrentTimeFromFieldTime()... id #"+getID()+" newFieldTimePoint:"+newAbsoluteTimePoint+" converted to newTimePoint:"+newTimePoint+"  getCurrentTime(): "+getCurrentTimeCycleFrame()+" lower:"+lower+" upper:"+upper);
 		}
 		else
 		{
 			setCurrentTime( 0.f );
 		}
+	}
+
+	/**
+	 * Set current cluster time from given absolute time 
+	 * @param newAbsoluteTimePoint Absolute time point {0.f: midnight, 1.f: midnight the next day}
+	 */
+	public float getAbsoluteTimeFromClusterTime(float newClusterTimePoint)
+	{
+		float lower = state.timeline.getLower().getLower().getAbsoluteTime();
+		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
+		
+		float absoluteClusterTimePoint = (int) utilities.mapValue(newClusterTimePoint, 0.f, 1.f, lower, upper);
+
+		if(debug.cluster || debug.time)
+			System.out.println("Cluster.getAbsoluteTimeFromClusterTime()... id #"+getID()+" newClusterTimePoint:"+newClusterTimePoint+" result:"+absoluteClusterTimePoint+"  getCurrentTime(): "+getCurrentTimeCycleFrame()+" lower:"+lower+" upper:"+upper);
+		
+		return absoluteClusterTimePoint;
+	}
+
+	/**
+	 * Set current cluster time from given absolute time 
+	 * @param newAbsoluteTimePoint Absolute time point {0.f: midnight, 1.f: midnight the next day}
+	 */
+	public float getCurrentTimeAsAbsoluteTime()
+	{
+		float currentTimePoint = getCurrentTime();
+
+		float lower = state.timeline.getLower().getLower().getAbsoluteTime();
+		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
+		
+		currentTimePoint = (int) utilities.mapValue(currentTimePoint, 0.f, 1.f, lower, upper);
+
+		if(debug.cluster || debug.time)
+			System.out.println("Cluster.getCurrentTimeAsAbsolute()... id #"+getID()+" result:"+currentTimePoint+"  getCurrentTime(): "+getCurrentTimeCycleFrame()+" lower:"+lower+" upper:"+upper);
+		return currentTimePoint;
 	}
 
 	/**
@@ -1387,10 +1422,28 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	}
 
 	/**
-	 * Get current time point
-	 * @return
+	 * Get current cluster time as normalized value {0.f: first cluster media time - 1.f: last cluster media time}
+	 * @return Current cluster time {0.f-1.f}
 	 */
 	public float getCurrentTime()
+	{
+		return utilities.mapValue(state.currentTime, 0, state.timeCycleLength, 0.f, 1.f);
+	}
+
+	/**
+	 * Set current frame in cluster time cycle 
+	 * @param newTimePoint New time point {0.f: first associated media time, 1.f: last associated media time}
+	 */
+	private void setCurrentTimeCycleFrame(int newTimeCycleFrame)
+	{
+		state.currentTime = newTimeCycleFrame;
+	}
+
+	/**
+	 * Get current frame in cluster time cycle
+	 * @return Current frame in time cycle
+	 */
+	public float getCurrentTimeCycleFrame()
 	{
 		return state.currentTime;
 	}
@@ -1404,7 +1457,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		{
 			state.currentTime++;															// Increment cluster time
 			if(state.currentTime > state.timeCycleLength)
-				state.currentTime = 0;
+				setCurrentTimeCycleFrame(0);
 		}
 		
 		if(state.timeFading && state.dateFading && worldState.frameCount % state.timeUnitLength == 0)
@@ -1412,7 +1465,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			state.currentTime++;															// Increment cluster time
 			if(state.currentTime > state.timeCycleLength)
 			{
-				state.currentTime = 0;
+				setCurrentTimeCycleFrame(0);
 				state.currentDate++;															// Increment cluster date
 
 				if(debug.cluster || debug.time)

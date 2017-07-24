@@ -68,7 +68,7 @@ import ddf.minim.Minim;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private static boolean createJar = true;			// Determines how to load cubemap shader
+	private static boolean createJar = false;			// Determines how to load cubemap shader
 
 	/* Classes */
 	ML_Library library;								// Multimedia library
@@ -146,8 +146,6 @@ public class MultimediaLocator extends PApplet
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
 		
-		if(debug.ml) systemMessage("Starting "+appName+" setup...");
-
 		input = new ML_Input();
 		world = new WMV_World(this);
 		
@@ -157,6 +155,8 @@ public class MultimediaLocator extends PApplet
 		/* HUD Display */
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
+
+		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
 		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.FOCUS_EVENT_MASK );
 		

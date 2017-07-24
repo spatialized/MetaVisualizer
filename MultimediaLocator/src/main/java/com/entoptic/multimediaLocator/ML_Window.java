@@ -256,7 +256,7 @@ public class ML_Window
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
-		navigationWindowHeight = mediumWindowHeight + 125;		
+		navigationWindowHeight = mediumWindowHeight + 115;		
 		navigationWindowWidth = windowWidth;
 		mediaWindowHeight = mediumWindowHeight + 148;
 		mediaWindowWidth = windowWidth;
@@ -459,9 +459,9 @@ public class ML_Window
 	public void setupNavigationWindow(boolean open)
 	{
 		if(world.getFields().size() == 1) 
-			navigationWindowHeight = mediumWindowHeight + 125;							// Single field, fewer buttons
+			navigationWindowHeight = mediumWindowHeight + 115;							// Single field, fewer buttons
 		else
-			navigationWindowHeight = mediumWindowHeight + 165;
+			navigationWindowHeight = mediumWindowHeight + 155;
 		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - navigationWindowHeight / 2;
@@ -487,7 +487,7 @@ public class ML_Window
 
 		/* Moving */
 		x = 90;
-		y += iMediumBoxHeight * 0.5f;
+		y += iMediumBoxHeight * 0.25f;
 
 		btnMoveUp = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Up (e)");
 		btnMoveUp.tag = "MoveUp";
@@ -639,6 +639,17 @@ public class ML_Window
 
 		world.ml.delay(delayAmount);
 
+		x = 80;
+		y += iMediumBoxHeight;
+		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Last Location (l)");
+		btnMoveToLastCluster.tag = "LastCluster";
+		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		y += iMediumBoxHeight;
+		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Random Location (j)");
+		btnJumpToRandomCluster.tag = "RandomCluster";
+		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+
 		x = 0;
 		y += iLargeBoxHeight;
 		lblTimeNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Time");
@@ -667,42 +678,43 @@ public class ML_Window
 		
 		x = 30;
 		y += iMediumBoxHeight;
-		btnMoveToNearestCluster = new GButton(navigationWindow, x, y+iMediumBoxHeight * 0.5f, 75, iVerySmallBoxHeight, "Any (m)");
-		btnMoveToNearestCluster.tag = "NearestCluster";
-		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 115;
 		btnMoveToNearestImage = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Image (i)");
 		btnMoveToNearestImage.tag = "NearestImage";
 		btnMoveToNearestImage.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		btnMoveToNearestPanorama = new GButton(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Pano (p)");
+		x = 205;
+		btnMoveToNearestPanorama = new GButton(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Pano (p)");
 		btnMoveToNearestPanorama.tag = "NearestPanorama";
 		btnMoveToNearestPanorama.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 120;
+		btnMoveToNearestCluster = new GButton(navigationWindow, x, y+iMediumBoxHeight * 0.5f, 75, iVerySmallBoxHeight, "Any (m)");
+		btnMoveToNearestCluster.tag = "NearestCluster";
+		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 115;
+		x = 30;
 		y += iMediumBoxHeight;
 		btnMoveToNearestVideo = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Video (v)");
 		btnMoveToNearestVideo.tag = "NearestVideo";
 		btnMoveToNearestVideo.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		btnMoveToNearestSound = new GButton(navigationWindow, x+90, y, 90, iVerySmallBoxHeight, "Sound (u)");
+		x = 205;
+		btnMoveToNearestSound = new GButton(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Sound (u)");
 		btnMoveToNearestSound.tag = "NearestSound";
 		btnMoveToNearestSound.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		world.ml.delay(delayAmount / 2);
 		
-		x = 80;
-		y += iMediumBoxHeight;
-		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Last Location (l)");
-		btnMoveToLastCluster.tag = "LastCluster";
-		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		y += iMediumBoxHeight;
-		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Random Location (j)");
-		btnJumpToRandomCluster.tag = "RandomCluster";
-		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-
+//		x = 80;
+//		y += iMediumBoxHeight;
+//		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Last Location (l)");
+//		btnMoveToLastCluster.tag = "LastCluster";
+//		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+//
+//		y += iMediumBoxHeight;
+//		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 150, iVerySmallBoxHeight, "Random Location (j)");
+//		btnJumpToRandomCluster.tag = "RandomCluster";
+//		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		if(world.getFields() != null)
 		{
@@ -735,23 +747,14 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-//		if(compressTallWindows)
-//		{
-//			x = windowWidth + 75;
-//			y = iTopMargin;
-//		}
-//		else
-//		{
-			y += 45;
-			x = 0;
-//		}
+		y += 45;
+		x = 0;
 		navigationWindowLineBreakY_5 = y - 10;
 
 		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Follow Path");
 		lblPathNavigation.setLocalColorScheme(G4P.SCHEME_10);
 		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblPathNavigation.setTextAlign(GAlign.CENTER, null);
-//		lblPathNavigation.setTextBold();
 		
 		world.ml.delay(delayAmount);
 
@@ -1416,7 +1419,7 @@ public class ML_Window
 		y += 10;
 		sdrMediaLength = new GSlider(timeWindow, x, y, 160, 80, 20);
 		sdrMediaLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrMediaLength.setLimits(world.settings.defaultMediaLength, 0.f, 250.f);	// setLimits (int initValue, int start, int end)
+		sdrMediaLength.setLimits(world.settings.defaultMediaLength, 5.f, 250.f);	// setLimits (int initValue, int start, int end)
 		sdrMediaLength.setValue(world.settings.defaultMediaLength);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrMediaLength.setEasing(0);

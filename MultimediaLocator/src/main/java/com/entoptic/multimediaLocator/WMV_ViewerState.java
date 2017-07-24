@@ -16,9 +16,10 @@ public class WMV_ViewerState
 	
 	/* Time */
 	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
-	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
+	private int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentFieldTimeSegmentWithDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;						// Current date in field dateline
+	public int nextFieldDate = -1;						// Current date in field dateline
 	public boolean updateTimeAtGoalCluster = false;		// Whether to update current time once reached goal cluster
 	public int lastFieldTimeSegment = 0;					// Last time segment in field timeline
 	
@@ -342,5 +343,20 @@ public class WMV_ViewerState
 	public int getFollowMode()
 	{
 		return followMode;
+	}
+	
+	public int getCurrentFieldTimeSegment()
+	{
+		return currentFieldTimeSegment;
+	}
+	
+	public void setCurrentFieldTimeSegment(int newCurrentFieldTimeSegment)
+	{
+		currentFieldTimeSegment = newCurrentFieldTimeSegment;
+		if(nextFieldDate != -1)
+		{
+			currentFieldDate = nextFieldDate;
+			nextFieldDate = -1;
+		}
 	}
 }

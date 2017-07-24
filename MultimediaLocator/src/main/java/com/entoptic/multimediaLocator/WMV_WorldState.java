@@ -9,10 +9,12 @@ public class WMV_WorldState
 	/* Time */
 	public boolean timeFading = false;					// Does time affect media brightness? 
 	public boolean paused = false;						// Time is paused
-	private int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+	private int currentTimeCycleFrame = 0;				// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 	public int frameCount = 0;							// Frame count
 	public int timeMode = 0;								// Time Mode: {0: Cluster, 1: Field}		(2 = media)
+	public float currentClusterTime = 0.f;				// Current time point in current cluster {0.f to 1.f}
+	
 	public boolean turningOffTimeFading = false;			// Whether to turn off Time Fading after fading out
 	public boolean turningOnTimeFading = false;			// Whether to turn on Time Fading after fading in
 	/* Model */
@@ -87,7 +89,7 @@ public class WMV_WorldState
 		timeFading = false;					// Does time affect media brightness? 
 		paused = false;						// Time is paused
 
-		currentTime = 0;						// Time units since start of time cycle (day / month / year)
+		currentTimeCycleFrame = 0;						// Time units since start of time cycle (day / month / year)
 		currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
 		frameCount = 0;							// Frame count
 		timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
@@ -135,12 +137,12 @@ public class WMV_WorldState
 	
 	public int getCurrentTimeCycleFrame()
 	{
-		return currentTime;
+		return currentTimeCycleFrame;
 	}
 	
 	public void setCurrentTimeCycleFrame(int newTime)
 	{
 		System.out.println("WorldState.setCurrentTimeCycleFrame()... newTime:"+newTime);
-		currentTime = newTime;
+		currentTimeCycleFrame = newTime;
 	}
 }

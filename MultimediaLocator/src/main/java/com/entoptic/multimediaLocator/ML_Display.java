@@ -3089,22 +3089,23 @@ public class ML_Display
 				if(c != null)
 				{
 					ml.textSize(hudMediumTextSize);
-//					ml.textSize(hudLargeTextSize);
 					ml.text(" Location #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
 					
 					y += hudLineWidthWide;
 
+					ml.textSize(hudSmallTextSize);
+
 //					ml.textSize(hudMediumTextSize);
 					if(c.getState().images.size() > 0)
-						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidth, 0);
 					if(c.getState().panoramas.size() > 0)
-						ml.text("   Panoramas:  "+ c.getState().panoramas.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Panoramas:  "+ c.getState().panoramas.size(), x, y += hudLineWidth, 0);
 					if(c.getState().videos.size() > 0)
-						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidth, 0);
 					if(c.getState().sounds.size() > 0)
-						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
+						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidth, 0);
 					ml.text("   Number of Media:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-					ml.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidthWide, 0);
+					ml.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidth, 0);
 					ml.text("   Temporal Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidth, 0);
 					ml.text(" ", x, y += hudLineWidth, 0);
 					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());

@@ -1142,7 +1142,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	
 	/**
 	 * Get associated media time closest to given cluster time point
-	 * @param clusterTimePoint Cluster time point 
+	 * @param clusterTimePoint Cluster time point {0.f to 1.f}
 	 * @param withinTimeline If true, return null if time point lies outside cluster timeline. If false, return closest time even if outside cluster timeline.
 	 * @return Closest time to given time point
 	 */
@@ -1161,7 +1161,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		float upper = state.timeline.getUpper().getUpper().getAbsoluteTime();
 		float absoluteTime = utilities.mapValue(clusterTimePoint, 0.f, 1.f, lower, upper);		// Cluster time as absolute time
 
-		System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
+//		System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" converted to absoluteTime: "+absoluteTime+" lower:"+lower+" upper:"+upper);
 		
 		for(WMV_TimeSegment ts : state.timeline.timeline)			// Find closest cluster time to given cluster time
 		{
@@ -1179,17 +1179,16 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		
 		if(nearestDist == 1000000.f || nearestID == -1)
 		{
-			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" orig. timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... ERROR nearestDist:"+nearestDist+" nearestID:"+nearestID+" Cluster ID: "+getID()+" orig. timePoint:"+clusterTimePoint+(nearest==null?" nearest is NULL... ":" nearest.getAbsoluteTime():"+nearest.getAbsoluteTime()));
 			return null;
 		}
 		else if(nearest == null)
 		{
-			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" result is NULL... ");
+			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... ERROR nearestDist:"+nearestDist+" nearestID:"+nearestID+" Cluster ID: "+getID()+" nearest is NULL... ");
 			return null;
 		}
 		else
 		{
-			if(debug.time) System.out.println("Cluster.getClosestTimeToClusterTime()... Cluster ID: "+getID()+" timePoint:"+clusterTimePoint+" result:"+nearest.getAbsoluteTime());
 			return nearest;
 		}
 	}

@@ -1377,7 +1377,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		int frameLength = getLengthInFrames( 30 );			// -- Use actual frame rate?
 		int endFrame = state.playbackStartFrame + frameLength;
-//		System.out.println("Video.getFramesBeforeEnd()... frameLength:"+frameLength+" state.playbackStartFrame:"+state.playbackStartFrame);
 		
 		return endFrame - curFrameCount;
 //		return frameLength - framesSinceStart;	// Current video position between 0.f and 1.f
@@ -1385,7 +1384,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	public int getLengthInFrames(float frameRate)
 	{
-		System.out.println("Video.getLengthInFrames()... state.length:"+state.length+" video.duration"+video.duration());
+//		System.out.println("Video.getLengthInFrames()... state.length:"+state.length+" video.duration"+video.duration());
 		if(state.length != 0)
 			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
 		else if(video != null)

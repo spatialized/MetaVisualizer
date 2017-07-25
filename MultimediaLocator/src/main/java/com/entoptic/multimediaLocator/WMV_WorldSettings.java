@@ -63,8 +63,10 @@ public class WMV_WorldSettings
 	
 	/* Time */
 	public final float clusterTimePrecision = 0.000066f;		// Precision of timesHistogram (no. of bins)
-	public int timeCycleLength = 250;						// Length of main time loop in frames
-	final public int defaultTimeCycleLength = 250;			// Default length of main time loop in frames
+	final public int defaultTimeCycleLength = 500;			// Default length of main time loop in frames
+	final public int maxTimeCycleLength = 2500;				// Default length of main time loop in frames
+	final public int minTimeCycleLength = 100;				// Default length of main time loop in frames
+	public int timeCycleLength = defaultTimeCycleLength;		// Length of main time loop in frames
 	
 	public int timeUnitLength = 1;							// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			// Time cycle user increment amount

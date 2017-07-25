@@ -1419,7 +1419,7 @@ public class ML_Window
 		y += 10;
 		sdrMediaLength = new GSlider(timeWindow, x, y, 160, 80, 20);
 		sdrMediaLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrMediaLength.setLimits(world.settings.staticMediaLength, 10.f, 250.f);	// setLimits (int initValue, int start, int end)
+		sdrMediaLength.setLimits(world.settings.staticMediaLength, 10.f, 1000.f);	// -- Update limits in realtime to match time cycle length?
 		sdrMediaLength.setValue(world.settings.staticMediaLength);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrMediaLength.setEasing(0);
@@ -1435,7 +1435,8 @@ public class ML_Window
 		y += 10;
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 160, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(G4P.GREEN_SCHEME);
-		sdrTimeCycleLength.setLimits(0.f, world.settings.timeCycleLength, 3600.f);
+		sdrTimeCycleLength.setLimits(world.settings.timeCycleLength, world.settings.minTimeCycleLength, world.settings.maxTimeCycleLength);
+		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrTimeCycleLength.setEasing(0);
 		sdrTimeCycleLength.setShowValue(true);

@@ -621,6 +621,15 @@ public class WMV_Utilities
 	}
 
 	/**
+	 * Get GPS track as formatted string
+	 * @param loc {longitude, latitude}
+	 */
+	public String formatGPSLocation(PVector loc)
+	{
+		return "Lon:"+round(loc.x, 4)+" Lat:"+round(loc.y, 4);
+	}
+
+	/**
 	 * Shrink images to optimized size (640 pixels max width) for 3D environment
 	 * @param largeImages Images to shrink
 	 * @param destination Destination folder

@@ -1,16 +1,9 @@
 package main.java.com.entoptic.multimediaLocator;
-import java.awt.Font;
+
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import g4p_controls.G4P;
-import g4p_controls.GAlign;
-import g4p_controls.GButton;
-import g4p_controls.GLabel;
-import g4p_controls.GOption;
-import g4p_controls.GToggleGroup;
-//import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
@@ -60,7 +53,7 @@ public class ML_Display
 	
 //	PImage startupImage;
 	private float hudLeftMargin, hudCenterXOffset, hudTopMargin;
-	private float screenWidthFactor;
+	private float displayWidthFactor;
 	
 	/* Map View */
 	private boolean setupMapView = false;
@@ -137,32 +130,43 @@ public class ML_Display
 	private int mediaViewMediaType = -1;
 	private int mediaViewMediaID = -1;
 
-	/* Text (3D Overlay) */
+	/* Text – 3D HUD */
 	private float messageXOffset, messageYOffset;
 	private float metadataXOffset, metadataYOffset;
 	
-	private final float largeTextSize = 56.f;					// -- Set from display size??
-	private final float mediumTextSize = 44.f;
-	private final float smallTextSize = 36.f;
+	private float largeTextSize = 56.f;					// -- Set from display size??
+	private float mediumTextSize = 44.f;
+	private float smallTextSize = 36.f;
 	
-	private final float messageTextSize = 48.f;
+	private float messageTextSize = 48.f;
+	private float linePadding = 20.f;
 	
-	private final float linePadding = 20.f;
-	private final float lineWidth = smallTextSize + linePadding;			
-//	private final float lineWidthWide = largeTextSize + linePadding;			
-	private final float lineWidthWide = largeTextSize * 2.f;			
+	private float lineWidth = smallTextSize + linePadding;			
+//	private float lineWidthWide = largeTextSize + linePadding;			
+	private float lineWidthWide = largeTextSize * 2.f;			
 
-	/* Text (HUD No 3D Overlay) */
-	private float hudVeryLargeTextSize = 32.f;
-	private float hudLargeTextSize = 26.f;
-	private float hudMediumTextSize = 22.f;
-	private float hudSmallTextSize = 18.f;
-	private float hudVerySmallTextSize = 16.f;
-	private float hudLinePadding = 4.f;
-	private float hudLinePaddingWide = 8.f;
-	private float hudLineWidth = hudMediumTextSize + hudLinePadding;
-	private float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
-	private float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
+	/* Text – 2D */
+	private float hudVeryLargeTextSize;
+	private float hudLargeTextSize;
+	private float hudMediumTextSize;
+	private float hudSmallTextSize;
+	private float hudVerySmallTextSize;
+	private float hudLinePadding;
+	private float hudLinePaddingWide;
+	private float hudLineWidth;
+	private float hudLineWidthWide;
+	private float hudLineWidthVeryWide;
+	
+//	private float hudVeryLargeTextSize = 32.f;
+//	private float hudLargeTextSize = 26.f;
+//	private float hudMediumTextSize = 22.f;
+//	private float hudSmallTextSize = 18.f;
+//	private float hudVerySmallTextSize = 16.f;
+//	private float hudLinePadding = 4.f;
+//	private float hudLinePaddingWide = 8.f;
+//	private float hudLineWidth = hudMediumTextSize + hudLinePadding;
+//	private float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
+//	private float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 	
 	/* Messages */
 	public ArrayList<String> startupMessages;					// Messages to display on screen
@@ -200,16 +204,57 @@ public class ML_Display
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-		/* 3D HUD Displays */
+		/* Text – 3D HUD */
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
 
 		metadataXOffset = -screenWidth * 1.5f;
 		metadataYOffset = -screenHeight / 2.f;
 
-		/* 2D HUD Displays */
+		largeTextSize = screenWidth * 0.0333f;					
+		mediumTextSize = screenWidth * 0.025f;
+		smallTextSize = screenWidth * 0.02f;
+		
+		messageTextSize = screenWidth * 0.03f;
+		linePadding = screenWidth * 0.0125f;
+		
+//		largeTextSize = 56.f;					// -- Set from display size??
+//		mediumTextSize = 44.f;
+//		smallTextSize = 36.f;
+//		
+//		messageTextSize = 48.f;
+//		linePadding = 20.f;
+		
+		lineWidth = smallTextSize + linePadding;			
+//		lineWidthWide = largeTextSize + linePadding;			
+		lineWidthWide = largeTextSize * 2.f;			
+
+		/* 2D Displays */
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
+
+		/* Text – 2D */
+		hudVeryLargeTextSize = screenWidth * 0.0175f;
+		hudLargeTextSize = screenWidth * 0.015f;
+		hudMediumTextSize = screenWidth * 0.0125f;
+		hudSmallTextSize = screenWidth * 0.010f;
+		hudVerySmallTextSize = screenWidth * 0.0095f;
+		hudLinePadding = screenHeight * 0.004f;
+		hudLinePaddingWide = hudLinePadding * 2.f;
+		hudLineWidth = screenHeight * 0.02f + hudLinePadding;
+		hudLineWidthWide = screenHeight * 0.0233f + hudLinePaddingWide;
+		hudLineWidthVeryWide = screenHeight * 0.0466f;			
+
+//		hudVeryLargeTextSize = 32.f;
+//		hudLargeTextSize = 26.f;
+//		hudMediumTextSize = 22.f;
+//		hudSmallTextSize = 18.f;
+//		hudVerySmallTextSize = 16.f;
+//		hudLinePadding = 4.f;
+//		hudLinePaddingWide = 8.f;
+//		hudLineWidth = hudMediumTextSize + hudLinePadding;
+//		hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
+//		hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
@@ -246,22 +291,33 @@ public class ML_Display
 //		timelineHeight = screenHeight * 0.1f;
 		datelineYOffset = windowHeight * 0.57f;
 		
-		screenWidthFactor = ml.width / 1440.f;
-		
 		buttonWidth = windowWidth * 0.075f;
 		buttonHeight = windowWidth * 0.0175f;
 		buttonSpacing = windowWidth * 0.0125f;
+
+		displayWidthFactor = ml.width / 1440.f;
 		
-		hudVeryLargeTextSize = 32.f * screenWidthFactor;
-		hudLargeTextSize = 26.f * screenWidthFactor;
-		hudMediumTextSize = 22.f * screenWidthFactor;
-		hudSmallTextSize = 18.f * screenWidthFactor;
-		hudVerySmallTextSize = 16.f * screenWidthFactor;
-		hudLinePadding = 4.f * screenWidthFactor;
-		hudLinePaddingWide = 8.f * screenWidthFactor;
-		hudLineWidth = (hudMediumTextSize + hudLinePadding) * screenWidthFactor;
-		hudLineWidthWide = (hudLargeTextSize + hudLinePaddingWide) * screenWidthFactor;
-		hudLineWidthVeryWide = (hudLargeTextSize * 2.f) * screenWidthFactor;			
+//		hudVeryLargeTextSize *= displayWidthFactor;
+//		hudLargeTextSize *= displayWidthFactor;
+//		hudMediumTextSize *= displayWidthFactor;
+//		hudSmallTextSize *= displayWidthFactor;
+//		hudVerySmallTextSize *= displayWidthFactor;
+//		hudLinePadding *= displayWidthFactor;
+//		hudLinePaddingWide *= displayWidthFactor;
+//		hudLineWidth *= displayWidthFactor;
+//		hudLineWidthWide *= displayWidthFactor;
+//		hudLineWidthVeryWide *= displayWidthFactor;			
+
+//		hudVeryLargeTextSize = 32.f * displayWidthFactor;
+//		hudLargeTextSize = 26.f * displayWidthFactor;
+//		hudMediumTextSize = 22.f * displayWidthFactor;
+//		hudSmallTextSize = 18.f * displayWidthFactor;
+//		hudVerySmallTextSize = 16.f * displayWidthFactor;
+//		hudLinePadding = 4.f * displayWidthFactor;
+//		hudLinePaddingWide = 8.f * displayWidthFactor;
+//		hudLineWidth = (hudMediumTextSize + hudLinePadding) * displayWidthFactor;
+//		hudLineWidthWide = (hudLargeTextSize + hudLinePaddingWide) * displayWidthFactor;
+//		hudLineWidthVeryWide = (hudLargeTextSize * 2.f) * displayWidthFactor;			
 	}
 
 	/**
@@ -2879,8 +2935,9 @@ public class ML_Display
 		startDisplayHUD();
 		ml.pushMatrix();
 		
-		for(ML_Button b : buttons)
-			b.display(p, 0.f, 0.f, 255.f);
+		if(libraryViewMode > 0)
+			for(ML_Button b : buttons)
+				b.display(p, 0.f, 0.f, 255.f);
 		
 		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
@@ -2931,8 +2988,7 @@ public class ML_Display
 					ml.text("Untitled Environment", x, y);
 //				ml.text(ml.world.getCurrentField().getName(), x, y);
 
-				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
-//				y += hudLineWidthWide + buttonHeight * 2.f + buttonSpacing * 2.f;
+				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing * 2.f;
 
 				ml.textSize(hudMediumTextSize);
 				ml.text(ml.world.getCurrentField().getName(), x, y);
@@ -2951,10 +3007,50 @@ public class ML_Display
 //						ml.text("Untitled Environment", x, y += lineWidthWide * 1.5f);
 //				}
 				
-				ml.textSize(hudMediumTextSize);
-				ml.text(" Under Construction...", x, y += lineWidthWide * 1.5f);
-//				ml.text(" Output Folder:"+ml.world.outputFolder, x, y += lineWidthWide * 1.5f);
-//				
+				ml.textSize(hudSmallTextSize);
+//				ml.text(" Under Construction...", x, y += lineWidthWide * 1.5f);
+				if(ml.world.getFieldCount() > 1)
+					ml.text("Current Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y += lineWidthWide * 1.5f);
+				ml.text(" Library Location: "+ml.library.getLibraryFolder(), x, y += lineWidthWide);
+				ml.text(" Output Folder: "+(ml.world.outputFolder==null?"None":ml.world.outputFolder), x, y += lineWidth);
+
+
+//				if(f.getImageCount() > 0) ml.text(" Images:  "+f.getImageCount(), x, y += hudLineWidthVeryWide);
+//				if(f.getImagesVisible() > 0) 
+//				{
+//					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidth);
+//				}
+//
+//				if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+f.getPanoramaCount(), x, y += hudLineWidthVeryWide);		
+//				if(f.getPanoramasVisible() > 0)
+//				{
+//					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getPanoramasSeen(), x, y += hudLineWidth);
+//				}
+//
+//				if(f.getVideoCount() > 0) ml.text(" Videos:  "+f.getVideoCount(), x, y += hudLineWidthVeryWide);					
+//				if(f.getVideosVisible() > 0)
+//				{
+//					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidth);
+//				}
+//				if(f.getVideosPlaying() > 0)
+//				{
+//					ml.text("   Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getVideosSeen(), x, y += hudLineWidth);
+//				}
+//
+//				if(f.getSoundCount() > 0) ml.text(" Sounds:  "+f.getSoundCount(), x, y += hudLineWidthWide);					
+//				if(f.getSoundsAudible() > 0)
+//				{
+//					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidth);
+//				}
+//				if(f.getSoundsPlaying() > 0) 
+//				{
+//					ml.text("   Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);
+////					ml.text("   Heard:  "+f.getSoundsHeard(), x, y += hudLineWidthWide);
+//				}
+
 //				if(ml.debug.ml && ml.debug.print)
 //				{
 //					ml.text("   Viewer GPS Location, Longitude:"+utilities.round(p.viewer.getGPSLocation().x, 5) +
@@ -2965,6 +3061,7 @@ public class ML_Display
 				endDisplayHUD();
 				
 				break;
+				
 			case 1:														// Field
 				startDisplayHUD();
 				ml.pushMatrix();
@@ -2977,8 +3074,7 @@ public class ML_Display
 					ml.text("Untitled Environment", x, y);
 //				ml.text(""+p.getCurrentField().getName(), x, y, 0);
 				
-				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
-//				y += hudLineWidthVeryWide + buttonHeight * 2.f + buttonSpacing * 2.f;
+				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing * 2.f;
 
 				ml.textSize(hudMediumTextSize);
 				ml.text(ml.world.getCurrentField().getName(), x, y);
@@ -2987,35 +3083,68 @@ public class ML_Display
 
 				c = p.getCurrentCluster();
 				
-//				ml.textSize(hudLargeTextSize);
-//				ml.text(" Current Field:  "+ f.getName(), x, y += hudLineWidthWide);
-//				ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), x, y += hudLineWidthVeryWide, 0);
-
-				ml.textSize(hudMediumTextSize);
+				ml.textSize(hudSmallTextSize);
 //				if(ml.world.getFieldCount() > 1)
-//					ml.text(" Current Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y += hudLineWidthVeryWide);
-				ml.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ), x, y += hudLineWidth * 2);
-				ml.text(" Field Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += hudLineWidth);
-				ml.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidth);
+//					ml.text("Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y);
 				
-				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidth);
+//				ml.textSize(hudMediumTextSize);
+//				ml.text(" Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthWide, 0);
+				ml.textSize(hudSmallTextSize);
+				
+				ml.text("Spatial Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthWide, 0);
+//				ml.text("      Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
+				ml.text("Temporal Points of Interest:  "+(f.getTimeline().timeline.size()), x, y += hudLineWidth, 0);
 
-				ml.text(" Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthVeryWide, 0);
+				ml.text( "Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 )+
+						"  Length:  "+utilities.round( f.getModel().getState().fieldLength, 3)+
+						"  Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidth * 2.f);
+				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidthWide);
+
+//				ml.textSize(hudMediumTextSize);
+//				ml.text(" Viewer ", x, y += hudLineWidthWide, 0);
+				ml.textSize(hudSmallTextSize);
+
+//				ml.text("Viewer Location "+(f.getClusters().size()), x, y += hudLineWidth, 0);
+
+				if(c != null)
+					ml.text("Viewer Location: " + ml.utilities.formatGPSLocation( ml.world.viewer.getGPSLocation() ) + " (#" + (c.getID()+1) + ")", x, y += hudLineWidth, 0);
+				
+//				ml.text(" Time ", x, y += hudLineWidth, 0);
+
+				if(ml.world.getState().getTimeMode() == 0)		// Location
+				{
+					int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
+					WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
+					WMV_Time t = c.getClosestTimeToClusterTime( c.getCurrentTime() );
+					String strClusterTime = t.getFormattedTime(true, false);
+					String strFieldTime = ts.getCenter().getFormattedTime(true, false);
+					ml.text("Current Time: "+ strClusterTime+", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size()+" (#"+t.getID()+" of "+c.getTimeline().timeline.size()+" at current location)", x, y += hudLineWidth, 0);
+//					ml.text(""+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+//					ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
+				}
+				else												// Field
+				{
+					int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
+					WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
+					String strFieldTime = ts.getCenter().getFormattedTime(true, false);
+					ml.text("Current Time: "+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+//					ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
+				}
+
+				ml.text(" Time Mode: "+(ml.world.getState().getTimeMode() == 0 ? "Location":"Field"), x, y += hudLineWidth, 0);
+
 //				ml.text("    Merged:  "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", x, y += hudLineWidth, 0);
 //				if(p.getState().hierarchical) ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, x, y += hudLineWidth, 0);
 //				ml.text("    Minimum Distance: "+p.settings.minClusterDistance, x, y += hudLineWidth, 0);
 //				ml.text("    Maximum Distance: "+p.settings.maxClusterDistance, x, y += hudLineWidth, 0);
 //				ml.text("    Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += hudLineWidth, 0);
-				if(c != null)
-					ml.text(" Current:  "+ (c.getID()+1), x, y += hudLineWidth, 0);
-				ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
-
-				// --  Flag media missing originals
+				
 				if(f.getImageCount() > 0) ml.text(" Images:  "+f.getImageCount(), x, y += hudLineWidthVeryWide);
 				if(f.getImagesVisible() > 0) 
 				{
 					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
 //					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidth);
+					// -- Show media missing originals
 				}
 
 				if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+f.getPanoramaCount(), x, y += hudLineWidthVeryWide);		
@@ -3078,7 +3207,7 @@ public class ML_Display
 				ml.textSize(hudVeryLargeTextSize);
 				ml.text(""+p.getCurrentField().getName(), x, y, 0);
 	
-				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
+				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing * 2.f;
 
 				ml.textSize(hudLargeTextSize);
 				if(currentDisplayCluster != -1)
@@ -3089,9 +3218,9 @@ public class ML_Display
 				if(c != null)
 				{
 					ml.textSize(hudMediumTextSize);
-					ml.text(" Location #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
+					ml.text(" Location #"+ (c.getID()+1) + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
 					
-					y += hudLineWidthWide;
+					y += hudLineWidthVeryWide + buttonHeight + buttonSpacing;
 
 					ml.textSize(hudSmallTextSize);
 
@@ -3883,7 +4012,7 @@ public class ML_Display
 				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
 				ml.textSize(hudSmallTextSize);
 				String strDate = date.getDateAsString();
-				float textWidth = strDate.length() * screenWidthFactor;
+				float textWidth = strDate.length() * displayWidthFactor;
 				ml.text(strDate, location.x - textWidth * 0.5f, location.y + 30.f, location.z);	// -- Should center based on actual text size!
 			}
 		

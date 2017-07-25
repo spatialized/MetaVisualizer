@@ -334,6 +334,61 @@ public class WMV_Time implements Comparable<WMV_Time>
 		return zoned;
 	}
 	
+	public String getFormattedMilitaryTime()
+	{
+		String strTime = ""+getHour()+":"+getMinute()+":"+getSecond();
+		return strTime;
+	}
+	
+//	public String getTimeAsString( int hour, int minute, int second, boolean showSeconds, boolean military )
+	public String getFormattedTime(boolean showSeconds, boolean military)
+	{
+		boolean pm = false;
+
+		if(!military) 
+		{
+			if(hour == 0 && minute == 0) 
+			{
+				hour = 12;
+				pm = false;
+			}
+			else
+			{
+				if(hour == 0) hour = 12;
+
+				if(hour > 12)
+				{
+					hour -= 12;
+					if(hour < 12) pm = true;
+				}
+				else if(hour == 12) pm = true;
+			}
+		}
+
+		String strHour = String.valueOf(hour);
+
+		String strMinute = String.valueOf(minute);
+		if(minute < 10) strMinute = "0"+strMinute;
+
+		if(showSeconds)
+		{
+			String strSecond = String.valueOf(second);
+			if(second < 10) strSecond = "0"+strSecond;
+
+			if(military)
+				return strHour + ":" + strMinute + ":" + strSecond;
+			else
+				return strHour + ":" + strMinute + ":" + strSecond + (pm ? " pm" : " am");
+		}
+		else				
+		{
+			if(military)
+				return strHour + ":" + strMinute;
+			else
+				return  strHour + ":" + strMinute + (pm ? " pm" : " am");
+		}
+	}
+	
 	/**
 	 * Map a value from given range to new range
 	 * @param val Value to map

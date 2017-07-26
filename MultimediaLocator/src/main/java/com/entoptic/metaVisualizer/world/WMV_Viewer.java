@@ -9,7 +9,6 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
 import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
-import main.java.com.entoptic.metaVisualizer.misc.WMV_Camera;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ModelState;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Orientation;

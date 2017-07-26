@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.misc;
+package main.java.com.entoptic.metaVisualizer.world;
 
 import main.java.com.entoptic.metaVisualizer.MetaVisualizer;
 import processing.core.*;

@@ -18,7 +18,6 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
 import main.java.com.entoptic.metaVisualizer.media.WMV_VideoStateList;
 import main.java.com.entoptic.metaVisualizer.metadata.WMV_ImageMetadata;
 import main.java.com.entoptic.metaVisualizer.metadata.WMV_VideoMetadata;
-import main.java.com.entoptic.metaVisualizer.misc.WMV_Command;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ClusterState;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ClusterStateList;
@@ -507,7 +506,7 @@ public class MV_Library
 	 */
 	public boolean moveFile(String filePath, String destination)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		command.add("mv");
 		command.add(filePath);
@@ -517,7 +516,7 @@ public class MV_Library
 //		cp -a /source/. /dest/
 //		cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
 
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -539,7 +538,7 @@ public class MV_Library
 	 */
 	public boolean copyFile(String filePath, String destination)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		command.add("cp");
 		command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
@@ -550,7 +549,7 @@ public class MV_Library
 //		cp -a /source/. /dest/
 //		cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
 
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -586,10 +585,10 @@ public class MV_Library
 	{
 //		System.out.println("getFilesInDirectory(): sourceFolder:"+sourceFolder);
 		ArrayList<String> files = new ArrayList<String>();
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		command.add("ls");
-		commandExecutor = new WMV_Command(sourceFolder, command);
+		commandExecutor = new MV_Command(sourceFolder, command);
 		try {
 			int result = commandExecutor.execute();
 

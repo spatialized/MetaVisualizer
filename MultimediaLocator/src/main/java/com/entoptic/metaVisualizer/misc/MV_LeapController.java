@@ -1,6 +1,6 @@
 package main.java.com.entoptic.metaVisualizer.misc;
 
-public class ML_LeapController {
+public class MV_LeapController {
 
 	//
 //	 void updateLeapMotion() {

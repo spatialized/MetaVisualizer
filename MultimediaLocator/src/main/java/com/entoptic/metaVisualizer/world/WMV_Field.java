@@ -22,8 +22,8 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_SoundStateList;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
 import main.java.com.entoptic.metaVisualizer.media.WMV_VideoState;
 import main.java.com.entoptic.metaVisualizer.media.WMV_VideoStateList;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
-import main.java.com.entoptic.metaVisualizer.misc.ML_Stitcher;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_Stitcher;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ClusterState;
@@ -53,7 +53,7 @@ public class WMV_Field
 	private WMV_ViewerSettings viewerSettings;		// Viewer settings
 	private WMV_ViewerState viewerState;			// Viewer state
 	private WMV_Utilities utilities;				// Utilities class
-	private ML_DebugSettings debug;			// Debug settings
+	private MV_DebugSettings debug;			// Debug settings
 	
 	/* Data */
 	private WMV_FieldState state;					// Field state
@@ -97,7 +97,7 @@ public class WMV_Field
 	 * @param newFieldID New field ID
 	 */
 	public WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
-			ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
+			MV_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
 		worldSettings = newWorldSettings;
 		debug = newDebugSettings;
@@ -3326,7 +3326,7 @@ public class WMV_Field
 	/**
 	 * Try stitching panoramas for all clusters in field
 	 */
-	public void stitchAllClusters(ML_Stitcher stitcher, String libraryFolder)
+	public void stitchAllClusters(MV_Stitcher stitcher, String libraryFolder)
 	{
 		for(WMV_Cluster c : clusters)
 			c.stitchImages(stitcher, libraryFolder, getSelectedImages());

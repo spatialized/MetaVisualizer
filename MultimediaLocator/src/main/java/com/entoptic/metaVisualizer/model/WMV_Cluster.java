@@ -10,8 +10,8 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_MediaSegment;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
-import main.java.com.entoptic.metaVisualizer.misc.ML_Stitcher;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_Stitcher;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.world.WMV_Field;
 import main.java.com.entoptic.metaVisualizer.world.WMV_Viewer;
@@ -36,7 +36,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	private WMV_ViewerState viewerState;		// Viewer state
 	private WMV_Utilities utilities;			// Utility methods
 	private WMV_ClusterState state;				// Cluster state
-	private ML_DebugSettings debug;		// Debug settings
+	private MV_DebugSettings debug;		// Debug settings
 
 	/* Segmentation */
 	public ArrayList<WMV_MediaSegment> segments;			// List of overlapping segments of images or videos
@@ -55,7 +55,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 * @param newLocation Cluster location
 	 */
 	public WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-						WMV_ViewerState newViewerState, ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation ) 
+						WMV_ViewerState newViewerState, MV_DebugSettings newDebugSettings, int newClusterID, PVector newLocation ) 
 	{
 		state = new WMV_ClusterState();
 		state.id = newClusterID;
@@ -2457,7 +2457,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 * @param libraryFolder Library folder
 	 * @param selectedImages Selected images to stitch
 	 */
-	public void stitchImages(ML_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
+	public void stitchImages(MV_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
 	{
 		if(viewerSettings.multiSelection || viewerSettings.groupSelection)		// Segment or group is selected
 		{

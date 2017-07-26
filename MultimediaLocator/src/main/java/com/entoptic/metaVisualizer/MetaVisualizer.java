@@ -1,5 +1,5 @@
 /********************************************************************************
-* MetaVisualizr v0.9.0
+* MetaVisualizer v0.9.0
 * @author davidgordon
 * 
 * A multimedia library management and visualization system using 
@@ -10,7 +10,7 @@
 *********************************************************************************/
 
 /************************************
-* MetaVisualizr application class
+* MetaVisualizer application class
 * @author davidgordon 
 */
 package main.java.com.entoptic.metaVisualizer;
@@ -53,8 +53,8 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
 import main.java.com.entoptic.metaVisualizer.metadata.WMV_Metadata;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
-import main.java.com.entoptic.metaVisualizer.misc.ML_Stitcher;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_Stitcher;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Model;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Waypoint;
@@ -89,9 +89,9 @@ public class MetaVisualizer extends PApplet
 	/* Classes */
 	public MV_Library library;								// Multimedia library
 	public MV_Input input;									// Mouse / keyboard input
-	public ML_Stitcher stitcher;							// Panoramic stitching
+	public MV_Stitcher stitcher;							// Panoramic stitching
 	public MV_Display display;								// Displaying 2D graphics and text
-	public ML_DebugSettings debug;							// Debug settings
+	public MV_DebugSettings debug;							// Debug settings
 	
 	/* WorldMediaViewer */
 	public WMV_World world;							// World simulation
@@ -160,7 +160,7 @@ public class MetaVisualizer extends PApplet
 
 		delay(basicDelay);
 		
-		debug = new ML_DebugSettings();
+		debug = new MV_DebugSettings();
 		systemMessages = new ArrayList<String>();
 		
 		input = new MV_Input();
@@ -227,7 +227,7 @@ public class MetaVisualizer extends PApplet
 //		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK );
 
 		/* Panoramic Stitching */
-		stitcher = new ML_Stitcher(world);
+		stitcher = new MV_Stitcher(world);
 
 		/* Metadata */
 		metadata = new WMV_Metadata(this, debug);
@@ -684,7 +684,7 @@ public class MetaVisualizer extends PApplet
 
 		delay(basicDelay);
 
-		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
+		stitcher = new MV_Stitcher(world);						// Reset panoramic stitcher
 		metadata = new WMV_Metadata(this, debug);				// Reset metadata loader
 		loadExiftoolPath();										// Load Exiftool program path
 

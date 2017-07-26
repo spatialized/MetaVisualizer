@@ -2403,7 +2403,7 @@ public class MV_Window
 		int x = windowWidth * 3 / 2 - 90;
 		int y = 145;
 		
-		if(display.ml.state.selectedNewLibraryDestination || display.ml.state.selectedLibrary)
+		if(display.mv.state.selectedNewLibraryDestination || display.mv.state.selectedLibrary)
 		{
 			if(display.setupProgress > 0.f)
 			{
@@ -2421,25 +2421,25 @@ public class MV_Window
 		}
 		else
 		{
-			if(display.ml.library == null)
+			if(display.mv.library == null)
 			{
 				applet.text("No media folders yet.", x, y);
 			}
 			else
 			{
-				if(display.ml.library.mediaFolders == null)
+				if(display.mv.library.mediaFolders == null)
 				{
 					applet.text("No media folders yet.", x, y);
 				}
 				else
 				{
-					if( display.ml.library.mediaFolders.size() == 0 )
+					if( display.mv.library.mediaFolders.size() == 0 )
 						applet.text("No media folders yet.", x, y);
 					else
 					{
 						applet.textSize(smallTextSize+1);
 						x = iLeftMargin * 2;
-						for(String strFolder : display.ml.library.mediaFolders)
+						for(String strFolder : display.mv.library.mediaFolders)
 						{
 							applet.text(strFolder, x, y);
 							y += iSmallBoxHeight - 5;

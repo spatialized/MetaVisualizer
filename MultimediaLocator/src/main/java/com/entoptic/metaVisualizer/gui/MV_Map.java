@@ -106,8 +106,8 @@ public class MV_Map
 	{
 		p = parent;
 		
-		screenWidth = p.ml.displayWidth;
-		screenHeight = p.ml.displayHeight;
+		screenWidth = p.mv.displayWidth;
+		screenHeight = p.mv.displayHeight;
 		
 //		screenWidth = p.ml.appWidth;
 //		screenHeight = p.ml.appHeight;
@@ -123,7 +123,7 @@ public class MV_Map
 //		satelliteMarkerManager = new MarkerManager<Marker>();
 //		gpsMarkerManager = new MarkerManager<Marker>();
 		
-		blankTile = p.ml.getImageResource("blank.jpg");	// -- Move to constructor?
+		blankTile = p.mv.getImageResource("blank.jpg");	// -- Move to constructor?
 	}
 	
 	/**
@@ -304,7 +304,7 @@ public class MV_Map
 		if(p.mapViewMode == 0)										// World Mode: Start zoomed out on multiple fields
 			zoomToWorld(fade);											
 		else if(p.mapViewMode == 1)									// Field Mode: Start zoomed out on current field
-			zoomToField(p.ml.world.getCurrentField(), fade);		
+			zoomToField(p.mv.world.getCurrentField(), fade);		
 	}
 	
 	/**
@@ -559,12 +559,12 @@ public class MV_Map
 		viewerMarker = new SimplePointMarker(new Location(gpsLoc.x, gpsLoc.y));
 		viewerMarker.setId("viewer");
 		viewerMarker.setDiameter(viewerDiameter);
-		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
+		viewerMarker.setColor(p.mv.color(0, 0, 255, 255));
 
 //		satelliteMarkerManager.addMarker(viewerMarker);					// CHANGED 7-2-17
 		satellite.addMarker(viewerMarker);				
 		
-		p.ml.delay(mapDelay);
+		p.mv.delay(mapDelay);
 	}
 	
 	/**

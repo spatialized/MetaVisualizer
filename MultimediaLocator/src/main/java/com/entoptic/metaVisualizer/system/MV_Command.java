@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.misc;
+package main.java.com.entoptic.metaVisualizer.system;
 
 import java.io.*;
 import java.util.List;
@@ -8,11 +8,11 @@ import java.util.List;
  * @author davidgordon
  * - Based on com.devdaily.system
  */
-public class WMV_Command
+public class MV_Command
 {
   private List<String> command;
-  private WMV_Thread inputStreamHandler;
-  private WMV_Thread errorStreamHandler;
+  private MV_Thread inputStreamHandler;
+  private MV_Thread errorStreamHandler;
   private String directory;
   
   /**
@@ -20,7 +20,7 @@ public class WMV_Command
    * @param newDirectory
    * @param command
    */
-  public WMV_Command(final String newDirectory, final List<String> command)
+  public MV_Command(final String newDirectory, final List<String> command)
   {
     directory = newDirectory;
     if (command==null) throw new NullPointerException("The command is required.");
@@ -36,16 +36,17 @@ public class WMV_Command
     try
     {
       ProcessBuilder pb = new ProcessBuilder(command);
+      
       if(directory != null && !directory.equals(""))
-    	  pb.directory(new File(directory));
+    	  	pb.directory(new File(directory));
       
       Process process = pb.start();
 
       InputStream inputStream = process.getInputStream();
       InputStream errorStream = process.getErrorStream();
 
-      inputStreamHandler = new WMV_Thread(inputStream);
-      errorStreamHandler = new WMV_Thread(errorStream);
+      inputStreamHandler = new MV_Thread(inputStream);
+      errorStreamHandler = new MV_Thread(errorStream);
 
       inputStreamHandler.start();
       errorStreamHandler.start();

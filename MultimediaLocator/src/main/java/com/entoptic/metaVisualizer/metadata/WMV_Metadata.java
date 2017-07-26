@@ -26,11 +26,11 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_Image;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
-import main.java.com.entoptic.metaVisualizer.misc.WMV_Command;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Time;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Waypoint;
+import main.java.com.entoptic.metaVisualizer.system.MV_Command;
 import main.java.com.entoptic.metaVisualizer.world.WMV_Field;
 import main.java.com.entoptic.metaVisualizer.world.WMV_WorldSettings;
 
@@ -65,7 +65,7 @@ public class WMV_Metadata
 	/* Classes */
 	MetaVisualizer ml; 											// Parent app
 	WMV_Utilities u;												// Utility class
-	ML_DebugSettings debug;									// Debug settings
+	MV_DebugSettings debug;									// Debug settings
 	
 	public File exiftoolFile;										// File for ExifTool executable
 
@@ -108,7 +108,7 @@ public class WMV_Metadata
 	 * @param parent Parent App
 	 * @param newDebugSettings Debug settings
 	 */
-	public WMV_Metadata( MetaVisualizer parent, ML_DebugSettings newDebugSettings )
+	public WMV_Metadata( MetaVisualizer parent, MV_DebugSettings newDebugSettings )
 	{
 		ml = parent;
 		u = new WMV_Utilities();
@@ -1787,7 +1787,7 @@ public class WMV_Metadata
 
 			String exifToolPath = exifToolFile.getAbsolutePath();
 			String filePath = file.getAbsolutePath();
-			WMV_Command commandExecutor;
+			MV_Command commandExecutor;
 			ArrayList<String> command = new ArrayList<String>();
 			
 			command.add( exifToolPath );	
@@ -1802,7 +1802,7 @@ public class WMV_Metadata
 			command.add("-Keywords");
 			command.add(filePath);
 
-			commandExecutor = new WMV_Command("", command);
+			commandExecutor = new MV_Command("", command);
 			try {
 				int res = commandExecutor.execute();
 				StringBuilder stdout = commandExecutor.getStandardOutput();

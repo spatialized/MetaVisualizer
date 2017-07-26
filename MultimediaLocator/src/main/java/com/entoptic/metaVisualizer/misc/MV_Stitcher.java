@@ -30,7 +30,7 @@ import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
  * Class for stitching image sets into spherical panoramas
  * @author davidgordon
  */
-public class ML_Stitcher 
+public class MV_Stitcher 
 {
 	private Stitcher stitcher;
 	private final boolean try_use_gpu = true;
@@ -38,7 +38,7 @@ public class ML_Stitcher
 
 	WMV_World p;
 	
-	public ML_Stitcher(WMV_World parent)
+	public MV_Stitcher(WMV_World parent)
 	{
 		p = parent;
 		

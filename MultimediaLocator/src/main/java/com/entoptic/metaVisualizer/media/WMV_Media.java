@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import main.java.com.entoptic.metaVisualizer.MetaVisualizer;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Date;
@@ -37,7 +37,7 @@ public abstract class WMV_Media
 	private WMV_WorldState worldState;			// World State
 	private WMV_ViewerSettings viewerSettings;	// Viewer settings
 	private WMV_ViewerState viewerState;			// Viewer state
-	private ML_DebugSettings debug;		// Debug settings
+	private MV_DebugSettings debug;		// Debug settings
 	
 	/* Time */
 	private ScaleMap timeLogMap;
@@ -77,7 +77,7 @@ public abstract class WMV_Media
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
 		
-		debug = new ML_DebugSettings();
+		debug = new MV_DebugSettings();
 	}  
 
 	abstract void loadMedia(MetaVisualizer ml);
@@ -1259,7 +1259,7 @@ public abstract class WMV_Media
 	 * Get debug settings
 	 * @return Debug settings
 	 */
-	public ML_DebugSettings getDebugSettings()
+	public MV_DebugSettings getDebugSettings()
 	{
 		return debug;
 	}

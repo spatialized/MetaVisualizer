@@ -4,7 +4,7 @@ package main.java.com.entoptic.metaVisualizer.misc;
  * Program debug settings
  * @author davidgordon
  */
-public class ML_DebugSettings 
+public class MV_DebugSettings 
 {
 	/* Debug Mode */
 	public boolean detailed = false;				// Verbose Debug Mode On/Off
@@ -50,5 +50,5 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean stitching = false;			// Debug WMV_Stitcher class			-- Disabled
 	
-	public ML_DebugSettings (){}
+	public MV_DebugSettings (){}
 }

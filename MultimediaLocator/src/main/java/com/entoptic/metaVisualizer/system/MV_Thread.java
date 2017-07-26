@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.misc;
+package main.java.com.entoptic.metaVisualizer.system;
 
 import java.io.*;
 
@@ -7,13 +7,13 @@ import java.io.*;
  * @author davidgordon
  * Based on package com.devdaily.system;  
  */
-class WMV_Thread extends Thread
+public class MV_Thread extends Thread
 {
-  InputStream inputStream;
-  String adminPassword;
-  OutputStream outputStream;
-  PrintWriter printWriter;
-  StringBuilder outputBuffer = new StringBuilder();
+  private InputStream inputStream;
+  private String adminPassword;
+  private OutputStream outputStream;
+  private PrintWriter printWriter;
+  private StringBuilder outputBuffer = new StringBuilder();
   private boolean sudoIsRequested = false;
   
   /**
@@ -21,7 +21,7 @@ class WMV_Thread extends Thread
    * @param inputStream
    * @param streamType
    */
-  WMV_Thread(InputStream inputStream)
+  public MV_Thread(InputStream inputStream)
   {
     this.inputStream = inputStream;
   }

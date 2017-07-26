@@ -42,6 +42,7 @@ import main.java.com.entoptic.metaVisualizer.model.WMV_Model;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Time;
 import main.java.com.entoptic.metaVisualizer.model.WMV_TimeSegment;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Waypoint;
+import main.java.com.entoptic.metaVisualizer.system.MV_Command;
 import main.java.com.entoptic.metaVisualizer.world.WMV_Field;
 
 /******************
@@ -61,13 +62,13 @@ public class WMV_Utilities
 	 */
 	public String getProgramPath(String programName)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 
 		command = new ArrayList<String>();				/* Create small_images directory */
 		command.add("which");
 		command.add(programName);
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		
 		try {
 			int result = commandExecutor.execute();
@@ -195,14 +196,14 @@ public class WMV_Utilities
 	 */
 	public void makeDirectory(String folderName, String destination)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		//	ArrayList<String> files = new ArrayList<String>();
 
 		command = new ArrayList<String>();				/* Create small_images directory */
 		command.add("mkdir");
 		command.add(folderName);
-		commandExecutor = new WMV_Command(destination, command);
+		commandExecutor = new MV_Command(destination, command);
 		try {
 			int result = commandExecutor.execute();
 			StringBuilder stderr = commandExecutor.getStandardError();
@@ -692,10 +693,10 @@ public class WMV_Utilities
 	private ArrayList<String> getFilesInDirectory(String sourceFolder)
 	{
 		ArrayList<String> files = new ArrayList<String>();
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		command.add("ls");
-		commandExecutor = new WMV_Command(sourceFolder, command);
+		commandExecutor = new MV_Command(sourceFolder, command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -728,7 +729,7 @@ public class WMV_Utilities
 	 */
 	private boolean copyFile(String filePath, String destination)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		command.add("cp");
 		command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
@@ -736,7 +737,7 @@ public class WMV_Utilities
 		command.add(destination);
 //		System.out.println("Utilities.copyFile()... Copying command:"+command.toString());
 
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -758,7 +759,7 @@ public class WMV_Utilities
 	 */
 	public boolean copyFiles(String sourceFolder, String destination)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 
 		/* Copy files to new directory */
@@ -768,7 +769,7 @@ public class WMV_Utilities
 		command.add(sourceFolder + ".");
 		command.add(destination);
 		
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -794,7 +795,7 @@ public class WMV_Utilities
 	 */
 	public boolean shrinkImageInPlace(String fileName, String directory)
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 
 		//Command: sips -Z 640 *.jpg
@@ -805,7 +806,7 @@ public class WMV_Utilities
 		command.add(fileName);
 
 //		System.out.println("Utilities.shrinkImageInPlace()... directory:"+directory +" command:"+command);
-		commandExecutor = new WMV_Command(directory, command);
+		commandExecutor = new MV_Command(directory, command);
 
 		try {
 			int result = commandExecutor.execute();
@@ -841,7 +842,7 @@ public class WMV_Utilities
 	{
 		String fileName = getFileNameFromPath(filePath);
 		
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 
 		command = new ArrayList<String>();		// Ex. Command: sips -Z 640 *.jpg
@@ -853,7 +854,7 @@ public class WMV_Utilities
 		command.add(outputDirectory + "/" + fileName);
 
 //		System.out.println("Utilities.shrinkImage()... no directory... command:"+command);
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 
 		try {
 			int result = commandExecutor.execute();
@@ -1705,13 +1706,13 @@ public class WMV_Utilities
 	 */
 	public void checkPath()
 	{
-		WMV_Command commandExecutor;
+		MV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 
 		command = new ArrayList<String>();				/* Create small_images directory */
 		command.add("env");
 //		command.add(programName);
-		commandExecutor = new WMV_Command("", command);
+		commandExecutor = new MV_Command("", command);
 		
 		try {
 			int result = commandExecutor.execute();

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 import main.java.com.entoptic.metaVisualizer.MetaVisualizer;
 import main.java.com.entoptic.metaVisualizer.metadata.WMV_VideoMetadata;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Time;
@@ -977,7 +977,7 @@ public class WMV_Video extends WMV_Media          		// Represents a video in vir
 	/**
 	 * Find image taken immediately before this video was captured to serve as placeholder, determining elevation and state.rotation angles
 	 */
-	public void findPlaceholder(ArrayList<WMV_Image> images, ML_DebugSettings debugSettings)
+	public void findPlaceholder(ArrayList<WMV_Image> images, MV_DebugSettings debugSettings)
 	{
 		IntList candidates = new IntList();							// List of placeholder candidates
 		

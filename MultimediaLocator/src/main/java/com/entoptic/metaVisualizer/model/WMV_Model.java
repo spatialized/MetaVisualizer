@@ -9,7 +9,7 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_Image;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.world.WMV_ViewerSettings;
 import main.java.com.entoptic.metaVisualizer.world.WMV_ViewerState;
@@ -31,11 +31,11 @@ public class WMV_Model
 	public WMV_ViewerState viewerState;		// Viewer state
 	public WMV_ModelState state;				// Model state
 	public WMV_Utilities utilities;			// Utility methods
-	public ML_DebugSettings debug;		// Debug settings
+	public MV_DebugSettings debug;		// Debug settings
 
 	public WMV_Model(){}
 
-	public void initialize(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
+	public void initialize(WMV_WorldSettings newWorldSettings, MV_DebugSettings newDebugSettings)
 	{
 		state = new WMV_ModelState();									// Initialize model state
 		worldSettings = newWorldSettings;								// Load world settings

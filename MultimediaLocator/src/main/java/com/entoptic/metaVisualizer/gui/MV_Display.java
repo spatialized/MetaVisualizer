@@ -26,7 +26,7 @@ import processing.core.*;
 public class MV_Display
 {
 	/* Classes */
-	public MetaVisualizer ml;
+	public MetaVisualizer mv;
 	public MV_Window window;							/* Main interaction window */
 	public MV_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
@@ -201,17 +201,17 @@ public class MV_Display
 	 */
 	public MV_Display(MetaVisualizer parent)
 	{
-		ml = parent;
+		mv = parent;
 		utilities = new WMV_Utilities();
 		
-		originalMatrix = ml.getMatrix((PMatrix3D)null);
+		originalMatrix = mv.getMatrix((PMatrix3D)null);
 
 //		float aspect = (float)screenHeight / (float)screenWidth;
 //		if(aspect != 0.625f)
 //			monitorOffsetXAdjustment = (0.625f / aspect); 
 
-		screenWidth = ml.displayWidth;
-		screenHeight = ml.displayHeight;
+		screenWidth = mv.displayWidth;
+		screenHeight = mv.displayHeight;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
@@ -277,8 +277,8 @@ public class MV_Display
 		
 		buttons = new ArrayList<MV_Button>();
 		
-		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
-		defaultFont = ml.createFont("SansSerif", smallTextSize);
+		messageFont = mv.createFont("ArialNarrow-Bold", messageTextSize);
+		defaultFont = mv.createFont("SansSerif", smallTextSize);
 
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
@@ -288,8 +288,8 @@ public class MV_Display
 	 */
 	public void setupScreen()
 	{
-		windowWidth = ml.width;
-		windowHeight = ml.height;
+		windowWidth = mv.width;
+		windowHeight = mv.height;
 		clusterMediaXOffset = windowWidth * 0.1f;
 		clusterMediaYOffset = windowHeight * 0.5f;		// Default; actual value changes with Library View text line count
 		
@@ -309,7 +309,7 @@ public class MV_Display
 		buttonHeight = windowWidth * 0.0175f;
 		buttonSpacing = windowWidth * 0.0125f;
 
-		displayWidthFactor = ml.width / 1440.f;
+		displayWidthFactor = mv.width / 1440.f;
 		
 //		hudVeryLargeTextSize *= displayWidthFactor;
 //		hudLargeTextSize *= displayWidthFactor;
@@ -653,52 +653,52 @@ public class MV_Display
 	
 	public void displayMapView()
 	{
-		ml.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
+		mv.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
 
 		if(mapViewMode == 0)			// World Mode
 		{
-			if(initializedMaps) map2D.displayWorldMap(ml.world);
-			map2D.update(ml.world);		// -- Added 6/22
+			if(initializedMaps) map2D.displayWorldMap(mv.world);
+			map2D.update(mv.world);		// -- Added 6/22
 		}
 		else if(mapViewMode == 1)		// Field Mode
 		{
-			if(initializedMaps) map2D.displaySatelliteMap(ml.world);
-			if(ml.state.interactive) displayInteractiveClustering(ml.world);
-			map2D.update(ml.world);
+			if(initializedMaps) map2D.displaySatelliteMap(mv.world);
+			if(mv.state.interactive) displayInteractiveClustering(mv.world);
+			map2D.update(mv.world);
 		}
 		
 //		startDisplayHUD();
-		ml.pushMatrix();
+		mv.pushMatrix();
 		
-		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+		mv.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 		float x = hudLeftMargin + buttonWidth * 0.5f;
 		float y = hudTopMargin + buttonSpacing * 0.75f;  		// + lineWidth;			// Starting vertical position
 
-		ml.fill(0, 0, 255, 255);
-		ml.textSize(hudSmallTextSize);
+		mv.fill(0, 0, 255, 255);
+		mv.textSize(hudSmallTextSize);
 
-		ml.text("Map Mode:", x + buttonSpacing * 0.3f, y - buttonSpacing * 0.15f, 0);
+		mv.text("Map Mode:", x + buttonSpacing * 0.3f, y - buttonSpacing * 0.15f, 0);
 		
 		x = hudLeftMargin + buttonWidth * 0.5f;
 		y += buttonHeight + buttonSpacing;
-		ml.text("Zoom To:", x, y, 0);
+		mv.text("Zoom To:", x, y, 0);
 
 		x = hudLeftMargin + buttonWidth * 1.5f + buttonSpacing * 0.5f;
 		y += buttonHeight + buttonSpacing;
-		ml.text("Zoom", x, y, 0);
+		mv.text("Zoom", x, y, 0);
 		
 		y += buttonHeight * 2.f + buttonSpacing * 1.75f;
-		ml.text("Pan", x, y, 0);
+		mv.text("Pan", x, y, 0);
 
-		ml.popMatrix();
+		mv.popMatrix();
 		
 //		endDisplayHUD();					// -- Added 6/29/17
 
 		for(MV_Button b : buttons)
-			b.display(ml.world, 0.f, 0.f, 255.f);
+			b.display(mv.world, 0.f, 0.f, 255.f);
 		
-		ml.rectMode(PApplet.CENTER);				// Return rect mode to Center
+		mv.rectMode(PApplet.CENTER);				// Return rect mode to Center
 	}
 
 	/**
@@ -707,23 +707,23 @@ public class MV_Display
 	 */
 	public void displayTimeView(WMV_World p)
 	{
-		ml.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
+		mv.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
 		startDisplayHUD();
-		ml.pushMatrix();
+		mv.pushMatrix();
 		
-		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+		mv.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 		float xPos = hudCenterXOffset;
 		float yPos = hudTopMargin;						// Starting vertical position
 
 		WMV_Field f = p.getCurrentField();
 
-		ml.fill(0, 0, 255, 255);
+		mv.fill(0, 0, 255, 255);
 
-		ml.textSize(hudVeryLargeTextSize);
-		ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
+		mv.textSize(hudVeryLargeTextSize);
+		mv.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
 
-		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+		mv.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 //		startDisplayHUD();
 //		ml.pushMatrix();
@@ -734,7 +734,7 @@ public class MV_Display
 //		ml.popMatrix();
 //		endDisplayHUD();
 		
-		ml.textSize(hudLargeTextSize - 5.f);
+		mv.textSize(hudLargeTextSize - 5.f);
 		String strDisplayDate = "";
 		
 		if(displayDate >= 0)
@@ -744,14 +744,14 @@ public class MV_Display
 		else
 		{
 			strDisplayDate = "Showing All Dates";
-			ml.fill(35, 115, 255, 255);
+			mv.fill(35, 115, 255, 255);
 		}
 
-		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide, 0);
+		mv.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide, 0);
 		
-		ml.textSize(hudMediumTextSize);
-		ml.fill(0, 0, 255, 255);
-		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthWide, 0);
+		mv.textSize(hudMediumTextSize);
+		mv.fill(0, 0, 255, 255);
+		mv.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthWide, 0);
 		
 //		ml.text("Scroll", xPos, yPos += hudLineWidth, 0);
 //		ml.text("Zoom", xPos, yPos += hudLineWidth, 0);
@@ -760,18 +760,18 @@ public class MV_Display
 //		endDisplayHUD();
 
 //		xPos = hudCenterXOffset;
-		ml.textSize(hudSmallTextSize);
+		mv.textSize(hudSmallTextSize);
 		yPos = datelineYOffset + hudLineWidth + buttonHeight * 0.5f;
-		ml.text("Scroll", xPos, yPos, 0);
-		ml.text("Zoom", xPos, yPos += buttonHeight + buttonSpacing, 0);
+		mv.text("Scroll", xPos, yPos, 0);
+		mv.text("Zoom", xPos, yPos += buttonHeight + buttonSpacing, 0);
 
-		ml.popMatrix();
+		mv.popMatrix();
 		
 		if(fieldDatelineCreated) displayDateline(p);
 		if(fieldTimelineCreated) displayTimeline(p);
 
 		endDisplayHUD();					// -- Added 6/29/17
-		ml.rectMode(PApplet.CENTER);				// Return rect mode to Center
+		mv.rectMode(PApplet.CENTER);				// Return rect mode to Center
 
 //		updateTimelineMouse(p);
 	}
@@ -1084,7 +1084,7 @@ public class MV_Display
 		float newStart = timelineStart;
 		float newEnd = timelineEnd;
 
-		if (ml.frameCount >= timelineTransitionEndFrame)
+		if (mv.frameCount >= timelineTransitionEndFrame)
 		{
 			newStart = timelineStartTransitionTarget;
 			newEnd = timelineEndTransitionTarget;
@@ -1097,12 +1097,12 @@ public class MV_Display
 		{
 			if(timelineStart != timelineStartTransitionTarget)
 			{
-				newStart = utilities.mapValue( ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newStart = utilities.mapValue( mv.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									    timelineStartTransitionStart, timelineStartTransitionTarget); 
 			}
 			if(timelineEnd != timelineEndTransitionTarget)
 			{
-				newEnd = utilities.mapValue( ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newEnd = utilities.mapValue( mv.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									  timelineEndTransitionStart, timelineEndTransitionTarget);     			
 			}
 		}
@@ -1191,18 +1191,18 @@ public class MV_Display
 	{
 		WMV_Field f = p.getCurrentField();
 			
-		ml.tint(255);
-		ml.stroke(0.f, 0.f, 255.f, 255.f);
-		ml.strokeWeight(3.f);
-		ml.fill(0.f, 0.f, 255.f, 255.f);
+		mv.tint(255);
+		mv.stroke(0.f, 0.f, 255.f, 255.f);
+		mv.strokeWeight(3.f);
+		mv.fill(0.f, 0.f, 255.f, 255.f);
 		
-		ml.line(timelineXOffset, timelineYOffset, 0, timelineXOffset + timelineScreenSize, timelineYOffset, 0);
+		mv.line(timelineXOffset, timelineYOffset, 0, timelineXOffset + timelineScreenSize, timelineYOffset, 0);
 //		ml.line(timelineXOffset, timelineYOffset, hudDistanceInit, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistanceInit);
 		
 		String startTime = utilities.secondsToTimeAsString(timelineStart, false, false);
 		String endTime = utilities.secondsToTimeAsString(timelineEnd, false, false);
 		
-		ml.textSize(hudVerySmallTextSize);
+		mv.textSize(hudVerySmallTextSize);
 		float firstHour = utilities.roundSecondsToHour(timelineStart);
 		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
 		float lastHour = utilities.roundSecondsToHour(timelineEnd);
@@ -1219,18 +1219,18 @@ public class MV_Display
 			for( pos = firstHour ; pos <= lastHour ; pos += 3600.f )
 			{
 				String time = utilities.secondsToTimeAsString(pos, false, false);
-				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+				mv.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 				xOffset += 3600.f * timeToScreenRatio;
 			}
 			
 			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 200.f)
-				ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+				mv.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 			
 			xOffset -= 3600.f * timeToScreenRatio;
 			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 200.f)
-				ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+				mv.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 		}
 		else
@@ -1239,7 +1239,7 @@ public class MV_Display
 			for( float pos = firstHour - 3600.f ; pos <= lastHour ; pos += 7200.f )
 			{
 				String time = utilities.secondsToTimeAsString(pos, false, false);
-				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+				mv.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 				xOffset += 7200.f * timeToScreenRatio;
 			}
@@ -1302,11 +1302,11 @@ public class MV_Display
 	{
 		WMV_Field f = p.getCurrentField();
 			
-		ml.tint(255);
-		ml.stroke(0.f, 0.f, 255.f, 255.f);
-		ml.strokeWeight(3.f);
-		ml.fill(0.f, 0.f, 255.f, 255.f);
-		ml.line(timelineXOffset, datelineYOffset, 0, timelineXOffset + timelineScreenSize, datelineYOffset, 0);
+		mv.tint(255);
+		mv.stroke(0.f, 0.f, 255.f, 255.f);
+		mv.strokeWeight(3.f);
+		mv.fill(0.f, 0.f, 255.f, 255.f);
+		mv.line(timelineXOffset, datelineYOffset, 0, timelineXOffset + timelineScreenSize, datelineYOffset, 0);
 //		ml.line(datelineXOffset, datelineYOffset, hudDistanceInit, datelineXOffset + timelineScreenSize, datelineYOffset, hudDistanceInit);
 			
 		if(f.getDateline().size() == 1)
@@ -1327,9 +1327,9 @@ public class MV_Display
 		if(displayDate >= 0 && allDates != null)
 		{
 			allDates.display(p, 55.f, 120.f, 255.f, false);
-			ml.textSize(hudSmallTextSize);
-			ml.fill(35, 115, 255, 255);
-			ml.text("Show All", allDates.getLocation().x - 3, allDates.getLocation().y + 30, 0);
+			mv.textSize(hudSmallTextSize);
+			mv.fill(35, 115, 255, 255);
+			mv.text("Show All", allDates.getLocation().x - 3, allDates.getLocation().y + 30, 0);
 		}
 	}
 
@@ -1345,15 +1345,15 @@ public class MV_Display
 
 		if(xOffset > timelineXOffset && xOffset < timelineXOffset + timelineScreenSize)
 		{
-			ml.strokeWeight(0.f);
-			ml.fill(120.f, 165.f, 245.f, 155.f);
+			mv.strokeWeight(0.f);
+			mv.fill(120.f, 165.f, 245.f, 155.f);
 
-			ml.pushMatrix();
-			ml.stroke(120.f, 165.f, 245.f, 155.f);
-			ml.strokeWeight(25.f);
+			mv.pushMatrix();
+			mv.stroke(120.f, 165.f, 245.f, 155.f);
+			mv.strokeWeight(25.f);
 //			ml.point(xOffset, datelineYOffset, hudDistanceInit);
-			ml.point(xOffset, datelineYOffset, 0);
-			ml.popMatrix();
+			mv.point(xOffset, datelineYOffset, 0);
+			mv.popMatrix();
 		}
 	}
 	
@@ -1385,12 +1385,12 @@ public class MV_Display
 
 		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
 		{
-			ml.pushMatrix();
+			mv.pushMatrix();
 			
-			ml.translate(0.f, timelineYOffset, 0);
+			mv.translate(0.f, timelineYOffset, 0);
 //			ml.translate(0.f, timelineYOffset, hudDistanceInit);
-			ml.stroke(imageHue, 185.f, 255.f, 155.f);
-			ml.strokeWeight(1.f);
+			mv.stroke(imageHue, 185.f, 255.f, 155.f);
+			mv.strokeWeight(1.f);
 
 			for(WMV_Time ti : tsTimeline)
 			{
@@ -1402,19 +1402,19 @@ public class MV_Display
 					switch(ti.getMediaType())
 					{
 						case 0:
-							ml.stroke(imageHue, 165.f, 215.f, 225.f);					
+							mv.stroke(imageHue, 165.f, 215.f, 225.f);					
 							break;
 						case 1:
-							ml.stroke(panoramaHue, 165.f, 215.f, 225.f);					
+							mv.stroke(panoramaHue, 165.f, 215.f, 225.f);					
 							break;
 						case 2:
-							ml.stroke(videoHue, 165.f, 215.f, 225.f);					
+							mv.stroke(videoHue, 165.f, 215.f, 225.f);					
 							break;
 						case 3:
-							ml.stroke(soundHue, 165.f, 215.f, 225.f);					
+							mv.stroke(soundHue, 165.f, 215.f, 225.f);					
 							break;
 					}
-					ml.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+					mv.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
 				}
 			}
 
@@ -1457,17 +1457,17 @@ public class MV_Display
 					secondHue = defaultHue;
 			}
 			
-			ml.strokeWeight(2.f);
+			mv.strokeWeight(2.f);
 
 			/* Draw rectangle around time segment */
-			ml.stroke(firstHue, 165.f, 215.f, 225.f);					
-			ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset, timelineHeight * 0.5f, 0.f);			
-			ml.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
-			ml.stroke(secondHue, 165.f, 215.f, 225.f);					
-			ml.line(xOffset2, -timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
-			ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset2, -timelineHeight * 0.5f, 0.f);
+			mv.stroke(firstHue, 165.f, 215.f, 225.f);					
+			mv.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset, timelineHeight * 0.5f, 0.f);			
+			mv.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
+			mv.stroke(secondHue, 165.f, 215.f, 225.f);					
+			mv.line(xOffset2, -timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
+			mv.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset2, -timelineHeight * 0.5f, 0.f);
 			
-			ml.popMatrix();
+			mv.popMatrix();
 		}
 	}
 	
@@ -1532,7 +1532,7 @@ public class MV_Display
 	public void updateMapViewMouse(WMV_World p)
 	{
 //		System.out.println("Display.updateMapViewMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
-		PVector mouseLoc = new PVector(ml.mouseX, ml.mouseY);
+		PVector mouseLoc = new PVector(mv.mouseX, mv.mouseY);
 		if(buttons.size() > 0)
 		{
 			for(MV_Button b : buttons)
@@ -1557,14 +1557,14 @@ public class MV_Display
 	{
 //		System.out.println("Display.updateTimelineMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
 		
-		PVector mouseLoc = new PVector(ml.mouseX, ml.mouseY);
+		PVector mouseLoc = new PVector(mv.mouseX, mv.mouseY);
 
-		if(ml.debug.mouse)
+		if(mv.debug.mouse)
 		{
 			startDisplayHUD();
-			ml.stroke(155, 0, 255);
-			ml.strokeWeight(5);
-			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
+			mv.stroke(155, 0, 255);
+			mv.strokeWeight(5);
+			mv.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
 			endDisplayHUD();
 		}
 		
@@ -1591,7 +1591,7 @@ public class MV_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(ml.debug.time && ml.debug.detailed)
+				if(mv.debug.time && mv.debug.detailed)
 					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				
 				updateFieldTimeline = true;				// Update timeline to show selected segment
@@ -1622,14 +1622,14 @@ public class MV_Display
 	{
 //		System.out.println("Display.updateLibraryViewMouse()... frameCount:"+ml.frameCount+" mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY+" displayView:"+displayView);
 		
-		PVector mouseLoc = new PVector(ml.mouseX, ml.mouseY);
+		PVector mouseLoc = new PVector(mv.mouseX, mv.mouseY);
 
-		if(ml.debug.mouse)
+		if(mv.debug.mouse)
 		{
 			startDisplayHUD();
-			ml.stroke(155, 0, 255);
-			ml.strokeWeight(5);
-			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
+			mv.stroke(155, 0, 255);
+			mv.strokeWeight(5);
+			mv.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
 			endDisplayHUD();
 		}
 		
@@ -1660,7 +1660,7 @@ public class MV_Display
 					{
 						selectedMedia = mediaSelected.getID();				// Set to selected
 
-						if(ml.debug.library && ml.debug.detailed)
+						if(mv.debug.library && mv.debug.detailed)
 							System.out.println("Display.updateLibraryMouse()... Selected media: "+selectedMedia);
 					}
 				}
@@ -1695,7 +1695,7 @@ public class MV_Display
 
 			if(transition)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, mv.frameCount);
 			}
 			else
 			{
@@ -1732,7 +1732,7 @@ public class MV_Display
 
 			if(transition)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, mv.frameCount);
 			}
 			else
 			{
@@ -1767,7 +1767,7 @@ public class MV_Display
 
 		if(transition)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, mv.frameCount);
 		}
 		else
 		{
@@ -1783,7 +1783,7 @@ public class MV_Display
 		
 		if(fade)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, mv.frameCount);
 		}
 		else
 		{
@@ -1872,7 +1872,7 @@ public class MV_Display
 
 			if(transition)
 			{
-				timelineTransition( newTimelineStart, newTimelineEnd, 10, ml.frameCount );
+				timelineTransition( newTimelineStart, newTimelineEnd, 10, mv.frameCount );
 //				timelineTransition( timelineStart, newTimelineEnd, 10, ml.frameCount );
 				timelineZooming = true;
 			}
@@ -1911,7 +1911,7 @@ public class MV_Display
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
 			if(transition)
-				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, mv.frameCount);
 			else
 				timelineEnd = newTimelineEnd;
 		}
@@ -1932,7 +1932,7 @@ public class MV_Display
 		if(newStart > 0.f && newEnd < day)
 		{
 			timelineScrolling = true;
-			timelineTransition(newStart, newEnd, 10, ml.frameCount);			
+			timelineTransition(newStart, newEnd, 10, mv.frameCount);			
 		}
 	}
 	
@@ -1972,10 +1972,10 @@ public class MV_Display
 				switch(b.getID())
 				{
 					case 0:				// Zoom to Viewer
-						map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+						map2D.zoomToCluster(mv.world, mv.world.getCurrentCluster(), true);	// Zoom to current cluster
 						break;
 					case 1:				// Zoom to Field
-						map2D.zoomToField(ml.world.getCurrentField(), true);
+						map2D.zoomToField(mv.world.getCurrentField(), true);
 						break;
 					case 2:				// Zoom to World
 						map2D.resetMapZoom(true);
@@ -2105,22 +2105,22 @@ public class MV_Display
 			{
 				if(mapViewMode == 1)				// Field Mode
 				{
-					System.out.println("Display.handleMapViewMouseReleased()... map2D.selectedCluster:"+map2D.selectedCluster+"  getCurrentField().getClusters().size():"+ml.world.getCurrentField().getClusters().size()+"...");
-					if(map2D.selectedCluster >= 0 && map2D.selectedCluster < ml.world.getCurrentField().getClusters().size())
+					System.out.println("Display.handleMapViewMouseReleased()... map2D.selectedCluster:"+map2D.selectedCluster+"  getCurrentField().getClusters().size():"+mv.world.getCurrentField().getClusters().size()+"...");
+					if(map2D.selectedCluster >= 0 && map2D.selectedCluster < mv.world.getCurrentField().getClusters().size())
 					{
-						if(map2D.selectedCluster != ml.world.viewer.getState().getCurrentClusterID())
-							map2D.zoomToCluster(ml.world, ml.world.getCurrentField().getCluster(map2D.selectedCluster), true);
+						if(map2D.selectedCluster != mv.world.viewer.getState().getCurrentClusterID())
+							map2D.zoomToCluster(mv.world, mv.world.getCurrentField().getCluster(map2D.selectedCluster), true);
 						System.out.println("Display.handleMapViewMouseReleased()... Started zooming, will moveToClusterOnMap()...");
-						ml.world.viewer.moveToClusterOnMap(map2D.selectedCluster, true);	// Move to cluster on map and stay in Map View
+						mv.world.viewer.moveToClusterOnMap(map2D.selectedCluster, true);	// Move to cluster on map and stay in Map View
 					}
 				}
 				else if(mapViewMode == 0)			// World Mode
 				{
-					if(map2D.selectedField >= 0 && map2D.selectedField < ml.world.getFields().size())
+					if(map2D.selectedField >= 0 && map2D.selectedField < mv.world.getFields().size())
 					{
 						currentDisplayCluster = 0;
 						map2D.selectedCluster = -1;
-						map2D.zoomToField(ml.world.getField(map2D.selectedField), true);
+						map2D.zoomToField(mv.world.getField(map2D.selectedField), true);
 					}
 				}
 			}
@@ -2182,13 +2182,13 @@ public class MV_Display
 						if(map2D.isZooming())
 							map2D.stopZooming();
 						else
-							map2D.startZoomingIn(ml.world);
+							map2D.startZoomingIn(mv.world);
 						break;
 					case 8:				// Zoom Out
 						if(map2D.isZooming())
 							map2D.stopZooming();
 						else
-							map2D.startZoomingOut(ml.world);
+							map2D.startZoomingOut(mv.world);
 						break;
 
 //					PRESSED
@@ -2321,16 +2321,16 @@ public class MV_Display
 						stopZooming();
 						break;
 					case 4:				// Zoom out
-						ml.display.zoomToTimeline(ml.world, true);
+						mv.display.zoomToTimeline(mv.world, true);
 						break;
 					case 5:				// Zoom out
-						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+						mv.display.zoomToCurrentSelectableTimeSegment(mv.world, true);
 						break;
 					case 6:				// Zoom out
-						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+						mv.display.zoomToCurrentSelectableDate(mv.world, true);
 						break;
 					case 7:				// Zoom out
-						ml.display.resetZoom(ml.world, true);
+						mv.display.resetZoom(mv.world, true);
 						break;
 
 //					case "TimelineZoomToFit":					4
@@ -2444,25 +2444,25 @@ public class MV_Display
 						if(isScrolling())
 							stopScrolling();
 						else
-							scroll(ml.world, -1);
+							scroll(mv.world, -1);
 						break;
 					case 1:				// Scroll right
 						if(isScrolling())
 							stopScrolling();
 						else
-							scroll(ml.world, 1);
+							scroll(mv.world, 1);
 						break;
 					case 2:				// Zoom in
 						if(isZooming())
 							stopZooming();
 						else
-							zoomTimeline(ml.world, -1, true);
+							zoomTimeline(mv.world, -1, true);
 						break;
 					case 3:				// Zoom out
 						if(isZooming())
 							stopZooming();
 						else
-							zoomTimeline(ml.world, 1, true);						
+							zoomTimeline(mv.world, 1, true);						
 						break;
 
 //					PRESSED
@@ -2573,9 +2573,9 @@ public class MV_Display
 						break;
 					case 12:				// Current Location
 						if(getLibraryViewMode() == 1)
-							setDisplayItem( ml.world.viewer.getCurrentFieldID() );
+							setDisplayItem( mv.world.viewer.getCurrentFieldID() );
 						else if(getLibraryViewMode() == 2)
-							setDisplayItem( ml.world.viewer.getCurrentClusterID() );
+							setDisplayItem( mv.world.viewer.getCurrentClusterID() );
 						break;
 				}
 				
@@ -2679,8 +2679,8 @@ public class MV_Display
 		metadataStartFrame = -1;
 		startupMessageStartFrame = -1;
 		
-		screenWidth = ml.displayWidth;
-		screenHeight = ml.displayHeight;
+		screenWidth = mv.displayWidth;
+		screenHeight = mv.displayHeight;
 		
 //		float aspect = (float)screenHeight / (float)screenWidth;
 //		if(aspect != 0.625f)
@@ -2750,7 +2750,7 @@ public class MV_Display
 	public float getMessageHUDDistance()
 	{
 		float distance = messageHUDDistance;
-		distance /= (Math.sqrt(ml.world.viewer.getSettings().fieldOfView));
+		distance /= (Math.sqrt(mv.world.viewer.getSettings().fieldOfView));
 		return distance;
 	}
 	
@@ -2760,7 +2760,7 @@ public class MV_Display
 	 */
 	public float getMessageTextSize()
 	{
-		return largeTextSize * ml.world.viewer.getSettings().fieldOfView * 3.f;
+		return largeTextSize * mv.world.viewer.getSettings().fieldOfView * 3.f;
 	}
 	
 	/**
@@ -2769,31 +2769,31 @@ public class MV_Display
 	 */
 	void displayMessages(WMV_World p)
 	{
-		float xFactor = (float) Math.pow( ml.world.viewer.getSettings().fieldOfView * 12.f, 3) * 0.33f;
-		float yFactor = ml.world.viewer.getSettings().fieldOfView * 4.f;
+		float xFactor = (float) Math.pow( mv.world.viewer.getSettings().fieldOfView * 12.f, 3) * 0.33f;
+		float yFactor = mv.world.viewer.getSettings().fieldOfView * 4.f;
 		float xPos = messageXOffset * xFactor; 
 		float yPos = messageYOffset * yFactor - lineWidth * yFactor;
 
-		ml.pushMatrix();
-		ml.fill(0, 0, 255, 255);  
+		mv.pushMatrix();
+		mv.fill(0, 0, 255, 255);  
 		
-		ml.textFont(messageFont);
+		mv.textFont(messageFont);
 		
 //		float hudDist = getMessageHUDDistance();
-		if(ml.state.interactive)
+		if(mv.state.interactive)
 		{
 			for(String s : messages)
 			{
 				yPos += lineWidth * yFactor;
-				displayScreenText(ml, s, xPos, yPos += lineWidth * yFactor, getMessageTextSize());
+				displayScreenText(mv, s, xPos, yPos += lineWidth * yFactor, getMessageTextSize());
 			}
 		}
-		else if(ml.frameCount - messageStartFrame < messageDuration)
+		else if(mv.frameCount - messageStartFrame < messageDuration)
 		{
 			for(String s : messages)
 			{
 				yPos += lineWidth * yFactor;
-				displayScreenText(ml, s, messageXOffset, yPos, getMessageTextSize());
+				displayScreenText(mv, s, messageXOffset, yPos, getMessageTextSize());
 			}
 		}
 		else
@@ -2801,7 +2801,7 @@ public class MV_Display
 			clearMessages();														// Clear messages after duration has ended
 		}
 
-		ml.popMatrix();
+		mv.popMatrix();
 	}
 
 	/**
@@ -2824,22 +2824,22 @@ public class MV_Display
 	 */
 	public void displayMetadata(WMV_World p)
 	{
-		float yFactor = ml.world.viewer.getSettings().fieldOfView * 4.f;
+		float yFactor = mv.world.viewer.getSettings().fieldOfView * 4.f;
 		float yPos = metadataYOffset * yFactor - lineWidth * yFactor;
 
-		ml.textFont(defaultFont);
-		ml.pushMatrix();
+		mv.textFont(defaultFont);
+		mv.pushMatrix();
 
-		ml.fill(0, 0, 255, 255);                     // White text
-		ml.textSize(mediumTextSize);
+		mv.fill(0, 0, 255, 255);                     // White text
+		mv.textSize(mediumTextSize);
 
 		for(String s : metadata)
 		{
 			yPos += lineWidth * yFactor;
-			displayScreenText(ml, s, metadataXOffset, yPos, getMessageTextSize());
+			displayScreenText(mv, s, metadataXOffset, yPos, getMessageTextSize());
 		}
 
-		ml.popMatrix();
+		mv.popMatrix();
 	}
 	
 	public void displayScreenText(MetaVisualizer ml, String text, float x, float y, float textSize)
@@ -2857,12 +2857,12 @@ public class MV_Display
 	{
 		if(worldSetup)																
 		{
-			startupMessageStartFrame = ml.frameCount;		
+			startupMessageStartFrame = mv.frameCount;		
 			startupMessages.add(message);
 			while(startupMessages.size() > 16)
 				startupMessages.remove(0);
 
-			if(ml.debug.print)
+			if(mv.debug.print)
 				System.out.println(message);
 		}
 	}
@@ -2874,34 +2874,34 @@ public class MV_Display
 	public void displayStartup(WMV_World p, boolean librarySetup)
 	{
 		startHUD();
-		ml.pushMatrix();
-		ml.fill(0, 0, 245.f, 255.f);            								
-		ml.textSize(largeTextSize * 1.5f);
+		mv.pushMatrix();
+		mv.fill(0, 0, 245.f, 255.f);            								
+		mv.textSize(largeTextSize * 1.5f);
 
 		if(worldSetup)												// Showing setup messages + windows
 		{
-			if(ml.createNewLibrary)
+			if(mv.createNewLibrary)
 			{
-				if(ml.state.chooseMediaFolders)
+				if(mv.state.chooseMediaFolders)
 				{
 //					ml.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);
 					if(!window.setupCreateLibraryWindow)
 					{
 						window.showCreateLibraryWindow = true;
 						window.openCreateLibraryWindow();
-						ml.library = new MV_Library("");		// Create new library
+						mv.library = new MV_Library("");		// Create new library
 					}
 				}
-				else if(!ml.state.selectedNewLibraryDestination)
+				else if(!mv.state.selectedNewLibraryDestination)
 				{
 					window.setCreateLibraryWindowText("Please select new library destination...", null);
 				}
 			}
 			else
 			{
-				if(ml.state.startup && !ml.state.selectedLibrary)
+				if(mv.state.startup && !mv.state.selectedLibrary)
 				{
-					if(!ml.state.gettingExiftoolPath)			// Getting Exiftool program filepath
+					if(!mv.state.gettingExiftoolPath)			// Getting Exiftool program filepath
 					{
 						if(!window.setupStartupWindow)
 							window.openStartupWindow();			// Open Startup Window
@@ -2911,7 +2911,7 @@ public class MV_Display
 					}
 				}
 			}
-			ml.textSize(largeTextSize);
+			mv.textSize(largeTextSize);
 //			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
 		}
 		else
@@ -2919,7 +2919,7 @@ public class MV_Display
 			displayMessages(p);
 		}
 
-		ml.popMatrix();
+		mv.popMatrix();
 	}
 	
 	/**
@@ -2928,14 +2928,14 @@ public class MV_Display
 	 */
 	public void displayLibraryView(WMV_World p)
 	{
-		p.mv.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
+		mv.rectMode(PApplet.CORNER);				// Specify top left point in rect()	-- Needed?
 
 		WMV_Field f;// = p.getCurrentField();
 
-		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+		mv.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 		startDisplayHUD();
-		ml.pushMatrix();
+		mv.pushMatrix();
 		
 		for(MV_Button b : buttons)
 		{
@@ -2950,42 +2950,42 @@ public class MV_Display
 			}
 		}
 		
-		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
+		mv.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 		float x = hudCenterXOffset - buttonWidth * 2.f - buttonSpacing * 4.f;
 		float y = hudTopMargin + buttonHeight * 0.5f;			// Starting vertical position
 //		float y = hudTopMargin + buttonHeight * 2.5f;			// Starting vertical position
 
-		ml.fill(0, 0, 255, 255);
-		ml.textSize(hudSmallTextSize);
+		mv.fill(0, 0, 255, 255);
+		mv.textSize(hudSmallTextSize);
 
-		ml.text("Current View:", x, y, 0);
+		mv.text("Current View:", x, y, 0);
 		
 		y += buttonHeight + buttonSpacing;			
 		
 		switch(libraryViewMode)
 		{
 			case	 1:					// Field
-				ml.text("Go To Field:", x - buttonSpacing * 0.5f, y, 0);
+				mv.text("Go To Field:", x - buttonSpacing * 0.5f, y, 0);
 				break;
 			case	 2:					// Location (Cluster)
-				ml.text("Go To Location:", x - buttonSpacing * 0.5f, y, 0);
+				mv.text("Go To Location:", x - buttonSpacing * 0.5f, y, 0);
 				break;
 		}
 		
 		x = hudLeftMargin + buttonWidth * 0.75f;
 		y = hudTopMargin + buttonHeight * 0.5f;			// Starting vertical position
 
-		ml.textSize(hudSmallTextSize);
+		mv.textSize(hudSmallTextSize);
 
 		WMV_Cluster c = p.getCurrentCluster();
 
-		String strGPS = ml.utilities.formatGPSLocation( ml.world.viewer.getGPSLocation(), false );
+		String strGPS = mv.utilities.formatGPSLocation( mv.world.viewer.getGPSLocation(), false );
 		
-		ml.text("Current Location:", x, y, 0);
-		ml.text(strGPS, x, y += hudLineWidthWide, 0);
+		mv.text("Current Location:", x, y, 0);
+		mv.text(strGPS, x, y += hudLineWidthWide, 0);
 
-		ml.popMatrix();
+		mv.popMatrix();
 		endDisplayHUD();
 		
 		c = null;
@@ -2999,16 +2999,16 @@ public class MV_Display
 				f = p.getCurrentField();
 				
 				startDisplayHUD();
-				ml.pushMatrix();
+				mv.pushMatrix();
 				
-				ml.fill(0.f, 0.f, 255.f, 255.f);
+				mv.fill(0.f, 0.f, 255.f, 255.f);
 				
-				ml.textSize(hudVeryLargeTextSize);
+				mv.textSize(hudVeryLargeTextSize);
 
-				if(ml.library.getName(false) != null && ml.library.getName(false) != "")
-					ml.text(ml.library.getName(false), x, y);
+				if(mv.library.getName(false) != null && mv.library.getName(false) != "")
+					mv.text(mv.library.getName(false), x, y);
 				else
-					ml.text("Untitled Environment", x, y);
+					mv.text("Untitled Environment", x, y);
 
 				y += hudLineWidthVeryWide;
 //				y += hudLineWidthVeryWide + buttonHeight + buttonSpacing * 2.f;
@@ -3030,15 +3030,15 @@ public class MV_Display
 //						ml.text("Untitled Environment", x, y += lineWidthWide * 1.5f);
 //				}
 				
-				ml.textSize(hudSmallTextSize);
+				mv.textSize(hudSmallTextSize);
 
-				if(ml.world.getFieldCount() > 1)
-					ml.text("Current Field: "+ml.world.getCurrentField().getName()+", #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y += lineWidthWide);
+				if(mv.world.getFieldCount() > 1)
+					mv.text("Current Field: "+mv.world.getCurrentField().getName()+", #"+ (f.getID()+1)+" of "+ mv.world.getFields().size(), x, y += lineWidthWide);
 				else
-					ml.text("Current Field: "+ml.world.getCurrentField().getName()+" (Single Field Environment)", x, y);
+					mv.text("Current Field: "+mv.world.getCurrentField().getName()+" (Single Field Environment)", x, y);
 
-				ml.text(" Library Location: "+ml.library.getLibraryFolder(), x, y += lineWidthWide);
-				ml.text(" Output Folder: "+(ml.world.outputFolder==null?"None":ml.world.outputFolder), x, y += lineWidth);
+				mv.text(" Library Location: "+mv.library.getLibraryFolder(), x, y += lineWidthWide);
+				mv.text(" Output Folder: "+(mv.world.outputFolder==null?"None":mv.world.outputFolder), x, y += lineWidth);
 
 //				if(f.getImageCount() > 0) ml.text(" Images:  "+f.getImageCount(), x, y += hudLineWidthVeryWide);
 //				if(f.getImagesVisible() > 0) 
@@ -3082,7 +3082,7 @@ public class MV_Display
 //							"  Latitude:"+utilities.round(p.viewer.getGPSLocation().y, 5), x, y += hudLineWidth, 0);
 //				}
 				
-				ml.popMatrix();
+				mv.popMatrix();
 				endDisplayHUD();
 				
 				break;
@@ -3091,49 +3091,49 @@ public class MV_Display
 				f = p.getField(currentDisplayField);
 				
 				startDisplayHUD();
-				ml.pushMatrix();
-				ml.fill(0, 0, 255, 255);
-				ml.textSize(hudVeryLargeTextSize);
+				mv.pushMatrix();
+				mv.fill(0, 0, 255, 255);
+				mv.textSize(hudVeryLargeTextSize);
 
-				if(currentDisplayField == ml.world.getCurrentField().getID())
-					ml.text(ml.world.getCurrentField().getName()+" (Current)", x, y);
+				if(currentDisplayField == mv.world.getCurrentField().getID())
+					mv.text(mv.world.getCurrentField().getName()+" (Current)", x, y);
 				else
-					ml.text(ml.world.getCurrentField().getName(), x, y);
+					mv.text(mv.world.getCurrentField().getName(), x, y);
 				
 				y += hudLineWidthVeryWide;
 
-				ml.textSize(hudMediumTextSize);
+				mv.textSize(hudMediumTextSize);
 				
-				if(ml.library.getName(false) != null && ml.library.getName(false) != "")
-					ml.text("Environment: "+ml.library.getName(false), x, y);
+				if(mv.library.getName(false) != null && mv.library.getName(false) != "")
+					mv.text("Environment: "+mv.library.getName(false), x, y);
 				else
-					if(ml.world.getFields().size()>1)
-						ml.text("Environment: "+"Untitled (Not Saved)", x, y);
+					if(mv.world.getFields().size()>1)
+						mv.text("Environment: "+"Untitled (Not Saved)", x, y);
 
 				y += hudLineWidthWide * 1.5f;
 
 				c = p.getCurrentCluster();
 				
-				ml.textSize(hudSmallTextSize);
+				mv.textSize(hudSmallTextSize);
 //				if(ml.world.getFieldCount() > 1)
 //					ml.text("Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y);
 				
 //				ml.textSize(hudMediumTextSize);
 //				ml.text(" Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthWide, 0);
-				ml.textSize(hudSmallTextSize);
+				mv.textSize(hudSmallTextSize);
 				
-				ml.text("Spatial Locations:  "+(f.getClusters().size()), x, y, 0);
+				mv.text("Spatial Locations:  "+(f.getClusters().size()), x, y, 0);
 //				ml.text("      Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
-				ml.text("Time Segments:  "+(f.getTimeline().timeline.size()), x, y += hudLineWidth, 0);
+				mv.text("Time Segments:  "+(f.getTimeline().timeline.size()), x, y += hudLineWidth, 0);
 
-				ml.text( "Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 )+
+				mv.text( "Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 )+
 						"  Length:  "+utilities.round( f.getModel().getState().fieldLength, 3)+
 						"  Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidth * 2.f);
-				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidthWide);
+				mv.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidthWide);
 
 //				ml.textSize(hudMediumTextSize);
 //				ml.text(" Viewer ", x, y += hudLineWidthWide, 0);
-				ml.textSize(hudSmallTextSize);
+				mv.textSize(hudSmallTextSize);
 
 //				ml.text("Viewer Location "+(f.getClusters().size()), x, y += hudLineWidth, 0);
 
@@ -3143,27 +3143,27 @@ public class MV_Display
 //				ml.text(" Time ", x, y += hudLineWidth, 0);
 //				String strTime = getCurrentFormattedTime();
 
-				if(ml.world.getState().getTimeMode() == 0)		// Location
+				if(mv.world.getState().getTimeMode() == 0)		// Location
 				{
-					int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
+					int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
 //					WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
 					WMV_Time t = c.getClosestTimeToClusterTime( c.getCurrentTime() );
 //					String strClusterTime = t.getFormattedTime(true, false);
 //					String strFieldTime = ts.getCenter().getFormattedTime(true, false);
-					ml.text("Current Time Segment #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size()+" (#"+(t.getID()+1)+" of "+c.getTimeline().timeline.size()+" at current location)", x, y += hudLineWidthWide, 0);
+					mv.text("Current Time Segment #"+tsID+" of "+mv.world.getCurrentField().getTimeline().timeline.size()+" (#"+(t.getID()+1)+" of "+c.getTimeline().timeline.size()+" at current location)", x, y += hudLineWidthWide, 0);
 ////					ml.text(""+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
 ////					ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
 				}
 				else												// Field
 				{
-					int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
+					int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
 //					WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
 //					String strFieldTime = ts.getCenter().getFormattedTime(true, false);
-					ml.text("Current Time Segment #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+					mv.text("Current Time Segment #"+tsID+" of "+mv.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
 ////					ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
 				}
 
-				ml.text(" Time Mode: "+(ml.world.getState().getTimeMode() == 0 ? "Location":"Field"), x, y += hudLineWidth, 0);
+				mv.text(" Time Mode: "+(mv.world.getState().getTimeMode() == 0 ? "Location":"Field"), x, y += hudLineWidth, 0);
 
 //				ml.text("    Merged:  "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", x, y += hudLineWidth, 0);
 //				if(p.getState().hierarchical) ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, x, y += hudLineWidth, 0);
@@ -3172,7 +3172,7 @@ public class MV_Display
 //				ml.text("    Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += hudLineWidth, 0);
 				
 //				if(f.getImageCount() > 0)
-					ml.text(" Images:  "+f.getImageCount()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
+					mv.text(" Images:  "+f.getImageCount()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
 //				if(f.getImagesVisible() > 0) 
 //				{
 //					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
@@ -3181,7 +3181,7 @@ public class MV_Display
 //				}
 
 //				if(f.getPanoramaCount() > 0) 
-					ml.text(" Panoramas:  "+f.getPanoramaCount()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);		
+					mv.text(" Panoramas:  "+f.getPanoramaCount()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);		
 //				if(f.getPanoramasVisible() > 0)
 //				{
 //					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);
@@ -3189,7 +3189,7 @@ public class MV_Display
 //				}
 
 //				if(f.getVideoCount() > 0) 
-					ml.text(" Videos:  "+f.getVideoCount()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);					
+					mv.text(" Videos:  "+f.getVideoCount()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);					
 //				if(f.getVideosVisible() > 0)
 //				{
 //					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidth);
@@ -3202,7 +3202,7 @@ public class MV_Display
 //				}
 
 //				if(f.getSoundCount() > 0) 
-					ml.text(" Sounds:  "+f.getSoundCount()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);					
+					mv.text(" Sounds:  "+f.getSoundCount()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);					
 //				if(f.getSoundsAudible() > 0)
 //				{
 //					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidth);
@@ -3229,7 +3229,7 @@ public class MV_Display
 //					}
 //				}
 				
-				ml.popMatrix();
+				mv.popMatrix();
 				endDisplayHUD();
 
 //				map2D.displaySmallBasicMap(p);		// -- Display small map
@@ -3245,17 +3245,17 @@ public class MV_Display
 				
 				startDisplayHUD();
 				
-				ml.pushMatrix();
-				ml.fill(0, 0, 255, 255);
-				ml.textSize(hudVeryLargeTextSize);
-				ml.text(" Location #"+ (c.getID()+1) + ((c.getID() == cl.getID())?" (Current)":"")+ " of "+ml.world.getCurrentField().getClusters().size(), x, y, 0);
+				mv.pushMatrix();
+				mv.fill(0, 0, 255, 255);
+				mv.textSize(hudVeryLargeTextSize);
+				mv.text(" Location #"+ (c.getID()+1) + ((c.getID() == cl.getID())?" (Current)":"")+ " of "+mv.world.getCurrentField().getClusters().size(), x, y, 0);
 	
 				y += hudLineWidthVeryWide;
 
-				ml.textSize(hudMediumTextSize);
-				String strGPSLoc = ml.utilities.formatGPSLocation( c.getGPSLocation(ml.world), true );
+				mv.textSize(hudMediumTextSize);
+				String strGPSLoc = mv.utilities.formatGPSLocation( c.getGPSLocation(mv.world), true );
 
-				ml.text(strGPSLoc, x, y, 0);
+				mv.text(strGPSLoc, x, y, 0);
 
 				if(c != null)
 				{
@@ -3270,19 +3270,19 @@ public class MV_Display
 					String strTime = strTime1 + ", "+ strDate1 + " - " + strTime2 + ", " + strDate2;
 					
 //					ml.textSize(hudMediumTextSize);
-					ml.text(strTime, x, y += hudLineWidthWide, 0);			// Display location time and date range
+					mv.text(strTime, x, y += hudLineWidthWide, 0);			// Display location time and date range
 					
 					y += hudLineWidthWide;
 
-					ml.text("Field: "+p.getCurrentField().getName(), x, y, 0);
+					mv.text("Field: "+p.getCurrentField().getName(), x, y, 0);
 //					y += hudLineWidthWide;
 					
-					ml.textSize(hudSmallTextSize);
+					mv.textSize(hudSmallTextSize);
 
-					if(f.getImageCount() > 0) ml.text(" Images:  "+c.getState().images.size()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidthVeryWide);
-					if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+c.getState().panoramas.size()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidthVeryWide);		
-					if(f.getVideoCount() > 0) ml.text(" Videos:  "+c.getState().videos.size()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidthVeryWide);					
-					if(f.getSoundCount() > 0) ml.text(" Sounds:  "+c.getState().sounds.size()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidthWide);					
+					if(f.getImageCount() > 0) mv.text(" Images:  "+c.getState().images.size()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidthVeryWide);
+					if(f.getPanoramaCount() > 0) mv.text(" Panoramas:  "+c.getState().panoramas.size()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidthVeryWide);		
+					if(f.getVideoCount() > 0) mv.text(" Videos:  "+c.getState().videos.size()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidthVeryWide);					
+					if(f.getSoundCount() > 0) mv.text(" Sounds:  "+c.getState().sounds.size()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidthWide);					
 					
 //					if(c.getState().images.size() > 0)
 //						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidth, 0);
@@ -3293,10 +3293,10 @@ public class MV_Display
 //					if(c.getState().sounds.size() > 0)
 //						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidth, 0);
 					
-					ml.text("   Number of Media:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-					ml.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidth, 0);
-					ml.text("   Time Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidth, 0);
-					ml.text(" ", x, y += hudLineWidth, 0);
+					mv.text("   Number of Media:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
+					mv.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidth, 0);
+					mv.text("   Time Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+					mv.text(" ", x, y += hudLineWidth, 0);
 					
 ////					if(c != null)
 ////						ml.text("Viewer Location: " + ml.utilities.formatGPSLocation( ml.world.viewer.getGPSLocation() ) + " (#" + (c.getID()+1) + ")", x, y += hudLineWidth, 0);
@@ -3305,7 +3305,7 @@ public class MV_Display
 //					gpsLoc.y = utilities.round(gpsLoc.y, 4);
 //					ml.text("   GPS Longitude: "+ gpsLoc.x+", Latitude: "+gpsLoc.y, x, y += hudLineWidthWide, 0);
 					
-					ml.text("   Viewer Distance: "+utilities.round(PVector.dist(c.getLocation(), p.viewer.getLocation()), 1)+" m.", x, y += hudLineWidthWide, 0);
+					mv.text("   Viewer Distance: "+utilities.round(PVector.dist(c.getLocation(), p.viewer.getLocation()), 1)+" m.", x, y += hudLineWidthWide, 0);
 				}
 //				else
 //				{
@@ -3325,7 +3325,7 @@ public class MV_Display
 						createClusterSelectableMedia(p, imageList);
 				}
 
-				ml.popMatrix();
+				mv.popMatrix();
 				
 //				map2D.displaySmallBasicMap(p);
 				endDisplayHUD();
@@ -3333,7 +3333,7 @@ public class MV_Display
 				break;
 		}
 		
-		p.mv.rectMode(PApplet.CENTER);				// Return rect mode to Center
+		mv.rectMode(PApplet.CENTER);				// Return rect mode to Center
 
 //		updateLibraryViewMouse();
 	}
@@ -3345,11 +3345,11 @@ public class MV_Display
 	public String getCurrentFormattedTime()
 	{
 		String strTime;
-		if(ml.world.getState().getTimeMode() == 0)		// Location
+		if(mv.world.getState().getTimeMode() == 0)		// Location
 		{
-			WMV_Cluster c = ml.world.getCurrentCluster();
-			int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
-			WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
+			WMV_Cluster c = mv.world.getCurrentCluster();
+			int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
+			WMV_TimeSegment ts = mv.world.getCurrentField().getTimeline().timeline.get(tsID);
 			WMV_Time t = c.getClosestTimeToClusterTime( c.getCurrentTime() );
 			strTime = t.getFormattedTime(true, false);
 //			String strFieldTime = ts.getCenter().getFormattedTime(true, false);
@@ -3359,8 +3359,8 @@ public class MV_Display
 		}
 		else												// Field
 		{
-			int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
-			WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
+			int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
+			WMV_TimeSegment ts = mv.world.getCurrentField().getTimeline().timeline.get(tsID);
 			strTime = ts.getCenter().getFormattedTime(true, false);
 //			ml.text("Current Time: "+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
 //			ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
@@ -3384,8 +3384,8 @@ public class MV_Display
 	 */
 	public String getCurrentFormattedDate()
 	{
-		int dateID = ml.world.getState().currentDate;
-		WMV_Date d = ml.world.getCurrentField().getDate(dateID);
+		int dateID = mv.world.getState().currentDate;
+		WMV_Date d = mv.world.getCurrentField().getDate(dateID);
 		
 		return d.getFormattedDate();
 	}
@@ -3410,7 +3410,7 @@ public class MV_Display
 			float thumbnailHeight = thumbnailWidth * origHeight / origWidth;
 			
 			/* Create thumbnail */
-			PImage image = ml.loadImage(i.getFilePath());
+			PImage image = mv.loadImage(i.getFilePath());
 			Image iThumbnail = image.getImage().getScaledInstance((int)thumbnailWidth, (int)thumbnailHeight, BufferedImage.SCALE_SMOOTH);
 			PImage thumbnail = new PImage(iThumbnail);
 
@@ -3423,7 +3423,7 @@ public class MV_Display
 			selectableMedia.add(newMedia);
 			
 			imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
-			if(imgXPos > ml.width - clusterMediaXOffset)
+			if(imgXPos > mv.width - clusterMediaXOffset)
 			{
 				imgXPos = clusterMediaXOffset;
 				imgYPos += thumbnailHeight + thumbnailHeight * thumbnailSpacing;
@@ -3435,8 +3435,8 @@ public class MV_Display
 //				break;
 		}
 		
-		if(p.mv.debug.ml) 
-			ml.systemMessage("Display.createClusterSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size()+" p.ml.width:"+p.mv.width+"clusterMediaXOffset:"+clusterMediaXOffset);
+		if(mv.debug.ml) 
+			mv.systemMessage("Display.createClusterSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size()+" p.ml.width:"+mv.width+"clusterMediaXOffset:"+clusterMediaXOffset);
 
 		createdSelectableMedia = true;
 	}
@@ -3471,23 +3471,23 @@ public class MV_Display
 		{
 			currentDisplayField--;
 			if(currentDisplayField < 0)
-				currentDisplayField = ml.world.getFields().size() - 1;
+				currentDisplayField = mv.world.getFields().size() - 1;
 		}
 		else if(libraryViewMode == 2)			// Cluster
 		{
 			currentDisplayCluster--;
 			if(currentDisplayCluster < 0)
-				currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
+				currentDisplayCluster = mv.world.getCurrentFieldClusters().size() - 1;
 
 			int count = 0;
-			while(ml.world.getCurrentField().getCluster(currentDisplayCluster).isEmpty())
+			while(mv.world.getCurrentField().getCluster(currentDisplayCluster).isEmpty())
 			{
 				currentDisplayCluster--;
 				count++;
 				if(currentDisplayCluster < 0)
-					currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
+					currentDisplayCluster = mv.world.getCurrentFieldClusters().size() - 1;
 
-				if(count > ml.world.getCurrentFieldClusters().size())
+				if(count > mv.world.getCurrentFieldClusters().size())
 					break;
 			}
 
@@ -3503,24 +3503,24 @@ public class MV_Display
 		if(libraryViewMode == 1)
 		{
 			currentDisplayField++;
-			if( currentDisplayField >= ml.world.getFields().size())
+			if( currentDisplayField >= mv.world.getFields().size())
 				currentDisplayField = 0;
 		}
 		else if(libraryViewMode == 2)			// Cluster
 		{
 			currentDisplayCluster++;
-			if( currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
+			if( currentDisplayCluster >= mv.world.getCurrentFieldClusters().size())
 				currentDisplayCluster = 0;
 
 			int count = 0;
-			while(ml.world.getCurrentField().getCluster(currentDisplayCluster).isEmpty())
+			while(mv.world.getCurrentField().getCluster(currentDisplayCluster).isEmpty())
 			{
 				currentDisplayCluster++;
 				count++;
-				if( currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
+				if( currentDisplayCluster >= mv.world.getCurrentFieldClusters().size())
 					currentDisplayCluster = 0;
 
-				if(count > ml.world.getCurrentFieldClusters().size())
+				if(count > mv.world.getCurrentFieldClusters().size())
 					break;
 			}
 
@@ -3548,11 +3548,11 @@ public class MV_Display
 		mediaViewMediaID = mediaID;
 		if(mediaType == 2)
 		{
-			WMV_Video v = ml.world.getCurrentField().getVideo(mediaID);
+			WMV_Video v = mv.world.getCurrentField().getVideo(mediaID);
 			if(!v.isLoaded())
-				v.loadMedia(ml);
+				v.loadMedia(mv);
 			if(!v.isPlaying())
-				v.play(ml);
+				v.play(mv);
 		}
 	}
 	
@@ -3588,7 +3588,7 @@ public class MV_Display
 	 */
 	private void displayImage2D(WMV_Image image)
 	{
-		image.display2D(ml);
+		image.display2D(mv);
 	}
 	
 	/**
@@ -3597,7 +3597,7 @@ public class MV_Display
 	 */
 	private void displayPanorama2D(WMV_Panorama panorama)
 	{
-		panorama.display2D(ml);
+		panorama.display2D(mv);
 	}
 
 	/**
@@ -3606,7 +3606,7 @@ public class MV_Display
 	 */
 	private void displayVideo2D(WMV_Video video)
 	{
-		video.display2D(ml);
+		video.display2D(mv);
 	}
 
 	/**
@@ -3615,7 +3615,7 @@ public class MV_Display
 	 */
 	public void startHUD()
 	{
-		ml.camera();
+		mv.camera();
 	}
 
 	/**
@@ -3624,11 +3624,9 @@ public class MV_Display
 	 */
 	private void startDisplayHUD()
 	{
-//		camera3D = ml.world.viewer.getCamera();
-		currentFieldOfView = ml.world.viewer.getFieldOfView();
-//	    ml.world.viewer.setInitialFieldOfView();
-		ml.world.viewer.resetPerspective();
-		beginHUD(ml);
+		currentFieldOfView = mv.world.viewer.getFieldOfView();
+		mv.world.viewer.resetPerspective();
+		beginHUD(mv);
 	}
 
 	/**
@@ -3637,9 +3635,8 @@ public class MV_Display
 	 */
 	private void endDisplayHUD()
 	{
-		endHUD(ml);
-//		ml.world.viewer.setCamera(camera3D);
-		ml.world.viewer.zoomToFieldOfView(currentFieldOfView);
+		endHUD(mv);
+		mv.world.viewer.zoomToFieldOfView(currentFieldOfView);
 	}
 	
 	/**
@@ -3651,25 +3648,21 @@ public class MV_Display
 	{
 		int count = 0;
 		
-		ml.stroke(255, 255, 255);
-		ml.strokeWeight(15);
-		ml.fill(0, 0, 255, 255);
+		mv.stroke(255, 255, 255);
+		mv.strokeWeight(15);
+		mv.fill(0, 0, 255, 255);
 
 		for(SelectableMedia m : selectableMedia)
 		{
 			if(m != null)
 			{
 				boolean selected = m.getID() == selectedMedia;
-				
-				if(count < 200) m.display(ml.world, 0.f, 0.f, 255.f, selected);
-				
-//				if(selected) ml.systemMessage("Display.drawSelectableMedia()... Drew selected media: "+m.getID()+" frameCount:"+ml.frameCount);
-				
+				if(count < 200) m.display(mv.world, 0.f, 0.f, 255.f, selected);
 				count++;
 			}
 			else
 			{
-				ml.systemMessage("Display.drawSelectableMedia()... Selected media is null!");
+				mv.systemMessage("Display.drawSelectableMedia()... Selected media is null!");
 			}
 		}
 	}
@@ -3697,7 +3690,7 @@ public class MV_Display
 		
 		displayView = newDisplayView;								// Set display view
 
-		if(p.mv.debug.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
+		if(mv.debug.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
 		
 		switch(newDisplayView)
 		{
@@ -3727,15 +3720,15 @@ public class MV_Display
 				{
 					map2D.initialize(p);
 				}
-				else if(ml.world.getCurrentField().getGPSTracks() != null)
+				else if(mv.world.getCurrentField().getGPSTracks() != null)
 				{
-					if(ml.world.getCurrentField().getGPSTracks().size() > 0)
+					if(mv.world.getCurrentField().getGPSTracks().size() > 0)
 					{
-						if(ml.world.viewer.getSelectedGPSTrackID() != -1)
+						if(mv.world.viewer.getSelectedGPSTrackID() != -1)
 						{
 							if(!map2D.createdGPSMarker)
 							{
-								map2D.createMarkers(ml.world);
+								map2D.createMarkers(mv.world);
 							}
 						}
 					}
@@ -3751,10 +3744,6 @@ public class MV_Display
 					window.optLibraryView.setSelected(false);
 					window.btnSaveLibrary.setEnabled(false);
 					window.btnSaveField.setEnabled(false);
-				}
-				if(window.setupTimeWindow)
-				{
-//					window.btnTimeView.setEnabled(true);
 				}
 				
 				if(setupTimeView) setupTimeView = false;
@@ -3783,7 +3772,7 @@ public class MV_Display
 //					window.btnTimeView.setEnabled(false);
 //					window.setTimeWindowControlsEnabled(true);
 				}
-				zoomToTimeline(ml.world, true);
+				zoomToTimeline(mv.world, true);
 				
 				if(setupLibraryView) setupLibraryView = false;
 				if(setupMapView) setupMapView = false;
@@ -3912,7 +3901,7 @@ public class MV_Display
 	 */
 	public void resetDisplayModes()
 	{
-		setDisplayView(ml.world, 0);
+		setDisplayView(mv.world, 0);
 //		displayView = 0;
 		
 		mapViewMode = 0;
@@ -3960,11 +3949,11 @@ public class MV_Display
 			
 			if(!initializedMaps) 
 			{
-				map2D.initialize(ml.world);
+				map2D.initialize(mv.world);
 			}
 			else
 			{
-				map2D.createMarkers(ml.world);		// Create map markers for new mode
+				map2D.createMarkers(mv.world);		// Create map markers for new mode
 				map2D.resetMapZoom(true);
 				
 				switch(mapViewMode)
@@ -4056,20 +4045,20 @@ public class MV_Display
 		
 		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
-			ml.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-			ml.strokeWeight(3.f);
+			mv.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+			mv.strokeWeight(3.f);
 
-			ml.pushMatrix();
+			mv.pushMatrix();
 
-			ml.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
-			ml.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
-			ml.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
-			ml.line(leftEdge, bottomEdge, 0, rightEdge, bottomEdge, 0);			
+			mv.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
+			mv.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
+			mv.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
+			mv.line(leftEdge, bottomEdge, 0, rightEdge, bottomEdge, 0);			
 
 			if(preview)
 			{
-				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				ml.textSize(hudSmallTextSize);
+				mv.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+				mv.textSize(hudSmallTextSize);
 //				ml.textSize(smallTextSize);
 				String strTimespan = segment.getTimespanAsString(false, false);
 				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;
@@ -4077,10 +4066,10 @@ public class MV_Display
 				float length = timelineEnd - timelineStart;
 				float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 				float xOffset = -35.f * utilities.mapValue(length, 0.f, day, 0.2f, 1.f);
-				ml.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, 0);
+				mv.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, 0);
 			}
 			
-			ml.popMatrix();
+			mv.popMatrix();
 		}
 	}
 
@@ -4129,22 +4118,22 @@ public class MV_Display
 		 */
 		public void display(WMV_World p, float hue, float saturation, float brightness, boolean selected)
 		{
-			ml.pushMatrix();
+			mv.pushMatrix();
 			
-			ml.stroke(hue, saturation, brightness, 255.f);
-			ml.strokeWeight(25.f);
-			ml.point(location.x, location.y, location.z);
+			mv.stroke(hue, saturation, brightness, 255.f);
+			mv.strokeWeight(25.f);
+			mv.point(location.x, location.y, location.z);
 
 			if(selected && selectedDate != -1)
 			{
-				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				ml.textSize(hudSmallTextSize);
+				mv.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+				mv.textSize(hudSmallTextSize);
 				String strDate = date.getFormattedDate();
 				float textWidth = strDate.length() * displayWidthFactor;
-				ml.text(strDate, location.x - textWidth * 0.5f, location.y + 30.f, location.z);	// -- Should center based on actual text size!
+				mv.text(strDate, location.x - textWidth * 0.5f, location.y + 30.f, location.z);	// -- Should center based on actual text size!
 			}
 		
-			ml.popMatrix();
+			mv.popMatrix();
 		}
 	}
 
@@ -4196,31 +4185,31 @@ public class MV_Display
 
 			if(thumbnail != null)
 			{
-				p.mv.pushMatrix();
+				mv.pushMatrix();
 
-				p.mv.translate(location.x, location.y, 0);
-				p.mv.tint(255);
+				mv.translate(location.x, location.y, 0);
+				mv.tint(255);
 
-				p.mv.image(thumbnail, 0, 0, width, height);
+				mv.image(thumbnail, 0, 0, width, height);
 
-				ml.popMatrix();
+				mv.popMatrix();
 			}
 			else
 			{
-				ml.systemMessage("SelectableMedia.display()... Selected media #"+getID()+" thumbnail is null!");
+				mv.systemMessage("SelectableMedia.display()... Selected media #"+getID()+" thumbnail is null!");
 			}
 			
 			if(selected)
 			{
-				ml.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				ml.strokeWeight(3.f);
-				ml.pushMatrix();
+				mv.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+				mv.strokeWeight(3.f);
+				mv.pushMatrix();
 
-				ml.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
-				ml.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
-				ml.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
-				ml.line(leftEdge, bottomEdge, 0, rightEdge, bottomEdge, 0);			
-				ml.popMatrix();
+				mv.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
+				mv.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
+				mv.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
+				mv.line(leftEdge, bottomEdge, 0, rightEdge, bottomEdge, 0);			
+				mv.popMatrix();
 			}
 
 			//				if(selected && selectedDate != -1)

@@ -8,7 +8,7 @@ import main.java.com.entoptic.metaVisualizer.media.WMV_MediaSegment;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Sound;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Video;
-import main.java.com.entoptic.metaVisualizer.misc.ML_DebugSettings;
+import main.java.com.entoptic.metaVisualizer.misc.MV_DebugSettings;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Camera;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ModelState;
@@ -34,7 +34,7 @@ public class WMV_Viewer
 	private WMV_WorldState worldState;						// World state
 	private WMV_ViewerSettings settings;					// Viewer settings
 	private WMV_ViewerState state;							// Viewer state
-	private ML_DebugSettings debug;					// Debug settings
+	private MV_DebugSettings debug;					// Debug settings
 
 	/* Memory */
 	public ArrayList<WMV_Waypoint> memory;					// Path for camera to take
@@ -59,7 +59,7 @@ public class WMV_Viewer
 	 * @param newWorldState Current world state
 	 * @param newDebugSettings Debug settings
 	 */
-	public WMV_Viewer(WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, ML_DebugSettings newDebugSettings)
+	public WMV_Viewer(WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, MV_DebugSettings newDebugSettings)
 	{
 		p = parent;
 		

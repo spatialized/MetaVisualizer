@@ -37,11 +37,11 @@ public class WMV_World
 	/* Classes */
 	public MultimediaLocator ml;						// Parent app
 	private ArrayList<WMV_Field> fields;				// Virtual media environments 
-	public WMV_Viewer viewer;							// Virtual viewer
-	public WMV_WorldSettings settings;					// World settings
+	public WMV_Viewer viewer;						// Virtual viewer
+	public WMV_WorldSettings settings;				// World settings
 	public WMV_WorldState state;						// World state
-	public WMV_Utilities utilities;						// Utility class
-	public ML_Input input;								// Keyboard input handler
+	public WMV_Utilities utilities;					// Utility class
+	public ML_Input input;							// Keyboard input handler
 	
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -244,7 +244,10 @@ public class WMV_World
 		if(state.timeFading && !state.paused)
 		{
 			if(ml.display.window.setupTimeWindow)
+			{
 				ml.display.window.sdrCurrentTime.setValue(getCurrentTime());
+				ml.display.updateTimeWindowCurrentTime();
+			}
 		}
 		
 		if(state.turningOffTimeFading || state.turningOnTimeFading) 
@@ -449,7 +452,10 @@ public class WMV_World
 //		{
 			setCurrentFieldTimeCyclePoint( newTimePoint );				
 			if(updateSliders && ml.display.window.setupTimeWindow)
+			{
 				ml.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getTimeCycleLength()) );
+				ml.display.updateTimeWindowCurrentTime();
+			}
 //		}
 		
 		switch(state.timeMode)
@@ -566,7 +572,11 @@ public class WMV_World
 						setCurrentClusterTimePoint( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );
 
 						if(updateSliders && ml.display.window.setupTimeWindow)
+						{
 							ml.display.window.sdrCurrentTime.setValue( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );
+						}
+						if(ml.display.window.setupTimeWindow)
+							ml.display.updateTimeWindowCurrentTime();
 					}
 //				}
 				
@@ -586,7 +596,11 @@ public class WMV_World
 						setCurrentClusterTimePoint( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );
 
 						if(updateSliders && ml.display.window.setupTimeWindow)
+						{
 							ml.display.window.sdrCurrentTime.setValue( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );
+						}
+						if(ml.display.window.setupTimeWindow)
+							ml.display.updateTimeWindowCurrentTime();
 					}
 //				}
 				
@@ -620,15 +634,14 @@ public class WMV_World
 			if(newFieldTimePoint >= 0.f && newFieldTimePoint <= 1.f)		// Time in field range
 			{
 				setCurrentFieldTimeCyclePoint( newFieldTimePoint );				
-				
 //				setCurrentTime( newFieldTimePoint, true, updateSliders );
 
-				if(ml.debug.cluster || ml.debug.time)
+				if(ml.debug.detailed && ml.debug.time)
 					System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" clusterTimePoint:"+clusterTimePoint+" converted to newFieldTimePoint:"+newFieldTimePoint+" Result: getCurrentTime(): "+getCurrentTime());
 			}
 			else															// Time out of range
 			{
-				if(ml.debug.cluster || ml.debug.time)
+				if(ml.debug.detailed && ml.debug.time)
 					System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" time out of range...");
 
 				if( newFieldTimePoint < 0.f )
@@ -651,20 +664,13 @@ public class WMV_World
 	 * @param padding Whether to set time cycle accounting for padding due to fading (true) or set raw value (false)
 	 */
 	private void setCurrentFieldTimeCyclePoint(float newTimePoint)
-//	private void setCurrentFieldTimeCyclePoint(float newTimePoint, boolean padding)
 	{
 		if(ml.debug.time) 
 			System.out.println("World.setCurrentTimeCyclePoint()... newTimePoint:"+newTimePoint);
 
 		int low = 0, high = getTimeCycleLength();
 		
-//		if(padding)
-//		{
-//			low = (int) (settings.defaultMediaLength / 2.f);
-//			high = (int) (settings.timeCycleLength - settings.defaultMediaLength / 2.f);
-//		}
 		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, low, high) );
-//		state.setCurrentTimeCycleFrame( (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0.f, getFieldTimeCycleLength()) );
 	}
 	
 	/**
@@ -701,9 +707,8 @@ public class WMV_World
 	public void setTimeCycleLength(int newTimeCycleLength)
 	{
 		settings.timeCycleLength = newTimeCycleLength;
-		settings.timeInc = settings.timeCycleLength / 30.f;	
+//		settings.timeInc = settings.timeCycleLength / 30.f;	
 		
-//		createTimeCycle();											// Added 7-19-17
 		getCurrentField().updateAllMediaStates();
 	}
 
@@ -722,7 +727,7 @@ public class WMV_World
 	 */
 	public void setClusterTimeCycleLength(int newTimeCycleLength)
 	{
-		if(ml.debug.time)
+		if(ml.debug.detailed && ml.debug.time)
 			ml.systemMessage("World.setAllClustersTimeCycleLength()... newTimeCycleLength: "+newTimeCycleLength);
 		
 		for(WMV_Cluster c : getCurrentField().getClusters())
@@ -767,8 +772,7 @@ public class WMV_World
 				state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
 				if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
 				{
-					if(ml.debug.world)
-						ml.systemMessage("Reached end of Field Time Cycle...");
+					if(ml.debug.time) ml.systemMessage("World.updateFieldTimeMode()... Reached end of Field Time Cycle...");
 
 					state.setCurrentTimeCycleFrame( 0 );
 				}
@@ -776,39 +780,39 @@ public class WMV_World
 		}
 	}
 	
-	/**
-	 * Update Single Time Mode parameters -- Disabled (Obsolete)
-	 */
-	private void updateSingleTimeMode()
-	{
-		if(!state.paused)
-		{
-			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
-			if(ml.debug.time && ml.debug.detailed)
-				ml.systemMessage("currentTime:"+getCurrentFieldTimeCyclePoint());
-
-			if(getCurrentFieldTimeCyclePoint() >= viewer.getNextMediaStartTime())
-			{
-				if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
-				{
-					setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
-				}
-				else
-				{
-					if(ml.debug.world)
-						ml.systemMessage("Reached end of last media with "+(settings.timeCycleLength - getCurrentFieldTimeCyclePoint())+ " frames to go...");
-					state.setCurrentTimeCycleFrame( 0 );
-					startMediaTimeModeCycle();
-				}
-			}
-
-			if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
-			{
-				state.setCurrentTimeCycleFrame( 0 );
-				startMediaTimeModeCycle();
-			}
-		}
-	}
+//	/**
+//	 * Update Single Time Mode parameters -- Disabled (Obsolete)
+//	 */
+//	private void updateSingleTimeMode()
+//	{
+//		if(!state.paused)
+//		{
+//			state.setCurrentTimeCycleFrame(state.getCurrentTimeCycleFrame()+1);
+//			if(ml.debug.time && ml.debug.detailed)
+//				ml.systemMessage("currentTime:"+getCurrentFieldTimeCyclePoint());
+//
+//			if(getCurrentFieldTimeCyclePoint() >= viewer.getNextMediaStartTime())
+//			{
+//				if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
+//				{
+//					setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+//				}
+//				else
+//				{
+//					if(ml.debug.world)
+//						ml.systemMessage("Reached end of last media with "+(settings.timeCycleLength - getCurrentFieldTimeCyclePoint())+ " frames to go...");
+//					state.setCurrentTimeCycleFrame( 0 );
+//					startMediaTimeModeCycle();
+//				}
+//			}
+//
+//			if(getCurrentFieldTimeCyclePoint() > settings.timeCycleLength)
+//			{
+//				state.setCurrentTimeCycleFrame( 0 );
+//				startMediaTimeModeCycle();
+//			}
+//		}
+//	}
 	
 	/**
 	 * Move forward in time
@@ -817,19 +821,20 @@ public class WMV_World
 	{
 		float curTimePoint = getCurrentTime();
 		float endTimePoint = 1.f;
+		float timeInc = settings.timeIncrement;
 		if(state.getTimeMode() == 0)
 		{
-			if (curTimePoint + settings.timeInc > endTimePoint) 
+			if (curTimePoint + timeInc > endTimePoint && curTimePoint != endTimePoint) 
 				setCurrentClusterTime(endTimePoint, true);
 			else 
-				setCurrentClusterTime(curTimePoint + settings.timeInc, true);
+				setCurrentClusterTime(curTimePoint + timeInc, true);
 		}
 		else
 		{
-			if (curTimePoint + settings.timeInc > endTimePoint) 
+			if (curTimePoint + timeInc > endTimePoint && curTimePoint != endTimePoint) 
 				setCurrentFieldTime(endTimePoint, true);
 			else 
-				setCurrentFieldTime(curTimePoint + settings.timeInc, true);
+				setCurrentFieldTime(curTimePoint + timeInc, true);
 		}
 	}
 
@@ -839,19 +844,20 @@ public class WMV_World
 	void decrementTime()
 	{
 		float curTimePoint = getCurrentTime();
+		float timeInc = settings.timeIncrement;
 		if(state.getTimeMode() == 0)
 		{
-			if (curTimePoint - settings.timeInc < 0.f) 
+			if (curTimePoint - timeInc < 0.f && curTimePoint != 0.f) 
 				setCurrentClusterTime(0.f, true);
 			else
-				setCurrentClusterTime(curTimePoint - settings.timeInc, true);
+				setCurrentClusterTime(curTimePoint - timeInc, true);
 		}
 		else
 		{
-			if (curTimePoint - settings.timeInc < 0.f) 
+			if (curTimePoint - timeInc < 0.f && curTimePoint != 0.f) 
 				setCurrentFieldTime(0.f, true);
 			else
-				setCurrentFieldTime(curTimePoint - settings.timeInc, true);
+				setCurrentFieldTime(curTimePoint - timeInc, true);
 		}
 	}
 	
@@ -882,9 +888,7 @@ public class WMV_World
 	 */
 	public void enterFieldAtBeginning(int fieldIdx)
 	{
-		WMV_Field f = getField(fieldIdx);
-		
-		if(ml.debug.ml) ml.systemMessage("World.enterFieldAtBeginning()... fieldIdx:"+fieldIdx);
+		if(ml.debug.ml) ml.systemMessage("World.enterFieldAtBeginning()... Field #"+fieldIdx);
 		viewer.enterField( fieldIdx, false );								// Enter field
 		
 		viewer.moveToFirstTimeSegment(false);		// Move to first time segment if start location not set from saved data 
@@ -1016,30 +1020,6 @@ public class WMV_World
 	 */
 	void reset(boolean system)
 	{
-
-		/* CONSTRUCTOR */
-//		ml = parent;
-//		
-//		/* Create main classes */
-//		settings = new WMV_WorldSettings();
-//		utilities = new WMV_Utilities();
-//		
-//		state = new WMV_WorldState();
-//		viewer = new WMV_Viewer(this, settings, state, ml.debug);			// Initialize navigation + viewer
-//		
-//		/* Setup interpolation variables */
-//		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
-//		timeFadeMap.setMapFunction(circularEaseOut);
-//		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
-//		distanceFadeMap.setMapFunction(circularEaseIn);
-
-//		public MultimediaLocator ml;						// Parent app
-//		private ArrayList<WMV_Field> fields;				// Virtual media environments 
-//		public WMV_Viewer viewer;							// Virtual viewer
-//		public WMV_WorldSettings settings;					// World settings
-//		public WMV_WorldState state;						// World state
-//		public WMV_Utilities utilities;						// Utility class
-
 		if(ml.debug.world) ml.systemMessage("World.reset()... Resetting world...");
 		
 		outputFolder = null;
@@ -1050,7 +1030,6 @@ public class WMV_World
 
 		viewer.reset();										// Reset viewer
 		fields = null;										// Clear fields
-//		public ML_Input input;								// Keyboard input handler
 
 		/* Initialize graphics and text parameters */
 		ml.colorMode(PConstants.HSB);
@@ -1634,7 +1613,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Get cluster currently responsible for time in Cluster Time Mode (current cluster, unless moving)
+	 * Get cluster currently responsible for time in Cluster Time Mode (current cluster, unless moving)		-- Obsolete?
 	 * @return Cluster currently responsible for time in Cluster Time Mode
 	 */
 	public WMV_Cluster getClusterWithCurrentTime()
@@ -1652,6 +1631,10 @@ public class WMV_World
 		return c;
 	}
 	
+	public int getCurrentDate()
+	{
+		return getState().currentDate;
+	}
 	/**
 	 * Decrement time cycle length
 	 */
@@ -1672,10 +1655,16 @@ public class WMV_World
 			case 1:												// Field
 				if(cycleLength - 20 > 0)
 				{
-					settings.timeCycleLength = cycleLength - 20;
-					settings.timeInc = settings.timeCycleLength / 30.f;			
+					setTimeCycleLength(cycleLength - 20);
+//					settings.timeCycleLength = cycleLength - 20;
+//					settings.timeInc = settings.timeCycleLength / 30.f;			
 				}
 				break;
+		}
+		if(ml.display.window.setupTimeWindow)
+		{
+			ml.display.updateTimeWindowCurrentTime();
+			ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
 		}
 	}
 	
@@ -1706,10 +1695,17 @@ public class WMV_World
 			case 1:												// Field
 				if(cycleLength + 20 < cycleMax)
 				{
-					settings.timeCycleLength = cycleLength + 20;
-					settings.timeInc = settings.timeCycleLength / 30.f;			
+					setTimeCycleLength(cycleLength + 20);
+//					settings.timeCycleLength = cycleLength + 20;
+//					settings.timeInc = settings.timeCycleLength / 30.f;			
 				}
 				break;
+		}
+		
+		if(ml.display.window.setupTimeWindow)
+		{
+			ml.display.updateTimeWindowCurrentTime();
+			ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
 		}
 	}
 	
@@ -2112,11 +2108,11 @@ public class WMV_World
 	 */
 	public void createTimeCycle()
 	{
-		if(state.timeMode == 0 || state.timeMode == 1)
-		{
-//			settings.timeCycleLength = settings.defaultTimeCycleLength;
-		}
-		else if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
+//		if(state.timeMode == 0 || state.timeMode == 1)
+//		{
+////			settings.timeCycleLength = settings.defaultTimeCycleLength;
+//		}
+		if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
 		{
 			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			settings.timeCycleLength = 0;
@@ -2256,11 +2252,9 @@ public class WMV_World
 	 */
 	public void setTimeMode(int newTimeMode)
 	{
-//		System.out.println("setTimeMode()... 1 "+newTimeMode+" ml.display.window.setupTimeWindow:"+ml.display.window.setupTimeWindow+" ml.display.window.showTimeWindow"+ml.display.window.showTimeWindow);
 		state.timeMode = newTimeMode;
 		if(ml.display.window.setupTimeWindow)
 		{
-//			System.out.println("setTimeMode()... 2 "+newTimeMode);
 			switch(state.timeMode)
 			{
 				case 0:														// Cluster
@@ -2271,7 +2265,9 @@ public class WMV_World
 					if(ml.display.window.lblClusterLength.isVisible())
 						ml.display.window.lblClusterLength.setVisible(false);
 					if(ml.world.getSettings().screenMessagesOn)
-						ml.display.message(ml, "Set Time Mode to: Cluster");
+						ml.display.message(ml, "Set Time Mode to: Location");
+					if(ml.display.window.setupTimeWindow)
+						ml.display.updateTimeWindowCurrentTime();
 					break;
 				case 1:														// Field
 					ml.display.window.optClusterTimeMode.setSelected(false);
@@ -2282,6 +2278,8 @@ public class WMV_World
 						ml.display.window.lblClusterLength.setVisible(true);
 					if(ml.world.getSettings().screenMessagesOn)
 						ml.display.message(ml, "Set Time Mode to: Field");
+					if(ml.display.window.setupTimeWindow)
+						ml.display.updateTimeWindowCurrentTime();
 					break;
 			}		
 			if(ml.world.state.timeFading) ml.display.window.sdrCurrentTime.setValue(ml.world.getCurrentTime());

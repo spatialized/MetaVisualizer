@@ -69,7 +69,7 @@ public class WMV_WorldSettings
 	public int timeCycleLength = defaultTimeCycleLength;		// Length of main time loop in frames
 	
 	public int timeUnitLength = 1;							// How many frames between time increments
-	public float timeInc = timeCycleLength / 30.f;			// Time cycle user increment amount
+	public float timeIncrement = 1.f/30.f;			// Time cycle user increment amount
 
 	public int dateCycleLength = 500;						// Length of main date loop in frames
 	public int dateUnitLength = 1;							// How many frames between date increments
@@ -135,7 +135,7 @@ public class WMV_WorldSettings
 		timeCycleLength = 250;							
 		
 		timeUnitLength = 1;		
-		timeInc = timeCycleLength / 30.f;	
+		timeIncrement = 1.f / 30.f;	
 
 		dateCycleLength = 500;					
 		dateUnitLength = 1;				

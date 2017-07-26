@@ -37,7 +37,7 @@ public class ML_SystemState
 	public boolean fieldsInitialized = false;				// Initialized fields
 	
 	public boolean gettingExiftoolPath = false;				// Whether getting path to Exiftool from user
-	public boolean libraryNamed = false;					// Whether new library has been named
+	public boolean libraryNamed = false;						// Whether new library has been named
 	public boolean fieldsNamed = true; 						// Whether new library fields have been named
 	public boolean inFieldNaming = false;					// Whether currently naming fields
 	public String oldFieldName = "";
@@ -63,6 +63,8 @@ public class ML_SystemState
 	 */
 	public void reset()
 	{
+		advanced = true;				// Advanced Mode
+
 		startup = true;
 		running = false;				
 		startedRunning = false;

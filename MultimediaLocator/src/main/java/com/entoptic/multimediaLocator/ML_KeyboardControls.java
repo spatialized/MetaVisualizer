@@ -288,46 +288,6 @@ public class ML_KeyboardControls
 //		if (optionKey && key == '=')
 //			ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() + 3.1415f / 128.f ); 
 
-//		/* Selection */
-//		if (key == 'A') 
-//			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );
-//
-//		if (key == '≈')						// TEST
-//			ml.world.getCurrentField().deselectAllMedia(false);
-//
-//		if (key == 'x') 
-//			ml.world.viewer.chooseMediaInFront(true);
-//
-//		if (key == 'X')
-//			ml.world.viewer.chooseMediaInFront(false);
-//
-//		if (key == 'k') 		
-//			ml.world.viewer.choosePanoramaNearby(true);
-//
-//		if (key == 'K') 		
-//			ml.world.viewer.choosePanoramaNearby(false);
-//
-//		if (key == 'S')						// Save all fields
-//		{
-//			if(ml.world.getFields().size() > 1)
-//				ml.world.saveLibrary();
-//			else
-//				ml.world.saveCurrentFieldState();
-//		}
-//
-//		if (key == 'µ')		// opt + m
-//		{
-//			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection(), true );
-//			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
-//				ml.world.viewer.setSelection( true );
-//		}
-//		
-//		if (key == 'ß')		// opt + s
-//		{
-//			ml.world.viewer.setGroupSelection( !ml.world.viewer.getGroupSelection(), true );
-//			if(ml.world.viewer.getGroupSelection() && !ml.world.viewer.inSelectionMode())
-//				ml.world.viewer.setSelection( true );
-//		}
 //
 //		/* GPS */
 ////		if (!optionKey && key == 'g') 
@@ -475,7 +435,19 @@ public class ML_KeyboardControls
 	 */
 	public void handleWorldViewKeyReleased(MultimediaLocator ml, char key, int keyCode)
 	{
-		
+		/* Time */
+		if (key == '[') 
+			ml.world.decrementTime();
+
+		if (key == ']') 
+			ml.world.incrementTime();
+
+		if (key == '(') 
+			ml.world.decrementTimeCycleLength();
+
+		if (key == ')') 
+			ml.world.incrementTimeCycleLength();
+
 		if (key == 'M') 
 		{
 			boolean state = !ml.world.getState().showMetadata;
@@ -1070,11 +1042,14 @@ public class ML_KeyboardControls
 		{
 			ml.state.inLibrarySetup = true;
 			if(ml.createNewLibrary) ml.createNewLibrary = false;
-			ml.display.window.btnCreateLibrary.setVisible(false);
-			ml.display.window.btnOpenLibrary.setVisible(false);
-			ml.display.window.chkbxRebuildLibrary.setVisible(false);
-//			ml.display.window.btnLibraryHelp.setVisible(false);
-			ml.display.window.lblStartup.setVisible(false);
+			if(ml.display.window.btnCreateLibrary != null)
+				ml.display.window.btnCreateLibrary.setVisible(false);
+			if(ml.display.window.btnOpenLibrary != null)
+				ml.display.window.btnOpenLibrary.setVisible(false);
+			if(ml.display.window.chkbxRebuildLibrary != null)
+				ml.display.window.chkbxRebuildLibrary.setVisible(false);
+			if(ml.display.window.lblStartup != null)
+				ml.display.window.lblStartup.setVisible(false);
 		}
 
 		if(key == 'c' || key == 'C')

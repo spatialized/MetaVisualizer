@@ -1,9 +1,11 @@
 package main.java.com.entoptic.multimediaLocator;
 
+//import processing.core.PApplet;
 import processing.core.PVector;
 
 /**
  * Button class
+ * Constructor Note: Use rectMode(CORNER) before displaying
  * @author davidgordon
  */
 public class ML_Button
@@ -18,7 +20,7 @@ public class ML_Button
 	public float leftEdge, rightEdge, topEdge, bottomEdge;
 	
 	/**
-	 * Constructor for button
+	 * Constructor for button (Note: Use rectMode(CORNER) before displaying)
 	 * @param newID
 	 * @param newText
 	 * @param newTextSize
@@ -29,6 +31,7 @@ public class ML_Button
 	 */
 	ML_Button(int newID, String newText, float newTextSize, float newLeftEdge, float newRightEdge, float newTopEdge, float newBottomEdge)
 	{
+//		System.out.println("ML_Button.ML_Button(): "+newText+"  newTopEdge:"+newTopEdge);
 		id = newID;
 		text = newText;
 		textSize = newTextSize;
@@ -94,6 +97,7 @@ public class ML_Button
 	{
 		if(visible)
 		{
+//			p.ml.rectMode(PApplet.CORNER);				// Specify top left point in rect()
 			float textWidthFactor = 2.f / textSize;
 			float textHeightFactor = 5.f / textSize;
 
@@ -131,8 +135,10 @@ public class ML_Button
 			float width = rightEdge-leftEdge;
 			float height = bottomEdge-topEdge;
 
-			p.ml.rect(leftEdge+width/2.f, topEdge+height/2.f, width, height);
+//			p.ml.rect(leftEdge-width/2.f, topEdge-height/2.f, width, height);
+			p.ml.rect(leftEdge, topEdge, width, height);
 			p.ml.popMatrix();
+//			p.ml.rectMode(PApplet.CENTER);				// Return rect mode to Center
 		}
 	}
 }

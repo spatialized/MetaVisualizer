@@ -7,8 +7,10 @@ package main.java.com.entoptic.multimediaLocator;
 public class WMV_WorldState
 {
 	/* Time */
-	public boolean timeFading = false;					// Does time affect media brightness? 
-	public boolean paused = false;						// Time is paused
+	public boolean timeFading = true;					// Does time affect media brightness? 
+//	public boolean timeFading = false;					// Does time affect media brightness? 
+	public boolean paused = true;						// Time is paused
+//	public boolean paused = false;						// Time is paused
 	private int currentTimeCycleFrame = 0;				// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 	public int frameCount = 0;							// Frame count
@@ -142,7 +144,6 @@ public class WMV_WorldState
 	
 	public void setCurrentTimeCycleFrame(int newTime)
 	{
-		System.out.println("WorldState.setCurrentTimeCycleFrame()... newTime:"+newTime);
 		currentTimeCycleFrame = newTime;
 	}
 }

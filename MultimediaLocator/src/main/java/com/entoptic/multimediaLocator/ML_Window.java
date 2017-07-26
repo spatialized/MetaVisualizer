@@ -27,7 +27,7 @@ public class ML_Window
 	private final int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 	
 	/* Windows */
-	private final int windowWidth = 310;
+	private final int windowWidth = 310, timeWindowWidth = 390;
 	private final int shortWindowHeight = 340, mediumWindowHeight = 600;
 	public boolean compressTallWindows = false;
 
@@ -91,7 +91,7 @@ public class ML_Window
 	public int textEntryWindowResultCode = -1;		// 1: GPS Track  
 	
 	/* Main Window */
-	private GButton btnNavigationWindow, btnMediaWindow, btnPreferencesWindow, btnMapWindow, btnTimeWindow, btnHelpWindow;
+	private GButton btnNavigationWindow, btnMediaWindow, btnPreferencesWindow, btnTimeWindow;//, btnHelpWindow;
 	public GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
 	private GLabel lblViewMode, lblOpenMenu, lblLibraryCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
@@ -140,7 +140,7 @@ public class ML_Window
 	private int navigationWindowLineBreakY_1, navigationWindowLineBreakY_2, navigationWindowLineBreakY_3, navigationWindowLineBreakY_4, navigationWindowLineBreakY_5;		
 	int navigationWindowHeight, navigationWindowWidth;
 	
-	private GLabel lblTimeWindow, lblTimeCycle, lblTimeMode;										/* Time Controls */
+	private GLabel lblTimeCycle, lblTimeMode;										/* Time Controls */
 	public GLabel lblMediaLength, lblTimeCycleLength, lblCurrentTime, lblClusterLength;
 	public GLabel lblTime;
 	public GCheckbox chkbxPaused, chkbxTimeFading;
@@ -209,7 +209,7 @@ public class ML_Window
 //	private GButton btnAboutHelp, btnImportHelp, btnCloseHelp;
 	public int helpAboutText = 0;		// Whether showing  0: About Text  1: Importing Files Help Text, or 2: Keyboard Shortcuts
 	int helpWindowHeight;
-	private GButton btnHelpWindowExit, btnHelpWindowClose;		
+//	private GButton btnHelpWindowExit, btnHelpWindowClose;		
 
 	/* Margins */
 	private int iLeftMargin = 15;			
@@ -260,7 +260,7 @@ public class ML_Window
 		navigationWindowWidth = windowWidth;
 		mediaWindowHeight = mediumWindowHeight + 148;
 		mediaWindowWidth = windowWidth;
-		timeWindowHeight = shortWindowHeight - 20;
+		timeWindowHeight = shortWindowHeight - 30;
 		preferencesWindowHeight = mediumWindowHeight + 130;
 		helpWindowHeight = mediumWindowHeight + 100;
 	}
@@ -395,7 +395,7 @@ public class ML_Window
 		y += iSmallBoxHeight;
 		btnRestart = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Close Library  ⇧R");
 		btnRestart.tag = "CloseLibrary";
-		btnRestart.setLocalColorScheme(G4P.ORANGE_SCHEME);
+		btnRestart.setLocalColorScheme(G4P.RED_SCHEME);
 
 		x = 0;
 		y += iMediumBoxHeight;
@@ -914,10 +914,10 @@ public class ML_Window
 		
 //		y += 10;
 		
-		x = 80;
+		x = 70;
 //		y += iVeryLargeBoxHeight;
 //		mediaWindowLineBreakY_3 = y - 4;
-		lblSelection = new GLabel(mediaWindow, x, y, 95, iMediumBoxHeight, "Selection");
+		lblSelection = new GLabel(mediaWindow, x, y, 115, iMediumBoxHeight, "Select Media");
 		lblSelection.setLocalColorScheme(G4P.SCHEME_10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
@@ -1317,7 +1317,7 @@ public class ML_Window
 			topEdge = timeWindowY;
 		}
 
-		timeWindow = GWindow.getWindow(world.ml, "Time", leftEdge, topEdge, windowWidth, timeWindowHeight, PApplet.JAVA2D);
+		timeWindow = GWindow.getWindow(world.ml, "Time", leftEdge, topEdge, timeWindowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
 		timeWindow.addData(new ML_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
@@ -1339,23 +1339,23 @@ public class ML_Window
 //		btnTimeView.tag = "SetTimeView";
 //		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 //		btnTimeView.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x = 90;
-//		y += iLargeBoxHeight;
-		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 165, iVerySmallBoxHeight, "On / Off (f)");
-		chkbxTimeFading.tag = "TimeFading";
-		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxTimeFading.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize-1));
-		chkbxTimeFading.setSelected(world.getState().timeFading);
-
+		
 		x = iLeftMargin;
-		y += iMediumBoxHeight * 0.5f;
+//		y += iMediumBoxHeight * 0.5f;
 		lblTimeCycle = new GLabel(timeWindow, x, y, 85, iVerySmallBoxHeight, "Time");
 		lblTimeCycle.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeCycle.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
-		x = 90;
-		y += iMediumBoxHeight * 0.5f;
+		x = 95;
+//		y += iLargeBoxHeight;
+		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 155, iVerySmallBoxHeight, "On / Off (f)");
+		chkbxTimeFading.tag = "TimeFading";
+		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxTimeFading.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		chkbxTimeFading.setSelected(world.getState().timeFading);
+
+		x += 160;
+//		y += iMediumBoxHeight * 0.5f;
 		chkbxPaused = new GCheckbox(timeWindow, x, y, 140, iVerySmallBoxHeight, "Pause (-)");
 		chkbxPaused.tag = "Paused";
 		chkbxPaused.setLocalColorScheme(G4P.SCHEME_10);
@@ -1368,7 +1368,7 @@ public class ML_Window
 		lblTimeMode.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeMode.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
-		x = 90;
+		x = 95;
 		optClusterTimeMode = new GOption(timeWindow, x, y, 100, 20, "Location");
 		optClusterTimeMode.setLocalColorScheme(G4P.SCHEME_10);
 		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
@@ -1398,10 +1398,29 @@ public class ML_Window
 		tgTimeMode.addControls(optClusterTimeMode, optFieldTimeMode);
 		world.ml.delay(delayAmount);
 
-		x = 120;
-		y += 5;
-		sdrCurrentTime = new GSlider(timeWindow, x, y+10, 160, 80, 24);
-		sdrCurrentTime.setLocalColorScheme(G4P.GREEN_SCHEME);
+		x = 0;
+//		y += iLargeBoxHeight;
+		
+//		lblCurrentTime = new GLabel(timeWindow, x, y, timeWindowWidth, iVerySmallBoxHeight, "Current");
+//		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
+//		lblCurrentTime.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+//		lblCurrentTime.setLocalColorScheme(G4P.SCHEME_10);
+//		lblCurrentTime.setTextBold();
+
+		y += iMediumBoxHeight;
+		
+		lblCurrentTime = new GLabel(timeWindow, x, y, timeWindowWidth, iVerySmallBoxHeight, "00:00:00");
+		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
+		lblCurrentTime.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblCurrentTime.setLocalColorScheme(G4P.SCHEME_10);
+
+		world.ml.display.updateTimeWindowCurrentTime();
+		
+		x = 35;
+		
+		sdrCurrentTime = new GSlider(timeWindow, x, y+10, timeWindowWidth - 70, 80, 24);
+		sdrCurrentTime.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		sdrCurrentTime.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
 		sdrCurrentTime.setValue(world.getCurrentTime());
 //		sdrCurrentTime.setValue(world.getCurrentTime() / world.getFieldTimeCycleLength());
@@ -1410,14 +1429,14 @@ public class ML_Window
 		sdrCurrentTime.setShowValue(true);
 		sdrCurrentTime.tag = "SetCurrentTime";
 
-		x = 35;
-		y += iVeryLargeBoxHeight;
-		lblCurrentTime = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Current Time");
-		lblCurrentTime.setLocalColorScheme(G4P.SCHEME_10);
+//		x = 35;
+//		y += iVeryLargeBoxHeight;
+//		lblCurrentTime = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Current Time");
+//		lblCurrentTime.setLocalColorScheme(G4P.SCHEME_10);
 
-		x = 120;
-		y += 10;
-		sdrMediaLength = new GSlider(timeWindow, x, y, 160, 80, 20);
+		x = 140;
+		y += iVeryLargeBoxHeight + 20;
+		sdrMediaLength = new GSlider(timeWindow, x, y, 200, 80, 20);
 		sdrMediaLength.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrMediaLength.setLimits(world.settings.staticMediaLength, 10.f, 1000.f);	// -- Update limits in realtime to match time cycle length?
 		sdrMediaLength.setValue(world.settings.staticMediaLength);
@@ -1426,14 +1445,14 @@ public class ML_Window
 		sdrMediaLength.setShowValue(true);
 		sdrMediaLength.tag = "MediaLength";
 
-		x = 35;
-		y += 30;
+		x = 55;
+		y += 25;
 		lblMediaLength = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Media Length");
 		lblMediaLength.setLocalColorScheme(G4P.SCHEME_10);
 
-		x = 120;
+		x = 140;
 		y += 10;
-		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 200, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrTimeCycleLength.setLimits(world.settings.timeCycleLength, world.settings.minTimeCycleLength, world.settings.maxTimeCycleLength);
 		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
@@ -1442,16 +1461,16 @@ public class ML_Window
 		sdrTimeCycleLength.setShowValue(true);
 		sdrTimeCycleLength.tag = "TimeCycleLength";
 
-		x = 35;
+		x = 55;
 		y += 30;
 		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, iVerySmallBoxHeight, "Cycle Length");
 		lblTimeCycleLength.setLocalColorScheme(G4P.SCHEME_10);
 
 		world.ml.delay(delayAmount / 2);
 	
-		x = 120;
+		x = 140;
 		y += 10;
-		sdrClusterLength = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrClusterLength = new GSlider(timeWindow, x, y, 200, 80, 20);
 		sdrClusterLength.setLocalColorScheme(G4P.GREEN_SCHEME);
 		sdrClusterLength.setLimits(world.settings.clusterLength, 0.f, 1.f);
 		sdrClusterLength.setValue(world.settings.clusterLength);
@@ -1460,7 +1479,7 @@ public class ML_Window
 		sdrClusterLength.setShowValue(true);
 		sdrClusterLength.tag = "ClusterLength";
 		
-		x = 35;
+		x = 55;
 		y += 30;
 		lblClusterLength = new GLabel(timeWindow, x, y, 120, iVerySmallBoxHeight, "Cluster Length");
 		lblClusterLength.setLocalColorScheme(G4P.SCHEME_10);
@@ -2041,7 +2060,7 @@ public class ML_Window
 	 * @param list List items
 	 * @return Index of chosen item from list
 	 */
-	public void openListItemWindow(ArrayList<String> list, String promptText, int resultCode)
+	public void openListItemWindow(ArrayList<String> list, String promptText, int resultCode, boolean setup)
 	{
 		if(list.size() > 0)
 		{

@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import processing.core.PApplet;
 import processing.core.PVector;
 
 /*********************************************
@@ -1543,8 +1545,8 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			}
 			else
 			{
-//				if(debugSettings.cluster || debugSettings.time)
-//					System.out.println("Date doesn't exist in cluster #"+getID()+"... "+date);
+				if(debug.cluster || debug.time)
+					System.out.println("Date doesn't exist in cluster #"+getID()+"... "+date);
 				return null;
 			}
 		}
@@ -2288,6 +2290,21 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	public PVector getLocation()
 	{
 		return state.location;
+	}
+	
+	/**
+	 * Get viewer GPS location in format: {longitude, latitude}
+	 * @return Current GPS location
+	 */
+	public PVector getGPSLocation(WMV_World p)
+	{
+		PVector vLoc = getLocation();
+		WMV_ModelState m = p.getCurrentField().getModel().getState();
+		
+		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+		return new PVector(newX, newY);
 	}
 	
 	/**

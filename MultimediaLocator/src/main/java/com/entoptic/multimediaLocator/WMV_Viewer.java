@@ -1185,23 +1185,24 @@ public class WMV_Viewer
 		if(currentDate)		// On current date
 		{
 			int nextFieldDate = Integer.valueOf(state.currentFieldDate);
-			newSegment = state.currentFieldTimeSegmentWithDate + 1;
+			int nextTimelinesSegment = state.currentFieldTimeSegmentWithDate + 1;
+//			newSegment = state.currentFieldTimeSegmentWithDate + 1;
 			
 			if(nextFieldDate >= p.getCurrentField().getTimelines().size())								// Past dateline end
 			{
 				nextFieldDate = 0;
-				newSegment = 0;
+				nextTimelinesSegment = 0;
 				if(set)
 				{
 					state.currentFieldDate = nextFieldDate;
-					state.currentFieldTimeSegmentWithDate = newSegment;
+					state.currentFieldTimeSegmentWithDate = nextTimelinesSegment;
 				}
 				p.ml.systemMessage( "Viewer.chooseNextTimeSegment()... nextFieldDate was greater than timelines.size(): "
 									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
 			}
 			else	
 			{
-				if(newSegment >= p.getCurrentField().getTimelines().get(nextFieldDate).timeline.size()) 	// Reached end of day
+				if(nextTimelinesSegment >= p.getCurrentField().getTimelines().get(nextFieldDate).timeline.size()) 	// Reached end of day
 				{
 					if(debug.viewer) p.ml.systemMessage("Viewer.chooseNextTimeSegment()... Reached end of day...");
 					nextFieldDate++;
@@ -1209,8 +1210,8 @@ public class WMV_Viewer
 					{
 						if(debug.viewer) p.ml.systemMessage("Viewer.chooseNextTimeSegment()... Reached end of year...");
 						nextFieldDate = 0;
-						newSegment = 0;
-						if(set)	setCurrentFieldTimeSegmentWithDate(nextFieldDate, newSegment, true, true, true);		// Return to first segment
+						nextTimelinesSegment = 0;
+						if(set)	setCurrentFieldTimeSegmentWithDate(nextFieldDate, nextTimelinesSegment, true, true, true);		// Return to first segment
 					}
 					else
 					{
@@ -1220,19 +1221,19 @@ public class WMV_Viewer
 							if(nextFieldDate >= p.getCurrentField().getDateline().size())
 								nextFieldDate = 0;
 						}
-						if(debug.viewer) p.ml.systemMessage("Chose next date: "+nextFieldDate);
-						if(set) setCurrentFieldTimeSegmentWithDate(nextFieldDate, 0, true, true, true);								// Start at first segment
+						if(debug.viewer) p.ml.systemMessage("Viewer.chooseNextTimeSegment()... Chose next date: "+nextFieldDate);
+						nextTimelinesSegment = 0;
+						if(set) setCurrentFieldTimeSegmentWithDate(nextFieldDate, nextTimelinesSegment, true, true, true);								// Start at first segment
 					}
 				}
 				else
 				{
-					if(set) setCurrentFieldTimeSegmentWithDate(nextFieldDate, newSegment, true, true, true);
+					if(set) setCurrentFieldTimeSegmentWithDate(nextFieldDate, nextTimelinesSegment, true, true, true);
 				}
 			}
 			
 			if(!set) state.nextFieldDate = nextFieldDate;
-
-			newSegment = p.getCurrentField().getTimelines().get(nextFieldDate).timeline.get(newSegment).getFieldTimelineID();		// Convert to field time segment
+			newSegment = p.getCurrentField().getTimelines().get(nextFieldDate).timeline.get(nextTimelinesSegment).getFieldTimelineID();		// Convert to field time segment
 		}
 		else				// On any date
 		{
@@ -3758,17 +3759,6 @@ public class WMV_Viewer
 		}
 	}
 	
-//	private void transitionToFieldTimelinesID(int goalID)
-//	{
-////		public PVector timeTransitionStartID;								// Distance covered over one frame during GPS track transition 
-////		public PVector timeTransitionGoalID;									// Distance covered over one frame during GPS track transition 
-////		public final int timeTransitionLength;								// Frame length of GPS track transition
-////		public int timeTransitionStartFrame, timeTransitionEndFrame;			// GPS track transition start / end frame
-//
-//		state.timeTransitionStartID = ;										// Distance covered over one frame during GPS track transition 
-//		state.timeTransitionGoalID = goalID;									// Distance covered over one frame during GPS track transition 
-//	}
-	
 	/**
 	 * Choose GPS track from list and set to selected
 	 */
@@ -3777,7 +3767,7 @@ public class WMV_Viewer
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
 		if(p.ml.display.initializedMaps)
 			p.ml.display.map2D.createdGPSMarker = false;
-		p.ml.display.window.openListItemWindow(tracks, "Use arrow keys to select GPS track file and press ENTER", 1);
+		p.ml.display.window.openListItemWindow(tracks, "Use arrow keys to select GPS track file and press ENTER", 1, false);
 	}
 	
 	/**
@@ -3807,7 +3797,7 @@ public class WMV_Viewer
 	public void chooseFieldDialog()
 	{
 		ArrayList<String> fields = p.getFieldNames();
-		p.ml.display.window.openListItemWindow(fields, "Use arrow keys to select field and press ENTER...", 0);
+		p.ml.display.window.openListItemWindow(fields, "Use arrow keys to select field and press ENTER...", 0, true);
 	}
 
 	/**
@@ -4860,7 +4850,7 @@ public class WMV_Viewer
 
 			if(c != null) c.getState().timeFading = false;
 			
-			state.currentCluster = newCluster;
+			state.currentCluster = newCluster;							// Set new current cluster
 			c = p.getCurrentCluster();
 			
 			if(debug.viewer && debug.detailed) 
@@ -4913,6 +4903,9 @@ public class WMV_Viewer
 				
 				if(c.getViewerDistance() < p.settings.clusterCenterSize) 
 					state.atCurrentCluster = true;										// Viewer is at current cluster
+				
+				if(p.ml.display.getDisplayView() == 3 && p.ml.display.getLibraryViewMode() == 2)			// Update media grid if visible
+					p.ml.display.updateSelectableMedia();
 			}
 			else
 			{

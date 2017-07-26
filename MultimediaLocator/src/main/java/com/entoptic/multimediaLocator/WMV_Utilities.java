@@ -26,19 +26,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
@@ -624,9 +616,12 @@ public class WMV_Utilities
 	 * Get GPS track as formatted string
 	 * @param loc {longitude, latitude}
 	 */
-	public String formatGPSLocation(PVector loc)
+	public String formatGPSLocation(PVector loc, boolean labels)
 	{
-		return "Lon:"+round(loc.x, 4)+" Lat:"+round(loc.y, 4);
+		if(labels)
+			return "Lat:"+round(loc.y, 4)+", Lon:"+round(loc.x, 4);
+		else
+			return ""+round(loc.y, 4)+", "+round(loc.x, 4);
 	}
 
 	/**

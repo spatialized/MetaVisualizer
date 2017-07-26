@@ -344,28 +344,28 @@ public class WMV_Time implements Comparable<WMV_Time>
 	public String getFormattedTime(boolean showSeconds, boolean military)
 	{
 		boolean pm = false;
-
+		int curHour = getHour();
 		if(!military) 
 		{
-			if(hour == 0 && minute == 0) 
+			if(curHour == 0 && minute == 0) 
 			{
-				hour = 12;
+				curHour = 12;
 				pm = false;
 			}
 			else
 			{
-				if(hour == 0) hour = 12;
+				if(curHour == 0) curHour = 12;
 
-				if(hour > 12)
+				if(curHour > 12)
 				{
-					hour -= 12;
-					if(hour < 12) pm = true;
+					curHour -= 12;
+					if(curHour < 12) pm = true;
 				}
-				else if(hour == 12) pm = true;
+				else if(curHour == 12) pm = true;
 			}
 		}
 
-		String strHour = String.valueOf(hour);
+		String strHour = String.valueOf(curHour);
 
 		String strMinute = String.valueOf(minute);
 		if(minute < 10) strMinute = "0"+strMinute;
@@ -387,6 +387,57 @@ public class WMV_Time implements Comparable<WMV_Time>
 			else
 				return  strHour + ":" + strMinute + (pm ? " pm" : " am");
 		}
+	}
+	
+	public String getFormattedDate()
+	{
+		int year = getYear();
+		int month = getMonth();
+		int day = getDay();
+		String monthStr = "";
+
+		switch(month)
+		{
+		case 1:
+			monthStr = "January";
+			break;
+		case 2:
+			monthStr = "February";
+			break;
+		case 3:
+			monthStr = "March";
+			break;
+		case 4:
+			monthStr = "April";
+			break;
+		case 5:
+			monthStr = "May";
+			break;
+		case 6:
+			monthStr = "June";
+			break;
+		case 7:
+			monthStr = "July";
+			break;
+		case 8:
+			monthStr = "August";
+			break;
+		case 9:
+			monthStr = "September";
+			break;
+		case 10:
+			monthStr = "October";
+			break;
+		case 11:
+			monthStr = "November";
+			break;
+		case 12:
+			monthStr = "December";
+			break;
+		}
+
+		String result = monthStr+" "+String.valueOf(day)+", "+String.valueOf(year);
+		return result;
 	}
 	
 	/**

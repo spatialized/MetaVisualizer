@@ -529,7 +529,7 @@ public class MultimediaLocator extends PApplet
 				else
 				{
 					systemMessage( "ML.initializeField()... ERROR initializing field #"+fieldID+"... will restart program...");
-//					display.window.closeAllWindows();
+
 					restart();
 				}
 			}
@@ -655,7 +655,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void restart()
 	{
-		if(debug.ml) systemMessage("ML.restart()... Restarting...");
+		if(debug.ml) System.out.println("ML.restart()... Restarting...");
 
 		display.disableLostFocusHook = true;
 		display.window.closeAllWindows();
@@ -671,9 +671,6 @@ public class MultimediaLocator extends PApplet
 
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
-
-//		initCubeMap();
-
 
 		systemMessages = new ArrayList<String>();				// Clear system messages
 		world.reset(true);										// Reset world

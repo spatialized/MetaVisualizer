@@ -124,7 +124,7 @@ public class WMV_Date implements Comparable<WMV_Date>
 	 * Get date as a string in format "January 1, 2000"
 	 * @return Date string
 	 */
-	public String getDateAsString()
+	public String getFormattedDate()
 	{
 		int year = getYear();
 		int month = getMonth();

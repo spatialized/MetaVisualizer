@@ -682,7 +682,9 @@ public class WMV_Field
 		
 		brightness *= distanceBrightnessFactor; 				// Fade iBrightness based on distance to camera
 
-		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
+//		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
+//			brightness *= m.getTimeBrightness(); 				// Fade iBrightness based on time
+		if( getWorldState().timeFading && m.time != null )
 			brightness *= m.getTimeBrightness(); 				// Fade iBrightness based on time
 
 		float angleBrightnessFactor;							// Fade with angle
@@ -740,7 +742,8 @@ public class WMV_Field
 		float distanceBrightnessFactor = n.getDistanceBrightness(ml.world.viewer); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( getWorldState().timeFading && n.time != null && !getViewerState().isMoving() )
+//		if( getWorldState().timeFading && n.time != null && !getViewerState().isMoving() )
+		if( getWorldState().timeFading && n.time != null )
 			brightness *= n.getTimeBrightness(); 					// Fade brightness based on time
 
 		n.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
@@ -791,7 +794,8 @@ public class WMV_Field
 
 		brightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
 
-		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
+//		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
+		if( getWorldState().timeFading && v.time != null )
 			brightness *= v.getTimeBrightness(); 					// Fade brightness based on time
 
 		if(v.state.isClose && distanceBrightnessFactor == 0.f)					// Video recently moved out of range
@@ -863,7 +867,8 @@ public class WMV_Field
 		distanceBrightness = s.getDistanceBrightness(ml.world.viewer); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
-		if( getWorldState().timeFading && s.time != null && !getViewerState().isMoving() )
+//		if( getWorldState().timeFading && s.time != null && !getViewerState().isMoving() )
+		if( getWorldState().timeFading && s.time != null )
 			brightness *= s.getTimeBrightness(); 					// Fade brightness based on time
 
 		s.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range

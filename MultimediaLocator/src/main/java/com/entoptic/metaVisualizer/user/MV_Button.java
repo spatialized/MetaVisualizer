@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.gui;
+package main.java.com.entoptic.metaVisualizer.user;
 
 import main.java.com.entoptic.metaVisualizer.world.WMV_World;
 //import processing.core.PApplet;

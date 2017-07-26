@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.gui;
+package main.java.com.entoptic.metaVisualizer.user;
 
 import java.util.ArrayList;
 import java.util.List;

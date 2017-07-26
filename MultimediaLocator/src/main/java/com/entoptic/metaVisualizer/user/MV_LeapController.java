@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.misc;
+package main.java.com.entoptic.metaVisualizer.user;
 
 public class MV_LeapController {
 

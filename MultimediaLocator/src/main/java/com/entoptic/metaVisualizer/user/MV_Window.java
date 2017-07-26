@@ -1,4 +1,4 @@
-package main.java.com.entoptic.metaVisualizer.gui;
+package main.java.com.entoptic.metaVisualizer.user;
 
 import java.awt.Canvas;
 import java.awt.Font;

@@ -14,7 +14,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import main.java.com.entoptic.metaVisualizer.MetaVisualizer;
-import main.java.com.entoptic.metaVisualizer.gui.MV_Input;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Image;
 import main.java.com.entoptic.metaVisualizer.media.WMV_ImageStateList;
 import main.java.com.entoptic.metaVisualizer.media.WMV_Panorama;
@@ -28,6 +27,7 @@ import main.java.com.entoptic.metaVisualizer.model.WMV_Cluster;
 import main.java.com.entoptic.metaVisualizer.model.WMV_ClusterStateList;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Model;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Time;
+import main.java.com.entoptic.metaVisualizer.user.MV_Input;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;

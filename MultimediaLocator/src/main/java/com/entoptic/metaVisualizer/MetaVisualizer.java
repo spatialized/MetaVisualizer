@@ -2090,74 +2090,10 @@ public class MetaVisualizer extends PApplet
 				else if(event.getID() == FocusEvent.FOCUS_GAINED)
 				{
 					String windowTitle = nativeFrame.getTitle();
-					display.window.handleWindowGainedFocus(state.running, windowTitle);
-				}
-//				else if(event.getID() == java.awt.event.WindowEvent.WINDOW_DEACTIVATED)
-//				{
-//					String windowTitle = nativeFrame.getTitle();
-//					display.window.handleWindowDeactivated(state.running, windowTitle);
-//				}
-//				else if(event.getID() == java.awt.event.WindowEvent.WINDOW_ACTIVATED)
-//				{
-//					String windowTitle = nativeFrame.getTitle();
-//					display.window.handleWindowActivated(state.running, windowTitle);
-//				}
-				else
-				{
-//					String windowTitle = nativeFrame.getTitle();
-//					System.out.println("Unknown Window Event... windowTitle:"+windowTitle+" event.getID():"+event.getID()+ " ... " + event.toString());
+					if(!display.disableLostFocusHook)
+						display.window.handleWindowGainedFocus(state.running, windowTitle);
 				}
 			}
-			
-//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
-//			System.out.println(">>> event:"+event);
-//			System.out.println(">> source:"+event.getSource()+" type:"+event.getSource().getClass());
-//
-//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
-//			{
-//				JFrame jFrame;
-//				jFrame = (JFrame)event.getSource();
-////				if(jFrame.getName().equals("frame0"))
-//				{
-//					if(event.getID() == FocusEvent.FOCUS_LOST)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  lost focus...");
-//					}
-//					else if(event.getID() == FocusEvent.FOCUS_GAINED)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  gained focus...");
-//					}
-//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_GAINED_FOCUS)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  window gained focus...");
-//					}
-//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_LOST_FOCUS)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  lost focus...");
-//					}
-//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_ACTIVATED)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  activated...");
-//					}
-//					else if(event.getID() == java.awt.event.WindowEvent.WINDOW_DEACTIVATED)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  deactivated...");
-//					}
-//					else if(event.getID() == sun.awt.TimedWindowEvent.WINDOW_GAINED_FOCUS)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  timed window gained focus...");
-//					}
-//					else if(event.getID() == sun.awt.TimedWindowEvent.WINDOW_LOST_FOCUS)
-//					{
-//						systemMessage("WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  timed window lost focus...");
-//					}
-//					else
-//					{
-//						systemMessage(">>>>>>>> WMV_EventListener.eventDispatched()... "+jFrame.getName()+"  changed... event.getID():"+event.getID()+" focus lost == "+FocusEvent.FOCUS_LOST);
-//						systemMessage("     event class name :"+event.getClass().getName()+"..."+event.getClass().toString());
-//					}
-//				}
-//			}
 		}
 	}
 

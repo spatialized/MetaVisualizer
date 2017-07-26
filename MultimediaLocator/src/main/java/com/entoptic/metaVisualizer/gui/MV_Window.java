@@ -262,7 +262,7 @@ public class MV_Window
 		navigationWindowWidth = windowWidth;
 		mediaWindowHeight = mediumWindowHeight + 148;
 		mediaWindowWidth = windowWidth;
-		timeWindowHeight = shortWindowHeight;
+		timeWindowHeight = shortWindowHeight + 15;
 		preferencesWindowHeight = mediumWindowHeight + 130;
 		helpWindowHeight = mediumWindowHeight + 100;
 	}
@@ -2084,8 +2084,16 @@ public class MV_Window
 	{
 		if(list.size() > 0)
 		{
-			if(!world.mv.display.disableLostFocusHook) 
-				world.mv.display.disableLostFocusHook = true;
+			if(setup)
+			{
+				if(world.mv.display.disableLostFocusHook) 
+					world.mv.display.disableLostFocusHook = false;
+			}
+			else
+			{
+				if(!world.mv.display.disableLostFocusHook) 
+					world.mv.display.disableLostFocusHook = true;
+			}
 
 			listItemWindowList = new ArrayList<String>(list);
 			listItemWindowText = promptText;
@@ -2114,6 +2122,8 @@ public class MV_Window
 	 */
 	public void closeListItemWindow()
 	{
+		world.mv.systemMessage("Window.closeListItemWindow()... ");
+		
 		if(world.mv.display.disableLostFocusHook) 
 			world.mv.display.disableLostFocusHook = false;
 		
@@ -2122,6 +2132,8 @@ public class MV_Window
 		listItemWindow.close();
 		listItemWindow.dispose();
 		showListItemWindow = false;
+		
+		world.mv.delay(1);
 	}
 
 	/**
@@ -2188,8 +2200,6 @@ public class MV_Window
 //				System.out.println("Window.handleWindowLostFocus()... Main Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
 				break;
 			case " ":				// Startup Window
-//				System.out.println("Window.handleWindowLostFocus()... Startup Window ... running? "+running+" showStartupWindow: "+showStartupWindow+" closeStartupWindow:"+closeStartupWindow);
-//				System.out.println("    showListItemWindow: "+showListItemWindow);
 				if(closeStartupWindow)
 				{
 					closeStartupWindow = false;
@@ -2212,7 +2222,6 @@ public class MV_Window
 				}
 				break;
 			case "   ":				// List Item Window
-//				System.out.println("Window.handleWindowLostFocus()... List Item Window lost focus... closeListItemWindow:"+closeListItemWindow);
 				if(closeListItemWindow)
 				{
 					closeListItemWindow = false;
@@ -2220,6 +2229,7 @@ public class MV_Window
 				}
 				else if(showListItemWindow)
 				{
+					System.out.println("1 will show list item window");
 					showListItemWindow(true);
 				}
 				break;
@@ -2271,10 +2281,10 @@ public class MV_Window
 				System.out.println("handleWindowGainedFocus()... Startup Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
 				break;
 			case "  ":				// Text Entry Window
-				System.out.println("handleWindowGainedFocus()... Text Entry Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				System.out.println("handleWindowGainedFocus()... Text Entry Window ... running? "+running+" showTextEntryWindow: "+showTextEntryWindow+" closeTextEntryWindow:"+closeTextEntryWindow);
 				break;
 			case "   ":				// List Item Window
-				System.out.println("handleWindowGainedFocus()... Text Entry Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				System.out.println("handleWindowGainedFocus()... List Item Window ... running? "+running+" showListItemWindow: "+showListItemWindow+" closeListItemWindow:"+closeListItemWindow);
 				break;
 			case "Main Menu":
 				break;
@@ -3059,68 +3069,87 @@ public class MV_Window
 	 */
 	public void showStartupWindow(boolean force)
 	{
-		if(force)
+		if(!closeStartupWindow)
 		{
-			showStartupWindow = false;
-			startupWindow.setVisible(false);
-			startupWindow.setVisible(true);
-			showStartupWindow = true;
-		}
-		else
-		{
-			if(setupStartupWindow)
+			if(force)
 			{
+				showStartupWindow = false;
+				startupWindow.setVisible(false);
 				startupWindow.setVisible(true);
 				showStartupWindow = true;
+			}
+			else
+			{
+				if(setupStartupWindow)
+				{
+					startupWindow.setVisible(true);
+					showStartupWindow = true;
+				}
 			}
 		}
 	}
 
 	/**
 	 * Show Text Entry Window
-	 * @param force
+	 * @param force Whether to force showing the window (true) or not (false)
 	 */
 	public void showTextEntryWindow(boolean force)
 	{
-		hideWindows();
-		if(force)
+		if(!closeTextEntryWindow)
 		{
-			showTextEntryWindow = false;
-			textEntryWindow.setVisible(false);
-			textEntryWindow.setVisible(true);
-			showTextEntryWindow = true;
-		}
-		else
-		{
-			if(setupTextEntryWindow)
+			hideWindows();
+			if(force)
 			{
+				showTextEntryWindow = false;
+				textEntryWindow.setVisible(false);
 				textEntryWindow.setVisible(true);
 				showTextEntryWindow = true;
 			}
-		}
-	}
-
-	public void showListItemWindow(boolean force)
-	{
-		hideWindows();
-		if(force)
-		{
-			showListItemWindow = false;
-			listItemWindow.setVisible(false);
-			listItemWindow.setVisible(true);
-			showListItemWindow = true;
-		}
-		else
-		{
-			if(setupListItemWindow)
+			else
 			{
-				listItemWindow.setVisible(true);
-				showListItemWindow = true;
+				if(setupTextEntryWindow)
+				{
+					textEntryWindow.setVisible(true);
+					showTextEntryWindow = true;
+				}
 			}
 		}
 	}
 
+	/**
+	 * Show List Item Window
+	 * @param force Whether to force showing the window (true) or not (false)
+	 */
+	public void showListItemWindow(boolean force)
+	{
+		System.out.println("showListItemWindow()... Showing list item window... force? "+force);
 
+//		handleWindowGainedFocus()... List Item Window ... running? true showListItemWindow: true closeListItemWindow:true
+		if(!closeListItemWindow)
+		{
+			hideWindows();
+			if(force)
+			{
+				showListItemWindow = false;
+				listItemWindow.setVisible(false);
+				listItemWindow.setVisible(true);
+				showListItemWindow = true;
+			}
+			else
+			{
+				if(setupListItemWindow)
+				{
+					listItemWindow.setVisible(true);
+					showListItemWindow = true;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Show Create Library Window
+	 * @param force Whether to force showing the window (true) or not (false)
+	 */
 	public void showCreateLibraryWindow(boolean force)
 	{
 		hideWindows();

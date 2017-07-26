@@ -10,9 +10,9 @@ public class MV_DebugSettings
 	public boolean detailed = false;				// Verbose Debug Mode On/Off
 	
 	/* Output Methods */
-	public boolean print = false;					// Print all user messages
+	public boolean print = true;					// Print all user messages
 	public boolean messages = false;				// On screen debug messages
-	public boolean file = false;					// Output debug messages to file
+	public boolean file = true;					// Output debug messages to file
 	
 	/* Main */
 	public boolean ml = false;					// Debug MultimediaLocator class

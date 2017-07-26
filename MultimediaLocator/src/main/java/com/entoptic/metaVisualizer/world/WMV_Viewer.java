@@ -229,9 +229,7 @@ public class WMV_Viewer
 	{
 		if(p.mv.frameCount >= state.timeTransitionEndFrame)
 		{
-
 			state.fadingToTime = false;
-//			state.currentFieldTimeSegment = state.timeTransitionGoalID;
 			state.setCurrentFieldTimeSegment( state.timeTransitionGoalID );
 			
 			if(p.mv.debug.time) 
@@ -262,6 +260,29 @@ public class WMV_Viewer
 			p.setCurrentTimeFromAbsolute(timePoint, true);
 //			p.setCurrentTime(timePoint, true, true);
 		}
+	}
+	
+	public void updateUserTimeTransition()
+	{
+		System.out.println("Viewer.updateUserTimeTransition()... state.fadingFieldTime:"+state.fadingFieldTime+" state.fadingClusterTime:"+state.fadingClusterTime);
+		if(state.fadingFieldTime)
+		{
+			float timePoint = p.getCurrentFieldTime() + state.fadingTimeInc * state.fadingFieldTimeDirection;
+			p.setCurrentFieldTime(timePoint, true);					// Set current Field Time Point
+//			p.setCurrentTimeFromAbsolute(timePoint, true);
+		}
+		else if(state.fadingClusterTime)
+		{
+			float timePoint = p.getCurrentClusterTime() + state.fadingTimeInc * state.fadingClusterTimeDirection;
+			p.setCurrentClusterTime(timePoint, true);				// Set current Cluster Time Point
+//			p.setCurrentTimeFromAbsolute(timePoint, true);
+		}
+//		public boolean fadingFieldTime = false;						// Whether in Field Mode time fading transition
+//		public boolean fadingClusterTime = false;					// Whether in Cluster Mode time fading transition
+//		public float fieldTimeTransitionDirection = 1.f;				// Direction of field time transition {1.f or -1.f}
+//		public float clusterTimeTransitionDirection = 1.f;			// Direction of cluster time transition {1.f or -1.f}
+//		public float fadingTimeInc = 0.005f;							// Time fading amount per frame
+
 	}
 	
 	/**
@@ -821,7 +842,7 @@ public class WMV_Viewer
 						if(p.mv.debug.time)
 							p.mv.systemMessage("Viewer.moveToTimeSegmentInField()... Will transitionToTimeSegmentInClusterMode():"+ state.getCurrentFieldTimeSegment());
 
-						transitionToTimeSegmentInClusterMode(state.getCurrentFieldTimeSegment());
+						transitionToClusterTimeSegment(state.getCurrentFieldTimeSegment());
 					}
 					if(debug.viewer && debug.detailed)
 						p.mv.systemMessage("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
@@ -3674,7 +3695,7 @@ public class WMV_Viewer
 	 * Transition current time point to time of given time segment ID
 	 * @param goalID Goal time segment ID
 	 */
-	private void transitionToFieldTimelineID(int startID, int goalID)
+	private void transitionToFieldTimeSegment(int startID, int goalID)
 	{
 		if(startID != -1 && goalID != -1)
 		{
@@ -3697,6 +3718,73 @@ public class WMV_Viewer
 		}
 	}
 	
+	public void transitionToClusterTimeSegment(int goalID)
+	{
+		if(goalID != -1)
+		{
+			state.fadingToClusterTime = true;
+			state.clusterTimeTransitionStartTimePoint = p.getCurrentClusterTime();
+
+			if(p.mv.debug.time)
+				p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... Set clusterTimeTransitionStartTimePoint:"+state.clusterTimeTransitionStartTimePoint+" while p.getCurrentClusterTime():"+p.getCurrentClusterTime());
+
+			float absoluteTimePoint = p.getCurrentField().getTimeline().timeline.get( goalID ).getCenter().getAbsoluteTime();	// Find goal as absolute time point
+
+			WMV_Cluster c = p.getCurrentCluster();
+			if(c != null)
+			{
+				float lower = c.getTimeline().getLower().getLower().getAbsoluteTime();		// Cluster lowest absolute time 
+				float upper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();		// Cluster highest absolute time 
+				float clusterTimePoint = p.mv.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to cluster
+				clusterTimePoint = PApplet.constrain(clusterTimePoint, 0.f, 1.f);				// Time relative to cluster
+				if(p.mv.debug.time) p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... absoluteTimePoint:"+absoluteTimePoint+" result clusterTimePoint:"+clusterTimePoint);
+
+				state.clusterTimeTransitionGoalTimePoint = clusterTimePoint;
+			}
+			else
+			{
+				if(p.mv.debug.time) 
+					p.mv.systemMessage("World.transitionToTimeSegmentInClusterMode()...  ERROR: No current cluster...");
+			}
+			
+			state.clusterTimeTransitionStartFrame = p.mv.frameCount;
+			state.clusterTimeTransitionEndFrame = p.mv.frameCount + state.clusterTimeTransitionLength;
+		}
+		else
+		{
+			p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... ERROR... invalid goalID:"+goalID);
+		}
+	}
+
+	
+	/**
+	 * Start time fading transition
+	 */
+	public void startTimeFading(float direction)
+	{
+		if(p.getState().getTimeMode() == 0)		// Location
+		{
+			state.fadingClusterTime = true;
+			state.fadingClusterTimeDirection = direction;
+		}
+		else
+		{
+			state.fadingFieldTime = true;
+			state.fadingFieldTimeDirection = direction;
+		}
+	}
+	
+	/**
+	 * Stop time fading transition
+	 */
+	public void stopTimeFading()
+	{
+		if(state.fadingFieldTime)
+			state.fadingFieldTime = false;
+		if(state.fadingClusterTime)
+			state.fadingClusterTime = false;
+	}
+
 	/**
 	 * Choose GPS track from list and set to selected
 	 */
@@ -3705,6 +3793,8 @@ public class WMV_Viewer
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
 		if(p.mv.display.initializedMaps)
 			p.mv.display.map2D.createdGPSMarker = false;
+		if(p.mv.display.window.showNavigationWindow)
+			p.mv.display.window.closeNavigationWindow();
 		p.mv.display.window.openListItemWindow(tracks, "Use arrow keys to select GPS track file and press ENTER", 1, false);
 	}
 	
@@ -3735,6 +3825,8 @@ public class WMV_Viewer
 	public void chooseFieldDialog()
 	{
 		ArrayList<String> fields = p.getFieldNames();
+		if(p.mv.display.window.showNavigationWindow)
+			p.mv.display.window.closeNavigationWindow();
 		p.mv.display.window.openListItemWindow(fields, "Use arrow keys to select field and press ENTER...", 0, true);
 	}
 
@@ -4202,7 +4294,7 @@ public class WMV_Viewer
 					if(p.mv.debug.time)
 						p.mv.systemMessage("Viewer.moveToFirstTimeSegment()... Will transitionToTimeSegmentInClusterMode():"+ state.getCurrentFieldTimeSegment());
 
-					transitionToTimeSegmentInClusterMode(state.getCurrentFieldTimeSegment());
+					transitionToClusterTimeSegment(state.getCurrentFieldTimeSegment());
 				}
 				if(success)
 					break;
@@ -4813,7 +4905,7 @@ public class WMV_Viewer
 								if(p.mv.debug.time)
 									p.mv.systemMessage("Viewer.setCurrentCluster()... 1  Will transitionToTimeSegmentInClusterMode():"+ state.getCurrentFieldTimeSegment());
 
-								transitionToTimeSegmentInClusterMode(state.getCurrentFieldTimeSegment());
+								transitionToClusterTimeSegment(state.getCurrentFieldTimeSegment());
 							}
 						}
 						else p.mv.systemMessage("Current Cluster timeline is NULL!:"+c.getID());
@@ -4830,7 +4922,7 @@ public class WMV_Viewer
 						if(p.mv.debug.time)
 							p.mv.systemMessage("Viewer.setCurrentCluster()... 2  Will transitionToTimeSegmentInClusterMode():"+ state.getCurrentFieldTimeSegment());
 
-						transitionToTimeSegmentInClusterMode(state.getCurrentFieldTimeSegment());
+						transitionToClusterTimeSegment(state.getCurrentFieldTimeSegment());
 					}
 					state.movingToTimeSegment = false;
 				}
@@ -4904,7 +4996,7 @@ public class WMV_Viewer
 							if(p.mv.debug.time)
 								p.mv.systemMessage("Viewer.setCurrentFieldTimeSegment()... Will transitionToFieldTimelineID()... lastFieldTimeSegment:"+lastFieldTimeSegment+" state.getCurrentFieldTimeSegment():"+state.getCurrentFieldTimeSegment());
 
-							transitionToFieldTimelineID(lastFieldTimeSegment, state.getCurrentFieldTimeSegment());
+							transitionToFieldTimeSegment(lastFieldTimeSegment, state.getCurrentFieldTimeSegment());
 						}
 						else if(state.getCurrentFieldTimeSegment() != -1)		// No last time segment, simply set time
 						{
@@ -5018,44 +5110,6 @@ public class WMV_Viewer
 		return success;
 	}
 	
-	public void transitionToTimeSegmentInClusterMode(int goalID)
-	{
-		if(goalID != -1)
-		{
-			state.fadingToClusterTime = true;
-			state.clusterTimeTransitionStartTimePoint = p.getCurrentClusterTime();
-
-			if(p.mv.debug.time)
-				p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... Set clusterTimeTransitionStartTimePoint:"+state.clusterTimeTransitionStartTimePoint+" while p.getCurrentClusterTime():"+p.getCurrentClusterTime());
-
-			float absoluteTimePoint = p.getCurrentField().getTimeline().timeline.get( goalID ).getCenter().getAbsoluteTime();	// Find goal as absolute time point
-
-			WMV_Cluster c = p.getCurrentCluster();
-			if(c != null)
-			{
-				float lower = c.getTimeline().getLower().getLower().getAbsoluteTime();		// Cluster lowest absolute time 
-				float upper = c.getTimeline().getUpper().getUpper().getAbsoluteTime();		// Cluster highest absolute time 
-				float clusterTimePoint = p.mv.utilities.mapValue(absoluteTimePoint, lower, upper, 0.f, 1.f);		// Time relative to cluster
-				clusterTimePoint = PApplet.constrain(clusterTimePoint, 0.f, 1.f);				// Time relative to cluster
-				if(p.mv.debug.time) p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... absoluteTimePoint:"+absoluteTimePoint+" result clusterTimePoint:"+clusterTimePoint);
-
-				state.clusterTimeTransitionGoalTimePoint = clusterTimePoint;
-			}
-			else
-			{
-				if(p.mv.debug.time) 
-					p.mv.systemMessage("World.transitionToTimeSegmentInClusterMode()...  ERROR: No current cluster...");
-			}
-			
-			state.clusterTimeTransitionStartFrame = p.mv.frameCount;
-			state.clusterTimeTransitionEndFrame = p.mv.frameCount + state.clusterTimeTransitionLength;
-		}
-		else
-		{
-			p.mv.systemMessage("Viewer.transitionToTimeSegmentInClusterMode()... ERROR... invalid goalID:"+goalID);
-		}
-	}
-
 	/**
 	 * Ignore teleport goal -- Obsolete?
 	 */

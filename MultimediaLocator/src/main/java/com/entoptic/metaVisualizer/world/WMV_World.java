@@ -163,6 +163,8 @@ public class WMV_World
 		/* Time */
 		if(viewer.getState().fadingToTime) viewer.updateTimeTransition();		/* Update fading transition between time segments */
 		if(viewer.getState().fadingToClusterTime) viewer.updateClusterTimeTransition();
+		if(viewer.getState().fadingFieldTime || viewer.getState().fadingClusterTime)
+			viewer.updateUserTimeTransition();
 		
 		updateTimeBehavior();											/* Update time cycle */
 		if(mv.frameCount % 120 == 0) checkForOrphanedMedia();				/* Check for orphaned media */
@@ -373,8 +375,8 @@ public class WMV_World
 	}
 	
 	/**
-	 * Get current position in Time Cycle
-	 * @return Current time point
+	 * Get current position in Field Time Cycle
+	 * @return Current time point {0.f - 1.f}
 	 */
 	public float getCurrentFieldTime()
 	{
@@ -383,7 +385,8 @@ public class WMV_World
 	}
 
 	/**
-	 * @return Current cluster time
+	 * Get current position in Cluster Time Cycle
+	 * @return Current cluster time {0.f - 1.f}
 	 */
 	public float getCurrentClusterTime()
 	{
@@ -462,26 +465,20 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set time point based on current Time Mode
+	 * Set current time in Field Time Mode
 	 * @param newTimePoint New time point {Between 0.f and 1.f}
-	 * @param fieldTime Whether given new time point is relative to field (true) or not (false).   
-	 * 	      If false in Field Time Mode, time will be interpreted as relative to field.
-	 * 		  If false in Cluster Time Mode, time will be interpreted as relative to cluster. 
 	 * @param updateSliders Whether to update sliders in Time Window
 	 */
 	public void setCurrentFieldTime(float newTimePoint, boolean updateSliders)
 	{
 		if(mv.debug.time) System.out.println("World.setCurrentFieldTime()... newTimePoint:"+newTimePoint+" updateSliders? "+updateSliders);
 
-//		if(fieldTime)										// Set field time to given time point
-//		{
-			setCurrentFieldTimeCyclePoint( newTimePoint );				
-			if(updateSliders && mv.display.window.setupTimeWindow)
-			{
-				mv.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getTimeCycleLength()) );
-				mv.display.updateTimeWindowCurrentTime();
-			}
-//		}
+		setCurrentFieldTimeCyclePoint( newTimePoint );				
+		if(updateSliders && mv.display.window.setupTimeWindow)
+		{
+			mv.display.window.sdrCurrentTime.setValue( (float)(getCurrentFieldTimeCyclePoint()) / (float)(getTimeCycleLength()) );
+			mv.display.updateTimeWindowCurrentTime();
+		}
 		
 		switch(state.timeMode)
 		{
@@ -683,6 +680,7 @@ public class WMV_World
 				System.out.println("World.setCurrentTimeToClusterTime()... Cluster id #"+c.getID()+" ERROR... clusterTimePoint:"+clusterTimePoint+" closest == null!");
 		}
 	}
+	
 	/**
 	 * Set current frame in field time cycle
 	 * @param newTimePoint New time point {0.f: first frame, 1.f: last frame}

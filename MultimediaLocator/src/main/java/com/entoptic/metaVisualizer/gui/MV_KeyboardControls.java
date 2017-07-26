@@ -235,6 +235,19 @@ public class MV_KeyboardControls
 	 */
 	public void handleWorldViewKeyPressed(MetaVisualizer ml, char key, int keyCode)
 	{
+//		public boolean fadingFieldTime = false;						// Whether in Field Mode time fading transition
+//		public boolean fadingClusterTime = false;					// Whether in Cluster Mode time fading transition
+//		public float fieldTimeTransitionDirection = 1.f;				// Direction of field time transition {1.f or -1.f}
+//		public float clusterTimeTransitionDirection = 1.f;			// Direction of cluster time transition {1.f or -1.f}
+//		public float fadingTimeInc = 0.005f;							// Time fading amount per frame
+
+		/* Time */
+		if (key == '[') 
+			ml.world.viewer.startTimeFading(-1.f);
+
+		if (key == ']') 
+			ml.world.viewer.startTimeFading(1.f);
+
 		/* Settings for Show Model Option */
 		if (key == '5')
 			ml.world.setShowModel(!ml.world.getState().showModel);
@@ -439,12 +452,24 @@ public class MV_KeyboardControls
 	 */
 	public void handleWorldViewKeyReleased(MetaVisualizer ml, char key, int keyCode)
 	{
+//		public boolean fadingFieldTime = false;						// Whether in Field Mode time fading transition
+//		public boolean fadingClusterTime = false;					// Whether in Cluster Mode time fading transition
+//		public float fieldTimeTransitionDirection = 1.f;				// Direction of field time transition {1.f or -1.f}
+//		public float clusterTimeTransitionDirection = 1.f;			// Direction of cluster time transition {1.f or -1.f}
+//		public float fadingTimeInc = 0.005f;							// Time fading amount per frame
+
 		/* Time */
 		if (key == '[') 
-			ml.world.decrementTime();
+			ml.world.viewer.stopTimeFading();
 
 		if (key == ']') 
-			ml.world.incrementTime();
+			ml.world.viewer.stopTimeFading();
+
+//		if (key == '[') 
+//			ml.world.decrementTime();
+//
+//		if (key == ']') 
+//			ml.world.incrementTime();
 
 		if (key == '(') 
 			ml.world.decrementTimeCycleLength();

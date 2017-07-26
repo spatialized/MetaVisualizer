@@ -45,7 +45,23 @@ import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
-
+import main.java.com.entoptic.multimediaLocator.gui.ML_Display;
+import main.java.com.entoptic.multimediaLocator.gui.ML_Input;
+import main.java.com.entoptic.multimediaLocator.gui.ML_Window;
+import main.java.com.entoptic.multimediaLocator.media.WMV_Image;
+import main.java.com.entoptic.multimediaLocator.media.WMV_Panorama;
+import main.java.com.entoptic.multimediaLocator.media.WMV_Sound;
+import main.java.com.entoptic.multimediaLocator.media.WMV_Video;
+import main.java.com.entoptic.multimediaLocator.metadata.WMV_Metadata;
+import main.java.com.entoptic.multimediaLocator.misc.ML_DebugSettings;
+import main.java.com.entoptic.multimediaLocator.misc.ML_Stitcher;
+import main.java.com.entoptic.multimediaLocator.misc.WMV_Utilities;
+import main.java.com.entoptic.multimediaLocator.model.WMV_Model;
+import main.java.com.entoptic.multimediaLocator.model.WMV_Waypoint;
+import main.java.com.entoptic.multimediaLocator.system.ML_Library;
+import main.java.com.entoptic.multimediaLocator.system.ML_SystemState;
+import main.java.com.entoptic.multimediaLocator.world.WMV_Field;
+import main.java.com.entoptic.multimediaLocator.world.WMV_World;
 import processing.awt.PSurfaceAWT;
 import processing.core.*;
 import processing.opengl.PGL;
@@ -71,11 +87,11 @@ public class MultimediaLocator extends PApplet
 	private static boolean createJar = false;			// Determines how to load cubemap shader
 
 	/* Classes */
-	ML_Library library;								// Multimedia library
-	ML_Input input;									// Mouse / keyboard input
-	ML_Stitcher stitcher;							// Panoramic stitching
-	ML_Display display;								// Displaying 2D graphics and text
-	ML_DebugSettings debug;							// Debug settings
+	public ML_Library library;								// Multimedia library
+	public ML_Input input;									// Mouse / keyboard input
+	public ML_Stitcher stitcher;							// Panoramic stitching
+	public ML_Display display;								// Displaying 2D graphics and text
+	public ML_DebugSettings debug;							// Debug settings
 	
 	/* WorldMediaViewer */
 	public WMV_World world;							// World simulation
@@ -86,7 +102,7 @@ public class MultimediaLocator extends PApplet
 	private String appName = "MetaVisualizer 0.9.0";
 //	private String appName = "MultimediaLocator 0.9.0";
 	private PImage appIcon;							// App icon
-	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
+	public boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 60;	
 	
 	/* Main Window */

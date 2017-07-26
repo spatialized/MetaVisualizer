@@ -136,16 +136,23 @@ public class WMV_World
 	 */
 	public void update()
 	{
+		/* Navigation */
 		updateViewerAttraction();										/* Attract the viewer */
 		if(ml.display.getDisplayView() < 3) viewer.updateNavigation();	/* Update navigation */
 		
-		if(state.fadingAlpha)  updateFadingAlpha();							/* Update global alpha fading */
+		/* Graphics */
+		if(state.fadingAlpha)  updateFadingAlpha();							/* Update alpha fading */
+		if(state.fadingModelAlpha) updateModelAlphaFading();					/* Update model alpha fading */
+		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();			/* Update grid fading */
+
+		/* Time */
 		if(viewer.getState().fadingToTime) viewer.updateTimeTransition();		/* Update fading transition between time segments */
 		if(viewer.getState().fadingToClusterTime) viewer.updateClusterTimeTransition();
-		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();			/* Update grid fading */
+		
 		updateTimeBehavior();											/* Update time cycle */
 		if(ml.frameCount % 120 == 0) checkForOrphanedMedia();				/* Check for orphaned media */
 		ml.display.window.update();										/* Update windows */
+		
 //		if(viewer.getSettings().mouseNavigation)							/* Update mouse navigation   -- Disabled */
 //		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
@@ -1652,7 +1659,40 @@ public class WMV_World
 
 		state.alpha = newAlphaFadeValue;
 	}
-	
+
+//	state.fadingModelAlpha = true;		
+//	state.fadingModelAlphaStartFrame = ml.frameCount;
+//	state.fadingModelAlphaEndFrame = ml.frameCount + state.fadingModelAlphaLength;
+//	state.fadingModelAlphaStart = ml.world.state.modelAlpha;
+//	state.fadingModelAlphaTarget = newAlpha;
+
+	/**
+	 * Update alpha each frame
+	 */
+	void updateModelAlphaFading()
+	{
+		float newAlphaFadeValue = 0.f;
+
+//		if(state.beginFadingAlpha)
+//		{
+//			state.fadingAlphaStartFrame = state.frameCount;					
+//			state.fadingAlphaEndFrame = state.frameCount + state.fadingAlphaLength;	
+////			state.beginFadingAlpha = false;
+//		}
+
+		if (state.frameCount >= state.fadingModelAlphaEndFrame)
+		{
+			state.fadingModelAlpha = false;
+			newAlphaFadeValue = state.fadingModelAlphaTarget;
+		} 
+		else
+		{
+			newAlphaFadeValue = PApplet.map(state.frameCount, state.fadingModelAlphaStartFrame, state.fadingModelAlphaEndFrame, state.fadingModelAlphaStart, state.fadingModelAlphaTarget);      // Fade with distance from current time
+		}
+
+		state.modelAlpha = newAlphaFadeValue;
+	}
+
 	/**
 	 * Get current world settings
 	 * @return Get current world settings
@@ -3107,28 +3147,78 @@ public class WMV_World
 	 */
 	public void setShowModel(boolean newShowModel)
 	{
-		state.showModel = newShowModel;
-		if(ml.display.window.setupPreferencesWindow)
-		{
-			ml.display.window.chkbxShowModel.setSelected(newShowModel);
-		}
+		if(newShowModel && !state.showModel)
+			showModel();
+		else if(!newShowModel && state.showModel)
+			hideModel();
+		
+//		state.showModel = newShowModel;
+//
 //		if(ml.display.window.setupPreferencesWindow)
-//		{
-//			if(state.showModel)
-//			{
-//				ml.display.window.chkbxMediaToCluster.setEnabled(true);
-//				ml.display.window.chkbxCaptureToMedia.setEnabled(true);
-//				ml.display.window.chkbxCaptureToCluster.setEnabled(true);
-//			}
-//			else
-//			{
-//				ml.display.window.chkbxMediaToCluster.setEnabled(false);
-//				ml.display.window.chkbxCaptureToMedia.setEnabled(false);
-//				ml.display.window.chkbxCaptureToCluster.setEnabled(false);
-//			}
-//		}
+//			ml.display.window.chkbxShowModel.setSelected(newShowModel);
+	}
+
+	public void showModel()
+	{
+		if(!state.showModel)
+		{
+			state.showModel = true;
+
+			if(ml.display.window.setupPreferencesWindow)
+				ml.display.window.chkbxShowModel.setSelected(true);
+			
+//			public float modelAlphaInit = 205.f;
+//			public float modelAlpha = modelAlphaInit;
+//			public boolean fadingModelAlpha = false;		// Global alpha fading 
+//			public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+//			public float fadingModelAlphaStart, fadingModelAlphaTarget;
+
+			transitionModelAlpha(state.modelAlphaInit);
+		}
+	}
+
+	public void hideModel()
+	{
+		if(state.showModel)
+		{
+			state.showModel = false;
+
+			if(ml.display.window.setupPreferencesWindow)
+				ml.display.window.chkbxShowModel.setSelected(false);
+			
+//			public float modelAlphaInit = 205.f;
+//			public float modelAlpha = modelAlphaInit;
+//			public boolean fadingModelAlpha = false;		// Global alpha fading 
+//			public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+//			public float fadingModelAlphaStart, fadingModelAlphaTarget;
+
+			transitionModelAlpha(0.f);
+		}
 	}
 	
+//	public float modelAlphaInit = 205.f;
+//	public float modelAlpha = modelAlphaInit;
+//	public boolean fadingModelAlpha = false;		// Global alpha fading 
+//	public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+//	public float fadingModelAlphaStart, fadingModelAlphaTarget;
+
+	/**
+	 * Transition Model Alpha to new value
+	 * @param newAlpha New Model Alpha value
+	 */
+	public void transitionModelAlpha(float newAlpha)
+	{
+		state.fadingModelAlpha = true;		
+		state.fadingModelAlphaStartFrame = ml.frameCount;
+		state.fadingModelAlphaEndFrame = ml.frameCount + state.fadingModelAlphaLength;
+		state.fadingModelAlphaStart = ml.world.state.modelAlpha;
+		state.fadingModelAlphaTarget = newAlpha;
+		
+//		public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+//		public float fadingModelAlphaStart, fadingModelAlphaTarget;
+
+	}
+
 	/**
 	 * Load all image and video masks
 	 */

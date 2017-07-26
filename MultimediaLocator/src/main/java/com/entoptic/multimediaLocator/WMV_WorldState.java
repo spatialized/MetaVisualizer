@@ -19,12 +19,18 @@ public class WMV_WorldState
 	
 	public boolean turningOffTimeFading = false;			// Whether to turn off Time Fading after fading out
 	public boolean turningOnTimeFading = false;			// Whether to turn on Time Fading after fading in
+
 	/* Model */
-	public final float modelBrightness = 255.f;
-	public final float modelAlpha = 205.f;
+	public final float modelBrightness = 245.f;
+	public final float modelAlphaInit = 205.f;
+	public float modelAlpha = modelAlphaInit;
+	public boolean fadingModelAlpha = false;		// Global alpha fading 
+	public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+	public float fadingModelAlphaStart, fadingModelAlphaTarget;
+
 	public final float modelDistanceVisibilityFactorClose = 5.f;		// Near distance at which media model becomes invisible
 	public float modelDistanceVisibilityFactorFar = 18.f;				// Far distance at which media model becomes invisible
-	
+
 	/* Graphics */
 	public boolean loadedMasks = false;
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
@@ -86,6 +92,10 @@ public class WMV_WorldState
 	{
 //		/* Clustering Modes */
 //		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
+
+		/* Model */
+		modelAlpha = modelAlphaInit;
+		modelDistanceVisibilityFactorFar = 18.f;				// Far distance at which media model becomes invisible
 
 		/* Time */
 		timeFading = false;					// Does time affect media brightness? 

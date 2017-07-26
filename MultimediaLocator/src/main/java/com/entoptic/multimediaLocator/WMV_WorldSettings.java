@@ -62,11 +62,12 @@ public class WMV_WorldSettings
 	public boolean depthTesting = false;						// Enable depth testing		-- Not recommended
 	
 	/* Time */
-	public final float clusterTimePrecision = 0.000066f;		// Precision of timesHistogram (no. of bins)
-	final public int defaultTimeCycleLength = 500;			// Default length of main time loop in frames
-	final public int maxTimeCycleLength = 2500;				// Default length of main time loop in frames
-	final public int minTimeCycleLength = 100;				// Default length of main time loop in frames
-	public int timeCycleLength = defaultTimeCycleLength;		// Length of main time loop in frames
+	public final float clusterTimePrecision = 0.000066f;				// Precision of timesHistogram (no. of bins)
+	final public int defaultTimeCycleLength = 500;					// Default length of main time loop in frames
+	final public int maxTimeCycleLength = 2500;						// Default length of main time loop in frames
+	final public int minTimeCycleLength = 100;						// Default length of main time loop in frames
+	public int timeCycleLength = defaultTimeCycleLength;				// Length of main time loop in frames
+	public int clusterTimeCycleLength = defaultTimeCycleLength;		// Length of main time loop in frames
 	
 	public int timeUnitLength = 1;							// How many frames between time increments
 	public float timeIncrement = 1.f/30.f;			// Time cycle user increment amount
@@ -75,11 +76,16 @@ public class WMV_WorldSettings
 	public int dateUnitLength = 1;							// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
-	public final int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
-	public int staticMediaLength = initDefaultMediaLength;	// Frame length of static media (i.e. images and panoramas) in time cycle
-	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
-															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
-	public boolean getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API	-- Disabled
+	public final int initDefaultMediaLength = 100;				// Initial frame length of media in time cycle
+	public int staticMediaFadeLength = 20;						// Frame length of static media fade in / out
+	public final int maxStaticMediaFadeLength = 500;				// Max. frame length of static media (i.e. images and panoramas) in time cycle
+	public final int minStaticMediaFadeLength = 10;					// Min. frame length of static media (i.e. images and panoramas) in time cycle
+	public int staticMediaLength = initDefaultMediaLength;		// Frame length of static media (i.e. images and panoramas) in time cycle
+	public final int maxStaticMediaLength = 1000;						// Max. frame length of static media (i.e. images and panoramas) in time cycle
+	public final int minStaticMediaLength = staticMediaFadeLength * 2;	// Min. frame length of static media (i.e. images and panoramas) in time cycle
+	public float clusterLength = 1.f;							// Time interval for which close media become visible (in % of timeline length),
+																// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
+	public boolean getTimeZonesFromGoogle = false;				// Get time zone for each field center from Google Time Zone API	-- Disabled
 
 	/* Video */
 	public float soundMaxVolume = 0.8f;				// Maximum sound volume

@@ -177,8 +177,11 @@ public class WMV_World
 		state.frameCount = ml.frameCount;
 		viewer.updateState(settings, state);
 		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
-		
-		getCurrentField().findVisibleClusters(ml);		/* Find visible clusters */
+		getCurrentField().findVisibleClusters(ml);									/* Find visible clusters */
+
+//		System.out.println("World.updateState()... Will update media states with staticMediaLength: "+settings.staticMediaLength);
+//		System.out.println("  --> Field staticMediaLength: "+getCurrentField().getWorldSettings().staticMediaLength);
+		getCurrentField().updateAllMediaStates();
 	}
 
 	/**
@@ -697,21 +700,128 @@ public class WMV_World
 	 */
 	public void 	setStaticMediaLength(int newStaticMediaLength)
 	{
+		
 		settings.staticMediaLength = newStaticMediaLength;
+		
+		int cycleMax = settings.maxTimeCycleLength;
+//		int cycleLength = settings.timeCycleLength;		// -- Make clusterTimeCycleLength??
+		int cycleLength = getCycleLengthForCurrentTimeMode();		// -- Make clusterTimeCycleLength??
+
+		if(ml.debug.world) ml.systemMessage("World.setStaticMediaLength: "+newStaticMediaLength+" cycleLength:"+cycleLength);
+		
+		if(state.timeMode == 0)
+		{
+			if(settings.staticMediaLength > cycleLength)
+			{
+				int diff = settings.staticMediaLength - cycleLength;
+				int newLength = PApplet.constrain( cycleLength + diff, 0, cycleMax );
+				WMV_Cluster c = getCurrentCluster();
+//				if(c!=null) System.out.println("  before:"+c.getTimeCycleLength());
+				System.out.println("1 diff:"+diff+" newLength:"+newLength+" cycleLength:"+cycleLength+" settings.staticMediaLength:"+settings.staticMediaLength);
+				setClusterTimeCycleLength( newLength, true );
+				if(c!=null) System.out.println("  after:"+c.getTimeCycleLength());
+			}
+			else
+			{
+				if(ml.display.window.setupTimeWindow)
+				{
+					ml.display.updateTimeWindowCurrentTime();
+					WMV_Cluster c = getCurrentCluster();
+					if(c != null)
+						ml.display.window.sdrTimeCycleLength.setValue(c.getTimeCycleLength());
+				}
+				updateState();				// -- Needed?
+//				getCurrentField().updateAllMediaStates();
+			}
+			
+		}
+		else
+		{
+			if(settings.staticMediaLength > cycleLength)
+			{
+				int diff = settings.staticMediaLength - cycleLength;
+				int newLength = PApplet.constrain( cycleLength + diff, 0, cycleMax );
+				System.out.println("2 diff:"+diff+" newLength:"+newLength+" cycleLength:"+cycleLength+" settings.staticMediaLength:"+settings.staticMediaLength);
+				setTimeCycleLength( newLength, true );
+			}
+			else
+			{
+				updateState();				// -- Needed?
+//				getCurrentField().updateAllMediaStates();
+			}
+			
+			if(ml.display.window.setupTimeWindow)
+			{
+				ml.display.updateTimeWindowCurrentTime();
+				ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
+			}
+		}
+	}
+	
+	public int getCycleLengthForCurrentTimeMode()
+	{
+		int cycleLength;
+		
+		if(ml.display.window.setupTimeWindow)
+		{
+			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
+		}
+		else
+		{
+			if(state.timeMode == 0)
+			{
+				WMV_Cluster c = getCurrentCluster();
+				if(c != null)
+					cycleLength = c.getTimeCycleLength();
+				else
+					cycleLength = settings.clusterTimeCycleLength;
+			}
+			else
+				cycleLength = settings.timeCycleLength;
+		}
+
+//		System.out.println("World.getCycleLengthForCurrentTimeMode()... cycleLength: ");
+
+		return cycleLength;
 	}
 
 	/**
 	 * Set field time cycle length
 	 * @param newTimeCycleLength New time cycle length
 	 */
-	public void setTimeCycleLength(int newTimeCycleLength)
+	public void setTimeCycleLength(int newTimeCycleLength, boolean updateSlider)
 	{
 		settings.timeCycleLength = newTimeCycleLength;
 //		settings.timeInc = settings.timeCycleLength / 30.f;	
+		updateState();															// -- Needed?
 		
-		getCurrentField().updateAllMediaStates();
-	}
+		if(updateSlider && ml.display.window.setupTimeWindow)
+			ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
 
+//		getCurrentField().updateAllMediaStates();
+	}
+	
+	/**
+	 * Set time cycle length for all clusters in current field
+	 * @param newTimeCycleLength New time cycle length
+	 */
+	public void setClusterTimeCycleLength(int newTimeCycleLength, boolean updateSlider)
+	{
+		settings.clusterTimeCycleLength = newTimeCycleLength;
+		
+		if(ml.debug.detailed && ml.debug.time)
+			ml.systemMessage("World.setAllClustersTimeCycleLength()... new Cluster Time Cycle Length: "+settings.clusterTimeCycleLength);
+		
+		for(WMV_Cluster c : getCurrentField().getClusters())
+			if(!c.getState().empty)
+				c.setTimeCycleLength( settings.clusterTimeCycleLength );
+		
+		updateState();				// -- Needed?
+		
+		if(updateSlider && ml.display.window.setupTimeWindow)
+			ml.display.window.sdrTimeCycleLength.setValue(settings.clusterTimeCycleLength);
+	}
+	
 	/**
 	 * Set cluster length
 	 * @param newClusterLength New cluster length
@@ -722,19 +832,12 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set time cycle length for all clusters in current field
-	 * @param newTimeCycleLength New time cycle length
+	 * Set time fading fade in / out length
+	 * @param newFadeLength New fading length
 	 */
-	public void setClusterTimeCycleLength(int newTimeCycleLength)
+	public void setFadeLength(int newFadeLength)
 	{
-		if(ml.debug.detailed && ml.debug.time)
-			ml.systemMessage("World.setAllClustersTimeCycleLength()... newTimeCycleLength: "+newTimeCycleLength);
-		
-		for(WMV_Cluster c : getCurrentField().getClusters())
-			if(!c.getState().empty)
-				c.setTimeCycleLength( newTimeCycleLength );
-		
-		getCurrentField().updateAllMediaStates();
+		settings.staticMediaFadeLength = newFadeLength;
 	}
 	
 	/**
@@ -1381,8 +1484,8 @@ public class WMV_World
 				ml.systemMessage("World.setSimulationStateFromField()... currentCluster is null!!!");
 		}
 		
-		updateState();
-		getCurrentField().updateAllMediaStates();
+		updateState();				// -- Needed?
+//		getCurrentField().updateAllMediaStates();
 	}
 
 	/**
@@ -1635,6 +1738,47 @@ public class WMV_World
 	{
 		return getState().currentDate;
 	}
+	
+	/**
+	 * Increment time cycle length
+	 */
+	void incrementTimeCycleLength()
+	{
+		int cycleMax = settings.maxTimeCycleLength;
+		int cycleLength;
+		if(ml.display.window.setupTimeWindow)
+		{
+			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
+			cycleMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
+		}
+		else
+		{
+			if(state.timeMode == 0)
+			{
+				WMV_Cluster c = getCurrentCluster();
+				if(c != null)
+					cycleLength = c.getTimeCycleLength();
+				else
+					cycleLength = settings.timeCycleLength;
+				
+				if(cycleLength + 20 < cycleMax)
+					setClusterTimeCycleLength(cycleLength + 20, true);
+			}
+			else
+			{
+				cycleLength = settings.timeCycleLength;
+				if(cycleLength + 20 < cycleMax)
+					setTimeCycleLength(cycleLength + 20, true);
+			}
+		}
+
+		if(ml.display.window.setupTimeWindow)
+		{
+			ml.display.updateTimeWindowCurrentTime();
+			ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
+		}
+	}
+	
 	/**
 	 * Decrement time cycle length
 	 */
@@ -1644,62 +1788,23 @@ public class WMV_World
 		if(ml.display.window.setupTimeWindow)
 			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
 		else
-			cycleLength = settings.timeCycleLength;
-		
-		switch(state.timeMode)
 		{
-			case 0:												// Cluster
+			if(state.timeMode == 0)
+			{
+				WMV_Cluster c = getCurrentCluster();
+				if(c != null)
+					cycleLength = c.getTimeCycleLength();
+				else
+					cycleLength = settings.timeCycleLength;
 				if(cycleLength - 20 > 0)
-					setClusterTimeCycleLength(cycleLength - 20);
-				break;
-			case 1:												// Field
+					setClusterTimeCycleLength(cycleLength - 20, true);
+			}
+			else
+			{
+				cycleLength = settings.timeCycleLength;
 				if(cycleLength - 20 > 0)
-				{
-					setTimeCycleLength(cycleLength - 20);
-//					settings.timeCycleLength = cycleLength - 20;
-//					settings.timeInc = settings.timeCycleLength / 30.f;			
-				}
-				break;
-		}
-		if(ml.display.window.setupTimeWindow)
-		{
-			ml.display.updateTimeWindowCurrentTime();
-			ml.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
-		}
-	}
-	
-	/**
-	 * Increment time cycle length
-	 */
-	void incrementTimeCycleLength()
-	{
-		int cycleMax;
-		int cycleLength;
-		if(ml.display.window.setupTimeWindow)
-		{
-			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
-			cycleMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
-		}
-		else
-		{
-			cycleLength = settings.timeCycleLength;
-			cycleMax = 3200;
-		}
-
-		switch(state.timeMode)
-		{
-			case 0:												// Cluster
-				if(cycleLength + 20 < cycleMax)
-					setClusterTimeCycleLength(cycleLength + 20);
-				break;
-			case 1:												// Field
-				if(cycleLength + 20 < cycleMax)
-				{
-					setTimeCycleLength(cycleLength + 20);
-//					settings.timeCycleLength = cycleLength + 20;
-//					settings.timeInc = settings.timeCycleLength / 30.f;			
-				}
-				break;
+					setTimeCycleLength(cycleLength - 20, true);
+			}
 		}
 		
 		if(ml.display.window.setupTimeWindow)
@@ -2249,16 +2354,17 @@ public class WMV_World
 
 	/**
 	 * @param newTimeMode New time mode {0: Cluster, 1:Field, 2: Media}
+	 * @param updateToggle
 	 */
-	public void setTimeMode(int newTimeMode)
+	public void setTimeMode(int newTimeMode, boolean updateToggle)
 	{
 		state.timeMode = newTimeMode;
 		if(ml.display.window.setupTimeWindow)
 		{
 			switch(state.timeMode)
 			{
-				case 0:														// Cluster
-					ml.display.window.optClusterTimeMode.setSelected(true);
+				case 0:														/* Cluster */
+					if(updateToggle) ml.display.window.optClusterTimeMode.setSelected(true);
 					ml.display.window.optFieldTimeMode.setSelected(false);
 					if(ml.display.window.sdrClusterLength.isVisible())
 						ml.display.window.sdrClusterLength.setVisible(false);
@@ -2269,9 +2375,9 @@ public class WMV_World
 					if(ml.display.window.setupTimeWindow)
 						ml.display.updateTimeWindowCurrentTime();
 					break;
-				case 1:														// Field
+				case 1:														/* Field */
 					ml.display.window.optClusterTimeMode.setSelected(false);
-					ml.display.window.optFieldTimeMode.setSelected(true);
+					if(updateToggle) ml.display.window.optFieldTimeMode.setSelected(true);
 					if(!ml.display.window.sdrClusterLength.isVisible())
 						ml.display.window.sdrClusterLength.setVisible(true);
 					if(!ml.display.window.lblClusterLength.isVisible())

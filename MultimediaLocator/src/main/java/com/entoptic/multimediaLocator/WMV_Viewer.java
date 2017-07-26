@@ -2754,7 +2754,9 @@ public class WMV_Viewer
 			}
 			else
 			{
-				p.getCurrentField().updateAllMediaStates();
+				p.updateState();				
+//				p.getCurrentField().update(worldSettings, worldState, getSettings(), getState());
+//				p.getCurrentField().updateAllMediaStates();
 			}
 
 			if(!p.getField(getCurrentFieldID()).hasBeenVisited()) 

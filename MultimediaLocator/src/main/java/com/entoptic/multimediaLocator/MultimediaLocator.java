@@ -83,7 +83,8 @@ public class MultimediaLocator extends PApplet
 	public WMV_Utilities utilities;
 
 	/* App */
-	private String appName = "MultimediaLocator 0.9.0";
+	private String appName = "MetaVisualizer 0.9.0";
+//	private String appName = "MultimediaLocator 0.9.0";
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 60;	
@@ -490,7 +491,7 @@ public class MultimediaLocator extends PApplet
 				world.getField(fieldID).setDataFolderLoaded(true);
 				
 				if(f.getID() == 0)
-					display.window.setLibraryWindowText("Loading MultimediaLocator Environment...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Loading Environment...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) 
 					systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
@@ -498,7 +499,7 @@ public class MultimediaLocator extends PApplet
 			else											/* If failed to load field, initialize from metadata */
 			{
 				if(f.getID() == 0)						/* First field to be initialized */
-					display.window.setLibraryWindowText("Building MultimediaLocator Environment...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Building Environment...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) 
 					systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
@@ -633,7 +634,9 @@ public class MultimediaLocator extends PApplet
 	private void finishInitialization()
 	{
 		world.setBlurMasks();						// Set blur masks
-		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
+		
+		world.updateState();							// -- Only needed if field(s) loaded from data folder?
+//		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
 
 		state.inFieldInitialization = false;				
 		display.stopWorldSetup();
@@ -642,7 +645,7 @@ public class MultimediaLocator extends PApplet
 		state.startedRunning = true;
 		
 		if(debug.ml && debug.detailed) 
-			systemMessage("Finishing MultimediaLocator initialization..");
+			systemMessage("Finishing MetaVisualizer initialization..");
 		
 		if(world.getFieldCount() > 1)
 			world.openChooseFieldDialog();					/* Choose starting field */
@@ -848,7 +851,7 @@ public class MultimediaLocator extends PApplet
 		if(library.getFolders() != null)
 		{
 			ArrayList<String> libFolders = library.getFolders();
-			display.window.setLibraryWindowText("Rebuilding MultimediaLocator Environment...");		// -- Not being called
+			display.window.setLibraryWindowText("Rebuilding Environment...");		// -- Not being called
 			for(String strFolderName : libFolders)
 			{
 				File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
@@ -1001,7 +1004,7 @@ public class MultimediaLocator extends PApplet
 			display.window.lblImport.setVisible(false);
 			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
-			display.window.setCreateLibraryWindowText("Creating MultimediaLocator Environment...", "This process can take a while for large media collections...");
+			display.window.setCreateLibraryWindowText("Creating Environment...", "This process can take a while for large media collections...");
 		}
 		else
 		{
@@ -1316,7 +1319,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Respond to key pressed in MultimediaLocator Window
+	 * Respond to key pressed in MetaVisualizer Window
 	 * @param applet Parent App
 	 * @param windata Window data
 	 * @param keyevent Key event
@@ -1330,7 +1333,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Respond to key pressed in MultimediaLocator Window
+	 * Respond to key pressed in MetaVisualizer Window
 	 * @param applet Parent App
 	 * @param windata Window data
 	 * @param keyevent Key event
@@ -1344,7 +1347,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Respond to key pressed in MultimediaLocator Window
+	 * Respond to key pressed in MetaVisualizer Window
 	 * @param applet Parent App
 	 * @param windata Window data
 	 * @param keyevent Key event

@@ -1446,7 +1446,13 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 */
 	public int getCurrentTimeCycleFrame()
 	{
-		return state.currentTimeCycleFrame;
+		if(state != null)
+			return state.currentTimeCycleFrame;
+		else
+		{
+			System.out.println("Cluster.getCurrentTimeCycleFrame()... error cluster state == null... id #"+getID());
+			return 0;
+		}
 	}
 	
 	/** 

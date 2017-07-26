@@ -217,9 +217,9 @@ public class ML_KeyboardControls
 		if (key == '=')
 		{
 			if(ml.world.state.timeMode == 0)
-				ml.world.setTimeMode(1);
+				ml.world.setTimeMode(1, true);
 			else				
-				ml.world.setTimeMode(0);
+				ml.world.setTimeMode(0, true);
 		}
 	}
 	

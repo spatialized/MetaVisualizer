@@ -188,19 +188,18 @@ public class ML_Input
 				switch(world.state.timeMode)
 				{
 					case 0:														// Cluster
-						world.setClusterTimeCycleLength( slider.getValueI() );
+						world.setClusterTimeCycleLength( slider.getValueI(), false );
 						break;
 					case 1:														// Field
-						world.setTimeCycleLength( slider.getValueI() );
+						world.setTimeCycleLength( slider.getValueI(), false );
 						break;
 					default: 
 						break;
 				}
-				if (slider.tag == "MediaLength") 
-				{
-//					world.settings.defaultMediaLength = slider.getValueI();
-					world.setStaticMediaLength(slider.getValueI());
-				}
+			}
+			if (slider.tag == "SetMediaLength") 
+			{
+				world.setStaticMediaLength(slider.getValueI());
 			}
 
 			if (slider.tag == "SetCurrentTime") 
@@ -211,9 +210,13 @@ public class ML_Input
 					world.setCurrentFieldTime(slider.getValueF(), false);		// Set current time relative to current Time Mode
 			}
 			
-			if (slider.tag == "ClusterLength") 
+			if (slider.tag == "SetFadeLength") 
 			{
-//				world.settings.clusterLength = slider.getValueF();
+				world.setFadeLength(slider.getValueI());
+			}
+
+			if (slider.tag == "SetClusterLength") 
+			{
 				world.setClusterLength(slider.getValueF());
 			}
 		}
@@ -1038,10 +1041,10 @@ public class ML_Input
 				
 			/* Time */
 			case "ClusterTimeMode":
-				world.setTimeMode(0);
+				world.setTimeMode(0, false);
 				break;
 			case "FieldTimeMode":
-				world.setTimeMode(1);
+				world.setTimeMode(1, false);
 				break;
 //			case "MediaTimeMode":			// -- Disabled
 //				world.setTimeMode(2);

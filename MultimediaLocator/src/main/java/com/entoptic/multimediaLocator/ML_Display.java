@@ -208,7 +208,7 @@ public class ML_Display
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
 
-		metadataXOffset = -screenWidth * 1.5f;
+		metadataXOffset = -screenWidth * 2.f;
 		metadataYOffset = -screenHeight / 2.f;
 
 		largeTextSize = screenWidth * 0.0333f;					
@@ -3109,9 +3109,9 @@ public class ML_Display
 //				ml.text(" Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthWide, 0);
 				ml.textSize(hudSmallTextSize);
 				
-				ml.text("Spatial Points of Interest:  "+(f.getClusters().size()), x, y, 0);
+				ml.text("Spatial Locations:  "+(f.getClusters().size()), x, y, 0);
 //				ml.text("      Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
-				ml.text("Temporal Points of Interest:  "+(f.getTimeline().timeline.size()), x, y += hudLineWidth, 0);
+				ml.text("Time Segments:  "+(f.getTimeline().timeline.size()), x, y += hudLineWidth, 0);
 
 				ml.text( "Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 )+
 						"  Length:  "+utilities.round( f.getModel().getState().fieldLength, 3)+
@@ -3158,42 +3158,47 @@ public class ML_Display
 //				ml.text("    Maximum Distance: "+p.settings.maxClusterDistance, x, y += hudLineWidth, 0);
 //				ml.text("    Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += hudLineWidth, 0);
 				
-				if(f.getImageCount() > 0) ml.text(" Images:  "+f.getImageCount(), x, y += hudLineWidthVeryWide);
-				if(f.getImagesVisible() > 0) 
-				{
-					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
-//					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidth);
-					// -- Show media missing originals
-				}
+//				if(f.getImageCount() > 0)
+					ml.text(" Images:  "+f.getImageCount()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
+//				if(f.getImagesVisible() > 0) 
+//				{
+//					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidth);
+//					// -- Show media missing originals
+//				}
 
-				if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+f.getPanoramaCount(), x, y += hudLineWidthVeryWide);		
-				if(f.getPanoramasVisible() > 0)
-				{
-					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);
-//					ml.text("   Seen:  "+f.getPanoramasSeen(), x, y += hudLineWidth);
-				}
+//				if(f.getPanoramaCount() > 0) 
+					ml.text(" Panoramas:  "+f.getPanoramaCount()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);		
+//				if(f.getPanoramasVisible() > 0)
+//				{
+//					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getPanoramasSeen(), x, y += hudLineWidth);
+//				}
 
-				if(f.getVideoCount() > 0) ml.text(" Videos:  "+f.getVideoCount(), x, y += hudLineWidthVeryWide);					
-				if(f.getVideosVisible() > 0)
-				{
-					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidth);
-				}
-				if(f.getVideosPlaying() > 0)
-				{
-					ml.text("   Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);
-//					ml.text("   Seen:  "+f.getVideosSeen(), x, y += hudLineWidth);
-				}
+//				if(f.getVideoCount() > 0) 
+					ml.text(" Videos:  "+f.getVideoCount()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);					
+//				if(f.getVideosVisible() > 0)
+//				{
+//					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidth);
+//				}
+				
+//				if(f.getVideosPlaying() > 0)
+//				{
+//					ml.text("   Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);
+////					ml.text("   Seen:  "+f.getVideosSeen(), x, y += hudLineWidth);
+//				}
 
-				if(f.getSoundCount() > 0) ml.text(" Sounds:  "+f.getSoundCount(), x, y += hudLineWidthWide);					
-				if(f.getSoundsAudible() > 0)
-				{
-					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidth);
-				}
-				if(f.getSoundsPlaying() > 0) 
-				{
-					ml.text("   Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);
-//					ml.text("   Heard:  "+f.getSoundsHeard(), x, y += hudLineWidthWide);
-				}
+//				if(f.getSoundCount() > 0) 
+					ml.text(" Sounds:  "+f.getSoundCount()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);					
+//				if(f.getSoundsAudible() > 0)
+//				{
+//					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidth);
+//				}
+//				if(f.getSoundsPlaying() > 0) 
+//				{
+//					ml.text("   Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);
+////					ml.text("   Heard:  "+f.getSoundsHeard(), x, y += hudLineWidthWide);
+//				}
 
 //				if(f.getDateline() != null)
 //				{
@@ -3261,24 +3266,32 @@ public class ML_Display
 					
 					ml.textSize(hudSmallTextSize);
 
-					if(c.getState().images.size() > 0)
-						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidth, 0);
-					if(c.getState().panoramas.size() > 0)
-						ml.text("   Panoramas:  "+ c.getState().panoramas.size(), x, y += hudLineWidth, 0);
-					if(c.getState().videos.size() > 0)
-						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidth, 0);
-					if(c.getState().sounds.size() > 0)
-						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidth, 0);
+					if(f.getImageCount() > 0) ml.text(" Images:  "+c.getState().images.size()+" In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidthVeryWide);
+					if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+c.getState().panoramas.size()+" In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidthVeryWide);		
+					if(f.getVideoCount() > 0) ml.text(" Videos:  "+c.getState().videos.size()+" In Visible Range:  "+f.getVideosVisible()+" Playing:  "+f.getVideosPlaying(), x, y += hudLineWidthVeryWide);					
+					if(f.getSoundCount() > 0) ml.text(" Sounds:  "+c.getState().sounds.size()+" In Audible Range:  "+f.getSoundsAudible()+" Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidthWide);					
+					
+//					if(c.getState().images.size() > 0)
+//						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidth, 0);
+//					if(c.getState().panoramas.size() > 0)
+//						ml.text("   Panoramas:  "+ c.getState().panoramas.size(), x, y += hudLineWidth, 0);
+//					if(c.getState().videos.size() > 0)
+//						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidth, 0);
+//					if(c.getState().sounds.size() > 0)
+//						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidth, 0);
+					
 					ml.text("   Number of Media:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
 					ml.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidth, 0);
-					ml.text("   Temporal Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+					ml.text("   Time Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidth, 0);
 					ml.text(" ", x, y += hudLineWidth, 0);
+					
 ////					if(c != null)
 ////						ml.text("Viewer Location: " + ml.utilities.formatGPSLocation( ml.world.viewer.getGPSLocation() ) + " (#" + (c.getID()+1) + ")", x, y += hudLineWidth, 0);
 //					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
 //					gpsLoc.x = utilities.round(gpsLoc.x, 4);
 //					gpsLoc.y = utilities.round(gpsLoc.y, 4);
 //					ml.text("   GPS Longitude: "+ gpsLoc.x+", Latitude: "+gpsLoc.y, x, y += hudLineWidthWide, 0);
+					
 					ml.text("   Viewer Distance: "+utilities.round(PVector.dist(c.getLocation(), p.viewer.getLocation()), 1)+" m.", x, y += hudLineWidthWide, 0);
 				}
 //				else
@@ -3326,22 +3339,21 @@ public class ML_Display
 			WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
 			WMV_Time t = c.getClosestTimeToClusterTime( c.getCurrentTime() );
 			strTime = t.getFormattedTime(true, false);
-			//		String strFieldTime = ts.getCenter().getFormattedTime(true, false);
-			//		ml.text("Current Time: "+ strClusterTime+", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size()+" (#"+t.getID()+" of "+c.getTimeline().timeline.size()+" at current location)", x, y += hudLineWidth, 0);
-			//		ml.text(""+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
-			//		ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
+//			String strFieldTime = ts.getCenter().getFormattedTime(true, false);
+//			ml.text("Current Time: "+ strClusterTime+", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size()+" (#"+t.getID()+" of "+c.getTimeline().timeline.size()+" at current location)", x, y += hudLineWidth, 0);
+//			ml.text(""+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+//			ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
 		}
 		else												// Field
 		{
 			int tsID = ml.world.viewer.getCurrentFieldTimeSegment();
 			WMV_TimeSegment ts = ml.world.getCurrentField().getTimeline().timeline.get(tsID);
 			strTime = ts.getCenter().getFormattedTime(true, false);
-			//		ml.text("Current Time: "+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
-			//		ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
+//			ml.text("Current Time: "+ strFieldTime + ", #"+tsID+" of "+ml.world.getCurrentField().getTimeline().timeline.size(), x, y += hudLineWidth, 0);
+//			ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
 		}
 		return strTime;
 	}
-	
 	
 	/**
 	 * Set library window text
@@ -3349,9 +3361,7 @@ public class ML_Display
 	 */
 	public void updateTimeWindowCurrentTime()
 	{
-//		String strTime = world.ml.display.getCurrentFormattedTime();
 		String strTime = getCurrentFormattedTime()+", "+getCurrentFormattedDate();
-
 		window.lblCurrentTime.setText(strTime);
 	}
 
@@ -3674,10 +3684,6 @@ public class ML_Display
 		
 		displayView = newDisplayView;								// Set display view
 
-//		if(window.setupNavigationWindow) 
-//			if(oldDisplayView == 1 && newDisplayView != 1)
-//				window.setMapControlsEnabled(false);
-
 		if(p.ml.debug.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
 		
 		switch(newDisplayView)
@@ -3694,7 +3700,7 @@ public class ML_Display
 				}
 				if(window.setupTimeWindow)
 				{
-					window.btnTimeView.setEnabled(true);
+//					window.btnTimeView.setEnabled(true);
 				}
 				
 				if(setupMapView) setupMapView = false;
@@ -3735,7 +3741,7 @@ public class ML_Display
 				}
 				if(window.setupTimeWindow)
 				{
-					window.btnTimeView.setEnabled(true);
+//					window.btnTimeView.setEnabled(true);
 				}
 				
 				if(setupTimeView) setupTimeView = false;
@@ -3761,7 +3767,7 @@ public class ML_Display
 				}
 				if(window.setupTimeWindow)
 				{
-					window.btnTimeView.setEnabled(false);
+//					window.btnTimeView.setEnabled(false);
 //					window.setTimeWindowControlsEnabled(true);
 				}
 				zoomToTimeline(ml.world, true);
@@ -3795,7 +3801,7 @@ public class ML_Display
 				}
 				if(window.setupTimeWindow)
 				{
-					window.btnTimeView.setEnabled(true);
+//					window.btnTimeView.setEnabled(true);
 				}
 
 				if(setupTimeView) setupTimeView = false;

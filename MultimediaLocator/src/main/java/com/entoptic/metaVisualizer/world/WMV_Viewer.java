@@ -262,6 +262,9 @@ public class WMV_Viewer
 		}
 	}
 	
+	/**
+	 * Update user (keyboard) time transition
+	 */
 	public void updateUserTimeTransition()
 	{
 		System.out.println("Viewer.updateUserTimeTransition()... state.fadingFieldTime:"+state.fadingFieldTime+" state.fadingClusterTime:"+state.fadingClusterTime);
@@ -269,20 +272,12 @@ public class WMV_Viewer
 		{
 			float timePoint = p.getCurrentFieldTime() + state.fadingTimeInc * state.fadingFieldTimeDirection;
 			p.setCurrentFieldTime(timePoint, true);					// Set current Field Time Point
-//			p.setCurrentTimeFromAbsolute(timePoint, true);
 		}
 		else if(state.fadingClusterTime)
 		{
 			float timePoint = p.getCurrentClusterTime() + state.fadingTimeInc * state.fadingClusterTimeDirection;
 			p.setCurrentClusterTime(timePoint, true);				// Set current Cluster Time Point
-//			p.setCurrentTimeFromAbsolute(timePoint, true);
 		}
-//		public boolean fadingFieldTime = false;						// Whether in Field Mode time fading transition
-//		public boolean fadingClusterTime = false;					// Whether in Cluster Mode time fading transition
-//		public float fieldTimeTransitionDirection = 1.f;				// Direction of field time transition {1.f or -1.f}
-//		public float clusterTimeTransitionDirection = 1.f;			// Direction of cluster time transition {1.f or -1.f}
-//		public float fadingTimeInc = 0.005f;							// Time fading amount per frame
-
 	}
 	
 	/**

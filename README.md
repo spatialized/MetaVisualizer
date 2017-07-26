@@ -1,2 +1,2 @@
 # MetaVisualizer
-Display and navigate multimedia collections as immersive environments based on time, spatial and orientation metadata. 
+Software for visualizing multimedia collections as navigable environments using spatial, temporal and orientation metadata. 

@@ -86,7 +86,7 @@ public class MetaVisualizer extends PApplet
 	/* Deployment */
 	private static boolean createJar = false;			// Determines how to load cubemap shader
 
-	/* Classes */
+	/* MetaVisualizer Classes */
 	public MV_Library library;								// Multimedia library
 	public MV_Input input;									// Mouse / keyboard input
 	public MV_Stitcher stitcher;							// Panoramic stitching

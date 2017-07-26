@@ -1673,22 +1673,23 @@ public class WMV_World
 	{
 		float newAlphaFadeValue = 0.f;
 
-//		if(state.beginFadingAlpha)
-//		{
-//			state.fadingAlphaStartFrame = state.frameCount;					
-//			state.fadingAlphaEndFrame = state.frameCount + state.fadingAlphaLength;	
-////			state.beginFadingAlpha = false;
-//		}
-
 		if (state.frameCount >= state.fadingModelAlphaEndFrame)
 		{
 			state.fadingModelAlpha = false;
 			newAlphaFadeValue = state.fadingModelAlphaTarget;
+			
+			if(newAlphaFadeValue == 0.f)			// Model faded out
+				state.showModel = false;
+
+//			System.out.println("World.updateModelAlphaFading()... >>> Reached transition end... newAlphaFadeValue:"+newAlphaFadeValue+" state.fadingModelAlphaStart:"+state.fadingModelAlphaStart+" state.fadingModelAlphaTarget:"+state.fadingModelAlphaTarget);
 		} 
 		else
 		{
 			newAlphaFadeValue = PApplet.map(state.frameCount, state.fadingModelAlphaStartFrame, state.fadingModelAlphaEndFrame, state.fadingModelAlphaStart, state.fadingModelAlphaTarget);      // Fade with distance from current time
 		}
+		
+//		System.out.println("World.updateModelAlphaFading()... newAlphaFadeValue:"+newAlphaFadeValue+" state.fadingModelAlphaStart:"+state.fadingModelAlphaStart+" state.fadingModelAlphaTarget:"+state.fadingModelAlphaTarget);
+//		System.out.println("World.updateModelAlphaFading()...  state.fadingModelAlphaStartFrame:"+state.fadingModelAlphaStartFrame+" state.fadingModelAlphaEndFrame:"+state.fadingModelAlphaEndFrame);
 
 		state.modelAlpha = newAlphaFadeValue;
 	}
@@ -3173,7 +3174,7 @@ public class WMV_World
 //			public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
 //			public float fadingModelAlphaStart, fadingModelAlphaTarget;
 
-			transitionModelAlpha(state.modelAlphaInit);
+			transitionModelAlpha(state.modelAlphaMax);
 		}
 	}
 
@@ -3181,7 +3182,7 @@ public class WMV_World
 	{
 		if(state.showModel)
 		{
-			state.showModel = false;
+//			state.showModel = false;
 
 			if(ml.display.window.setupPreferencesWindow)
 				ml.display.window.chkbxShowModel.setSelected(false);
@@ -3211,7 +3212,7 @@ public class WMV_World
 		state.fadingModelAlpha = true;		
 		state.fadingModelAlphaStartFrame = ml.frameCount;
 		state.fadingModelAlphaEndFrame = ml.frameCount + state.fadingModelAlphaLength;
-		state.fadingModelAlphaStart = ml.world.state.modelAlpha;
+		state.fadingModelAlphaStart = Float.valueOf(ml.world.state.modelAlpha);
 		state.fadingModelAlphaTarget = newAlpha;
 		
 //		public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	

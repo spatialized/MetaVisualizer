@@ -22,10 +22,10 @@ public class WMV_WorldState
 
 	/* Model */
 	public final float modelBrightness = 245.f;
-	public final float modelAlphaInit = 205.f;
-	public float modelAlpha = modelAlphaInit;
+	public final float modelAlphaMax = 205.f;
+	public float modelAlpha = 0.f;
 	public boolean fadingModelAlpha = false;		// Global alpha fading 
-	public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 20;	
+	public int fadingModelAlphaStartFrame = 0, fadingModelAlphaEndFrame = 0, fadingModelAlphaLength = 40;	
 	public float fadingModelAlphaStart, fadingModelAlphaTarget;
 
 	public final float modelDistanceVisibilityFactorClose = 5.f;		// Near distance at which media model becomes invisible
@@ -42,7 +42,7 @@ public class WMV_WorldState
 	public float alpha = 195.f;							// Transparency
 	
 	public boolean beginFadingAlpha = false, fadingAlpha = false;		// Global alpha fading 
-	public int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
+	public int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 30;	
 	public float fadingAlphaStart, fadingAlphaTarget;
 
 	public boolean useBlurMasks = true;					// Fade/blur image edges
@@ -94,7 +94,7 @@ public class WMV_WorldState
 //		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
 
 		/* Model */
-		modelAlpha = modelAlphaInit;
+		modelAlpha = modelAlphaMax;
 		modelDistanceVisibilityFactorFar = 18.f;				// Far distance at which media model becomes invisible
 
 		/* Time */

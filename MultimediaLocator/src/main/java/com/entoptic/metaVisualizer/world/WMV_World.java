@@ -866,6 +866,7 @@ public class WMV_World
 	private void updateClusterTimeMode()
 	{
 		ArrayList<WMV_Cluster> visible = getVisibleClusters();		// Get visible clusters 
+		
 		for(WMV_Cluster c : visible)
 		{
 			if(!c.isTimeFading()) c.setTimeFading(true);				// Set time fading to ON
@@ -880,7 +881,9 @@ public class WMV_World
 		}
 		
 		WMV_Cluster c = getCurrentCluster();
-		setCurrentClusterTimePoint( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );		// Set global record of cluster time
+
+		if(c != null)
+			setCurrentClusterTimePoint( (float)c.getCurrentTimeCycleFrame() / (float)c.getTimeCycleLength() );		// Set global record of cluster time
 	}
 	
 	/**
@@ -1014,11 +1017,10 @@ public class WMV_World
 		if(mv.debug.ml) mv.systemMessage("World.enterFieldAtBeginning()... Field #"+fieldIdx);
 		viewer.enterField( fieldIdx, false );								// Enter field
 		
+		viewer.start();								// Start the viewer if this is the first frame
 		viewer.moveToFirstTimeSegment(false);		// Move to first time segment if start location not set from saved data 
 
 		viewer.updateNavigation();					// Update navigation
-		
-		viewer.start();								// Start the viewer if this is the first frame
 
 		if(state.displayTerrain)
 			state.waitingToFadeInTerrainAlpha = true;
@@ -1800,6 +1802,8 @@ public class WMV_World
 	{
 		int cycleMax = settings.maxTimeCycleLength;
 		int cycleLength;
+		int newCycleLength;
+		
 		if(mv.display.window.setupTimeWindow)
 		{
 			cycleLength = mv.display.window.sdrTimeCycleLength.getValueI();
@@ -1814,22 +1818,30 @@ public class WMV_World
 					cycleLength = c.getTimeCycleLength();
 				else
 					cycleLength = settings.timeCycleLength;
-				
-				if(cycleLength + 20 < cycleMax)
-					setClusterTimeCycleLength(cycleLength + 20, true);
 			}
 			else
 			{
 				cycleLength = settings.timeCycleLength;
-				if(cycleLength + 20 < cycleMax)
-					setTimeCycleLength(cycleLength + 20, true);
 			}
 		}
 
-		if(mv.display.window.setupTimeWindow)
+		newCycleLength = cycleLength + 20;
+		
+		if(state.timeMode == 0)
+		{
+			if(newCycleLength < cycleMax)
+				setClusterTimeCycleLength(newCycleLength, true);
+		}
+		else
+		{
+			if(newCycleLength < cycleMax)
+				setTimeCycleLength(newCycleLength, true);
+		}
+
+		if(newCycleLength < cycleMax && mv.display.window.setupTimeWindow)
 		{
 			mv.display.updateTimeWindowCurrentTime();
-			mv.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
+			mv.display.window.sdrTimeCycleLength.setValue(newCycleLength);
 		}
 	}
 	
@@ -1838,9 +1850,15 @@ public class WMV_World
 	 */
 	public void decrementTimeCycleLength()
 	{
+		int cycleMin = settings.minTimeCycleLength;
 		int cycleLength;
+		int newCycleLength;
+		
 		if(mv.display.window.setupTimeWindow)
+		{
 			cycleLength = mv.display.window.sdrTimeCycleLength.getValueI();
+			cycleMin = (int) mv.display.window.sdrTimeCycleLength.getEndLimit();
+		}
 		else
 		{
 			if(state.timeMode == 0)
@@ -1850,21 +1868,30 @@ public class WMV_World
 					cycleLength = c.getTimeCycleLength();
 				else
 					cycleLength = settings.timeCycleLength;
-				if(cycleLength - 20 > 0)
-					setClusterTimeCycleLength(cycleLength - 20, true);
 			}
 			else
 			{
 				cycleLength = settings.timeCycleLength;
-				if(cycleLength - 20 > 0)
-					setTimeCycleLength(cycleLength - 20, true);
 			}
 		}
 		
-		if(mv.display.window.setupTimeWindow)
+		newCycleLength = cycleLength - 20;
+		
+		if(state.timeMode == 0)
+		{
+			if(newCycleLength > cycleMin)
+				setClusterTimeCycleLength(newCycleLength, true);
+		}
+		else
+		{
+			if(newCycleLength > cycleMin)
+				setTimeCycleLength(cycleLength - 20, true);
+		}
+		
+		if(newCycleLength > cycleMin && mv.display.window.setupTimeWindow)
 		{
 			mv.display.updateTimeWindowCurrentTime();
-			mv.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
+			mv.display.window.sdrTimeCycleLength.setValue(newCycleLength);
 		}
 	}
 	

@@ -61,6 +61,7 @@ public class WMV_ViewerState
 	public List<Integer> clustersVisibleInOrientationMode;				// Clusters visible to viewer in Orientation Mode
 	private int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
+	public boolean enteredField = false;					// Whether recently entered current field
 	public boolean atCurrentCluster = false;			// Whether viewer is centered at current cluster (false if has moved)
 	public int lastCluster = -1;						// Last cluster visited
 

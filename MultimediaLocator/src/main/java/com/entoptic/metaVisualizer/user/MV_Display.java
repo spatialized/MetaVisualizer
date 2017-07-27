@@ -3240,20 +3240,22 @@ public class MV_Display
 	 */
 	public String getCurrentFormattedTime()
 	{
-		String strTime;
+		String strTime = "00:00:00";
 		if(mv.world.getState().getTimeMode() == 0)		// Location
 		{
 			WMV_Cluster c = mv.world.getCurrentCluster();
 			int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
-			WMV_TimeSegment ts = mv.world.getCurrentField().getTimeline().timeline.get(tsID);
+//			WMV_TimeSegment ts = mv.world.getCurrentField().getTimeline().timeline.get(tsID);
 			WMV_Time t = c.getClosestTimeToClusterTime( c.getCurrentTime() );
-			strTime = t.getFormattedTime(true, false);
+			if(t != null)
+				strTime = t.getFormattedTime(true, false);
 		}
 		else												// Field
 		{
 			int tsID = mv.world.viewer.getCurrentFieldTimeSegment();
 			WMV_TimeSegment ts = mv.world.getCurrentField().getTimeline().timeline.get(tsID);
-			strTime = ts.getCenter().getFormattedTime(true, false);
+			if(ts != null)
+				strTime = ts.getCenter().getFormattedTime(true, false);
 		}
 		return strTime;
 	}

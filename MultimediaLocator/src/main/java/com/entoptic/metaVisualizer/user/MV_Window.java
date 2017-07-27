@@ -258,7 +258,7 @@ public class MV_Window
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
-		navigationWindowHeight = mediumWindowHeight + 115;		
+		navigationWindowHeight = mediumWindowHeight + 145;		
 		navigationWindowWidth = windowWidth;
 		mediaWindowHeight = mediumWindowHeight + 148;
 		mediaWindowWidth = windowWidth;
@@ -461,9 +461,9 @@ public class MV_Window
 	public void setupNavigationWindow(boolean open)
 	{
 		if(world.getFields().size() == 1) 
-			navigationWindowHeight = mediumWindowHeight + 115;							// Single field, fewer buttons
+			navigationWindowHeight = mediumWindowHeight + 145;							// Single field, fewer buttons
 		else
-			navigationWindowHeight = mediumWindowHeight + 155;
+			navigationWindowHeight = mediumWindowHeight + 185;
 		
 		int leftEdge = world.mv.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.mv.displayHeight / 2 - navigationWindowHeight / 2;
@@ -481,7 +481,6 @@ public class MV_Window
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
 		navigationWindow.addKeyHandler(world.mv, "navigationWindowKey");
-//		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		world.mv.delay(delayAmount);
 
@@ -599,7 +598,7 @@ public class MV_Window
 		btnLookDown.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnLookDown.fireAllEvents(true);
 
-		x = 125;
+		x = 80;
 		y += iSmallBoxHeight;
 		btnLookForNearbyMedia = new GButton(navigationWindow, x, y, 160, iVerySmallBoxHeight, "Look for Media (BETA)");
 		btnLookForNearbyMedia.tag = "LookAround";
@@ -1317,7 +1316,7 @@ public class MV_Window
 	 */
 	public void setupTimeWindow(boolean open)
 	{
-		int leftEdge = world.mv.displayWidth / 2 - windowWidth / 2;
+		int leftEdge = world.mv.displayWidth / 2 - timeWindowWidth / 2;
 		int topEdge = world.mv.displayHeight / 2 - timeWindowHeight / 2;
 
 		if(timeWindowX > -1 && timeWindowY > -1)

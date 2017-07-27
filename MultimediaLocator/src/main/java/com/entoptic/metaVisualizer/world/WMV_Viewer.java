@@ -138,7 +138,7 @@ public class WMV_Viewer
 		if(debug.viewer) p.mv.systemMessage("Viewer.enterField()... Field id #"+fieldID);
 
 		setCurrentField(fieldID, setState);					// Set new field and simulation state
-
+		
 		if(p.mv.display.getDisplayView() == 1)
 			p.mv.display.map2D.initialize(p);				// Initialize map if in Map View
 		
@@ -147,7 +147,8 @@ public class WMV_Viewer
 		
 		if(p.mv.display.getDisplayView() == 2)				// Zoom to timeline for new field
 			p.mv.display.zoomToTimeline(p, true);
-;
+		
+//		lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
 	}
 	
 	/*** 
@@ -836,10 +837,14 @@ public class WMV_Viewer
 						if(p.mv.debug.time)
 							p.mv.systemMessage("Viewer.moveToTimeSegmentInField()... Will transitionToTimeSegmentInClusterMode():"+ state.getCurrentFieldTimeSegment());
 
+//						if(state.enteredField)
+//						{
+//							lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
+//							state.enteredField = false;
+//						}
 						transitionToClusterTimeSegment(state.getCurrentFieldTimeSegment());
 					}
-					if(debug.viewer && debug.detailed)
-						p.mv.systemMessage("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
+					if(debug.viewer && debug.detailed) p.mv.systemMessage("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 				}
 				else			// Moving to different time in different cluster
 				{
@@ -1486,40 +1491,40 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Smoothly turn to look at given media
-	 * @param goal Point to smoothly turn towards
-	 * @param mediaType Media type
+	 * Turn to look at given media
+	 * @param goal Point to turn towards
+	 * @param mediaType Media type (for determining how to look at media)
 	 * @param turnXInfo Turn X info
 	 * @param turnYInfo Turn Y info
 	 */
 	private void lookAtMedia( int id, int mediaType, PVector turnXInfo, PVector turnYInfo ) 
 	{
-		PVector turnLoc = new PVector(0,0,0);
+		PVector turnGoal = new PVector(0,0,0);
 		
 		if(debug.viewer)
 		{
-			p.mv.systemMessage("Viewer.lookAtMedia()... Looking at media:"+id+" mediaType:"+mediaType);
+			p.mv.systemMessage("Viewer.lookAtMedia()... Will start turning towards media:"+id+" mediaType:"+mediaType);
 			p.mv.systemMessage(" >> turnXInfo.x:"+turnXInfo.x+" turnYInfo.x:"+turnYInfo.x+"  turnXInfo.y:"+turnXInfo.y+" turnYInfo.y:"+turnYInfo.y);
 		}
 
 		switch(mediaType)
 		{
 			case 0:			// Image
-				turnLoc = p.getCurrentField().getImage(id).getLocation();
+				turnGoal = p.getCurrentField().getImage(id).getLocation();
 				break;
 			case 1:			// Panorama		-- Turn towards "center"?
-//				turnLoc = currentField.getImage(id).getLocation();
+//				turnGoal = currentField.getImage(id).getLocation();
 				break;
 			case 2:			// Video
-				turnLoc = p.getCurrentField().getVideo(id).getLocation();
+				turnGoal = p.getCurrentField().getVideo(id).getLocation();
 				break;
-			case 3:			// Sound		-- Turn towards??
-//				turnLoc = currentField.sounds.get(id).getLocation();
+			case 3:			// Sound			-- Turn towards??
+//				turnGoal = currentField.sounds.get(id).getLocation();
 				break;
 		}
 		
 		state.turningMediaGoal = new PVector(id, mediaType);
-		turnTowards( turnLoc, turnXInfo, turnYInfo );
+		turnTowards( turnGoal, turnXInfo, turnYInfo );
 	}
 	
 	/**
@@ -2594,7 +2599,7 @@ public class WMV_Viewer
 				if(Math.abs(state.acceleration.mag()) < settings.accelerationMax)			/* Apply attraction up to maximum acceleration */
 					state.acceleration.add( PVector.div(state.attraction, settings.cameraMass) );	
 				else
-					p.mv.systemMessage("--> Attraction but no acceleration... attraction.mag():"+state.attraction.mag()+" acceleration.mag():"+state.acceleration.mag());
+					p.mv.systemMessage("Viewer.updatePhysics()... Attraction but no acceleration... attraction.mag():"+state.attraction.mag()+" acceleration.mag():"+state.acceleration.mag());
 			}
 
 			if(state.slowing)
@@ -2641,15 +2646,15 @@ public class WMV_Viewer
 				if( attractorPoint != null )
 				{
 					curAttractor = attractorPoint;
-					if(debug.viewer && debug.detailed)					/* If not slowing and attraction force exists */
-						p.mv.systemMessage("--> attractorCluster:"+state.attractorClusterID+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
-					if(debug.viewer && debug.detailed)					/* If not slowing and attraction force exists */
-						p.mv.systemMessage("--> attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
+					if(debug.viewer && debug.detailed)				
+						p.mv.systemMessage("Viewer.updatePhysics()...  attractorCluster:"+state.attractorClusterID+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
+					if(debug.viewer && debug.detailed)					
+						p.mv.systemMessage("-->  attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
 					if(p.utilities.isNaN(state.attraction.mag()))
 					{
 						state.movingToAttractor = false;
 						if(debug.viewer)					/* If not slowing and attraction force exists */
-							p.mv.systemMessage("--> attraction was NaN... set movingToAttractor to false");
+							p.mv.systemMessage("Viewer.updatePhysics()...  attraction was NaN... set movingToAttractor to false");
 					}
 				}
 			}
@@ -2804,6 +2809,12 @@ public class WMV_Viewer
 			updateCurrentCluster(true);
 //			turnToCurrentClusterOrientation();
 		}
+		
+//		if(state.enteredField)
+//		{
+//			lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
+//			state.enteredField = false;
+//		}
 	}
 	
 	/**
@@ -2894,7 +2905,7 @@ public class WMV_Viewer
 		if(debug.viewer && debug.detailed)		
 			p.mv.systemMessage("Viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
 
-		if(newField < p.getFieldCount())
+		if(newField != getCurrentFieldID() && newField < p.getFieldCount())
 		{
 			setCurrentFieldID( newField );
 
@@ -2906,7 +2917,7 @@ public class WMV_Viewer
 				p.setStateFromField(p.getField(newField));
 //				p.setSimulationStateFromField(p.getField(newField), true);
 				if(debug.viewer && debug.detailed)		
-					p.mv.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+					p.mv.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  current field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
 			{
@@ -2917,6 +2928,8 @@ public class WMV_Viewer
 
 			if(!p.getField(getCurrentFieldID()).hasBeenVisited()) 
 				p.getField(getCurrentFieldID()).setVisited(true);
+			
+//			state.enteredField = true;			// -- Unused
 		}
 	}
 
@@ -3618,6 +3631,12 @@ public class WMV_Viewer
 				
 				if(p.state.waitingToFadeInTerrainAlpha) 				// Fade in terrain
 					p.fadeInTerrain(false);
+				
+//				if(state.enteredField)
+//				{
+//					lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
+//					state.enteredField = false;
+//				}
 			}
 			else
 			{
@@ -3871,7 +3890,7 @@ public class WMV_Viewer
 
 					state.gpsTrackGoal = gpsTrack.get(state.gpsTrackLocationIdx).getWorldLocation();  // Set path goal from GPS track
 					state.gpsTrackLocationIdx = 0;
-					boolean teleport = ( PVector.dist( state.gpsTrackGoal, getLocation() ) > settings.farClusterTeleportDistance );
+//					boolean teleport = ( PVector.dist( state.gpsTrackGoal, getLocation() ) > settings.farClusterTeleportDistance );
 					
 					if(p.mv.debug.viewer)
 						p.mv.systemMessage("Viewer.startFollowingGPSTrack()... state.gpsTrackGoal set to:"+gpsTrack.get(state.gpsTrackLocationIdx).getWorldLocation());
@@ -4082,6 +4101,7 @@ public class WMV_Viewer
 	public void start()
 	{
 		state.firstRunningFrame = true;
+//		lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
 	}
 
 	/**
@@ -5711,10 +5731,10 @@ public class WMV_Viewer
 		WMV_ModelState m = p.getCurrentField().getModel().getState();
 		
 		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = getAltitude();																								// Altitude
+		float newY = getAltitude();																							// Altitude
 		float newZ = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
-		return new PVector(newX, newY);
+		return new PVector(newX, newY, newZ);
 	}
 	
 	/**

@@ -1110,9 +1110,9 @@ public class MV_KeyboardControls
 					{
 						if(ml.debug.input) ml.systemMessage("Keyboard.handleListItemWindowKeyPressed()... State loaded, will enter field at saved location? "+f.hasBeenVisited());
 						
-						if( f.hasBeenVisited() )	
-							ml.world.viewer.enterField( ml.display.window.listItemWindowSelectedItem, true );		/* Enter field at saved location */
-						else
+//						if( f.hasBeenVisited() )	
+//							ml.world.viewer.enterField( ml.display.window.listItemWindowSelectedItem, true );		/* Enter field at saved location */
+//						else
 							ml.world.enterFieldAtBeginning( ml.display.window.listItemWindowSelectedItem );		/* Enter field at saved location */
 //						ml.world.viewer.enterField( ml.display.window.listItemWindowSelectedItem, f.hasBeenVisited() );		/* Enter field at saved location */
 					}

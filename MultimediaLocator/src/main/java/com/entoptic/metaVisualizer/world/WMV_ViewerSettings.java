@@ -18,7 +18,7 @@ public class WMV_ViewerSettings
 	public float farClippingDistance = 10000.f;						// Distance (m.) of far clipping plane
 	
 	public float nearViewingDistance = nearClippingDistance * 2.f; 	// Near distance (m.) at which media start fading out
-	public float farViewingDistance = 11.f; 						// Far distance (m.) at which media start fading out
+	public float farViewingDistance = 14.f; 						// Far distance (m.) at which media start fading out
 	public float userBrightness = 1.f;								// User brightness
 
 	/* Media */
@@ -70,11 +70,12 @@ public class WMV_ViewerSettings
 	public float camHaltInc = 0.0033f;						// Camera fast deceleration increment
 
 	/* Movement */
+	public boolean keepMediaInFrame = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
+	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
+
 	public float walkingAccelInc = 0.002f;					// Camera walking acceleration increment
 	public int teleportLength = 30;							// Teleport transition length 
-	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
 	public float farClusterTeleportDistance = 120.f;		// Distance at which cluster is considered far
-	public boolean keepMediaInFrame = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
 	public final int pathWaitLengthInit = 60;				// Initial pathWaitLength
 	public int pathWaitLength = pathWaitLengthInit;			// Time to wait once reached path location before moving to next
 
@@ -83,13 +84,17 @@ public class WMV_ViewerSettings
 
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
-	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity
-	final public float turningAccelerationMax = 0.005f;			// Camera maximum acceleration
+	final public float turningVelocityMax = 0.033f;				// Camera maximum velocity
+	final public float turningAccelerationMax = 0.0045f;			// Camera maximum acceleration
 	final public float turningAccelerationMin = 0.000005f;		// Threshold under which acceleration counts as zero
-	final public float turningDecelInc = 0.45f;					// Camera deceleration increment
-	final public float turningHaltInc = 0.0033f;				// Camera fast deceleration increment
-	public float turningXAccelInc = 0.0001f;					// Turning X axis acceleration increment
-	public float turningYAccelInc = 0.0001f;					// Turning Y axis acceleration increment
+	final public float turningDecelInc = 0.66f;					// Camera deceleration increment
+	final public float turningHaltInc = 0.0075f;				// Camera fast deceleration increment
+	public float turningXAccelInc = 0.00005f;					// Turning X axis acceleration increment
+	public float turningYAccelInc = 0.00005f;					// Turning Y axis acceleration increment
+//	final public float turningDecelInc = 0.45f;					// Camera deceleration increment
+//	final public float turningHaltInc = 0.0033f;				// Camera fast deceleration increment
+//	public float turningXAccelInc = 0.0001f;					// Turning X axis acceleration increment
+//	public float turningYAccelInc = 0.0001f;					// Turning Y axis acceleration increment
 
 	/* Interaction */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see

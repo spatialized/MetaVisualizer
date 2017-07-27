@@ -8,16 +8,13 @@ import main.java.com.entoptic.metaVisualizer.model.WMV_ModelState;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Timeline;
 import main.java.com.entoptic.metaVisualizer.model.WMV_Waypoint;
 
-//import processing.core.PVector;
-
 /******************************************
  * Current field state 
  * @author davidgordon
- *
  */
 public class WMV_FieldState 
 {
-	/* General */
+	/* Field */
 	public int id;											// Field ID
 	public String name;										// Field Name
 	public boolean named = true;							// Whether field has been named

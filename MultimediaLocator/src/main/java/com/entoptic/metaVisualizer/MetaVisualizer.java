@@ -100,7 +100,6 @@ public class MetaVisualizer extends PApplet
 
 	/* App */
 	private String appName = "MetaVisualizer 0.9.0";
-//	private String appName = "MultimediaLocator 0.9.0";
 	private PImage appIcon;							// App icon
 	public boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 60;	
@@ -176,56 +175,10 @@ public class MetaVisualizer extends PApplet
 		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
 		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.FOCUS_EVENT_MASK );
-		
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.FOCUS_EVENT_MASK | 
-//											AWTEvent.WINDOW_EVENT_MASK | AWTEvent.WINDOW_FOCUS_EVENT_MASK );
-
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_EventListener(), AWTEvent.KEY_EVENT_MASK );
 
 		GLWindow glFrame = (GLWindow) surface.getNative();
 		glFrame.addWindowListener( new WMV_WindowListener() );
 		
-//		glFrame.addWindowListener(new WindowListener() 
-//		{
-//	        public void windowGainedFocus(WindowEvent e) {
-//	        			System.out.println("Main frame windowGainedFocus...");
-//	        }
-//
-//	        public void windowLostFocus(WindowEvent e) {
-//	        	System.out.println("Main frame windowLostFocus...");
-//	        }
-//
-//	        public void windowDestroyNotify(WindowEvent e) {
-//	        	System.out.println("Main frame windowDestroyNotify...");
-//	        }
-//
-//	        public void windowRepaint(WindowUpdateEvent e) {
-//	        	System.out.println("Main frame windowRepaint...");
-//	        }
-//
-//	        public void windowResized(WindowEvent e) {
-//	        	System.out.println("Main frame windowRepaint...");
-//	        }
-//	        
-//	        public void windowMoved(WindowEvent e) {
-//	        	System.out.println("Main frame windowRepaint...");
-//	        }
-//
-//	        public void windowDestroyed(WindowEvent e) {
-//	        	System.out.println("Main frame windowDestroyed...");
-//	        }
-//		});
-//
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
-//														AWTEvent.FOCUS_EVENT_MASK);
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
-//					AWTEvent.FOCUS_EVENT_MASK | AWTEvent.WINDOW_EVENT_MASK | AWTEvent.WINDOW_FOCUS_EVENT_MASK);
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
-//														AWTEvent.FOCUS_EVENT_MASK | AWTEvent.WINDOW_EVENT_MASK);
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | 
-//														AWTEvent.WINDOW_FOCUS_EVENT_MASK);
-//		Toolkit.getDefaultToolkit().addAWTEventListener( new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK );
-
 		/* Panoramic Stitching */
 		stitcher = new MV_Stitcher(world);
 
@@ -1142,9 +1095,13 @@ public class MetaVisualizer extends PApplet
 		}
 	}
 
+	/**
+	 * Add Shutdown Hook
+	 */
 	public void addShutdownHook()
 	{
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread() 
+		{
 	        @Override
 	        public void run() {	 									// Stackless deletion
 	            if(debug.ml) systemMessage("Running Shutdown Hook");
@@ -1152,12 +1109,11 @@ public class MetaVisualizer extends PApplet
 	            try {
 	            	String homeDir = System.getProperty("user.home");
 	            	
-
-//	            	DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM d yyyy  hh:mm a");
 	            	DateTimeFormatter format = DateTimeFormatter.ofPattern("hh_mm_a-MM_d_yy");
 	            	LocalDateTime date = LocalDateTime.now();
 	            	String dateStr = format.format(date);
 //	            	if(debug.ml) systemMessage("addShutdownHook()... Date: "+dateStr); //2016/11/16 12:08:43
+	            	
 	            	format.format(date);
 	            	
 	                File errorTextFile = new File(homeDir + "/MetaVisualizer_Log_"+dateStr+".txt");
@@ -1169,7 +1125,9 @@ public class MetaVisualizer extends PApplet
 		                fw.write(line + System.lineSeparator());
 	                fw.close();
 
-	            } catch (IOException iox) {
+	            } 
+	            catch (IOException iox) 
+	            {
 	                //do stuff with exception
 	                iox.printStackTrace();
 	                File errorFile = new File("~/MetaVisualizer_ErrorLog.txt");
@@ -1179,37 +1137,39 @@ public class MetaVisualizer extends PApplet
 	                }
 	                catch(Throwable t)
 	                {
-	                	System.out.println("Error...");
+	                		System.out.println("Error...");
 	                }
 	            }
+	            
 	            String root = MetaVisualizer.tempDir;
 	            Stack<String> dirStack = new Stack<String>();
 	            dirStack.push(root);
 	            while(!dirStack.empty()) 
 	            {
-	                String dir = dirStack.pop();
-	                File f = new File(dir);
-	                if(f.listFiles().length==0)
-	                {
-	                	if(debug.ml) systemMessage("Deleting f:"+f.getName());
-	                    f.delete();
-	                }
-	                else {
-	                    dirStack.push(dir);
-	                    for(File ff: f.listFiles()) 
-	                    {
-	                        if(ff.isFile())
-	                        {
-	    	                	if(debug.ml) systemMessage("Deleting ff:"+ff.getName());
-	                            ff.delete();
-	                        }
-	                        else if(ff.isDirectory())
-	                            dirStack.push(ff.getPath());
-	                    }
+	            		String dir = dirStack.pop();
+	            		File f = new File(dir);
+	            		if(f.listFiles().length==0)
+	            		{
+	            			if(debug.ml) systemMessage("Deleting f:"+f.getName());
+	            			f.delete();
+	            		}
+	            		else 
+	            		{
+		                	dirStack.push(dir);
+		                	for(File ff: f.listFiles()) 
+		                	{
+		                		if(ff.isFile())
+		                		{
+		                			if(debug.ml) systemMessage("Deleting ff:"+ff.getName());
+		                			ff.delete();
+		                		}
+		                		else if(ff.isDirectory())
+		                			dirStack.push(ff.getPath());
+		                	}
 	                }
 	            }
 	        }
-	    });
+		});
 	}
 	
 	/**

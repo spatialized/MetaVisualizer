@@ -2981,12 +2981,12 @@ public class MV_Display
 		mv.textSize(hudSmallTextSize);
 
 		WMV_Cluster c = p.getCurrentCluster();
-
-		String strGPS = mv.utilities.formatGPSLocation( mv.world.viewer.getGPSLocation(), false );
-		
-		mv.text("Current Location:", x, y, 0);
-		mv.text(strGPS, x, y += hudLineWidthWide, 0);
-
+		if(currentDisplayCluster != c.getID())
+		{
+			String strGPS = mv.utilities.formatGPSLocation( mv.world.viewer.getGPSLocation(), false );
+			mv.text("Current Location:", x, y, 0);
+			mv.text(strGPS, x, y += hudLineWidthWide, 0);
+		}
 		mv.popMatrix();
 		endDisplayHUD();
 		

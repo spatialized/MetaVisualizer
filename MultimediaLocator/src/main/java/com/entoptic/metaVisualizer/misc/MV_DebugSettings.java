@@ -7,7 +7,7 @@ package main.java.com.entoptic.metaVisualizer.misc;
 public class MV_DebugSettings 
 {
 	/* Debug Mode */
-	public boolean detailed = false;				// Verbose Debug Mode On/Off
+	public boolean detailed = true;				// Verbose Debug Mode On/Off
 	
 	/* Output Methods */
 	public boolean print = true;					// Print all user messages
@@ -15,11 +15,11 @@ public class MV_DebugSettings
 	public boolean file = true;					// Output debug messages to file
 	
 	/* Main */
-	public boolean ml = false;					// Debug MultimediaLocator class
+	public boolean ml = true;					// Debug MultimediaLocator class
 	public boolean world = false;				// Debug WMV_World and WMV_Field classes
 	public boolean input = false;				// Debug MultimediaLocator class
 	public boolean library = false;				// Debug library and file handling
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean time = false;					// Debug time behavior
 	public boolean gps = false;					// Debug WMV_Viewer class
 	

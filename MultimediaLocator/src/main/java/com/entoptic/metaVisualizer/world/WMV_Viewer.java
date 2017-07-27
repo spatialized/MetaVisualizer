@@ -1346,7 +1346,7 @@ public class WMV_Viewer
 	 * Rotate smoothly around X axis to specified angle
 	 * @param angle Angle around X axis to rotate to
 	 */
-	public void turnXToAngle(float angle, int turnDirection)
+	public void turnXToAngle(float angle)
 	{
 		if(debug.viewer) p.mv.systemMessage("Viewer.turnXToAngle()... angle:"+angle);
 		if(!state.turningX)
@@ -1354,15 +1354,12 @@ public class WMV_Viewer
 			state.turnXStart = getXOrientation();
 			state.turnXTarget = angle;
 			
-			PVector turnInfo = getTurnInfo(state.turnXStart, state.turnXTarget, turnDirection);
+			PVector turnInfo = getTurnXInfo(state.turnXStart, state.turnXTarget);
 			
-			if(turnDirection == 0)
-				state.turnXDirection = turnInfo.x;
-			else
-				state.turnXDirection = turnDirection;
+			state.turnXDirection = turnInfo.x;
 			
 			settings.turningXAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, settings.turningAccelerationMin, settings.turningAccelerationMax * 0.2f);
-			state.turnXStartFrame = worldState.frameCount;
+			state.turnXStartFrame = p.mv.frameCount;
 			state.turningX = true;
 		}
 	}
@@ -1371,7 +1368,7 @@ public class WMV_Viewer
 	 * Rotate smoothly around Y axis to specified angle
 	 * @param angle Angle around Y axis to rotate to
 	 */
-	public void turnYToAngle(float angle, int turnDirection)
+	public void turnYToAngle(float angle)
 	{
 		if(debug.viewer) p.mv.systemMessage("ViewerturnYToAngle()... angle:"+angle);
 
@@ -1380,15 +1377,12 @@ public class WMV_Viewer
 			state.turnYStart = getYOrientation();
 			state.turnYTarget = angle;
 			
-			PVector turnInfo = getTurnInfo(state.turnYStart, state.turnYTarget, turnDirection);
+			PVector turnInfo = getTurnYInfo(state.turnYStart, state.turnYTarget);
 			
-			if(turnDirection == 0)
-				state.turnYDirection = turnInfo.x;
-			else
-				state.turnYDirection = turnDirection;
+			state.turnYDirection = turnInfo.x;
 			
 			settings.turningYAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, settings.turningAccelerationMin, settings.turningAccelerationMax * 0.2f);
-			state.turnYStartFrame = worldState.frameCount;
+			state.turnYStartFrame = p.mv.frameCount;
 			state.turningY = true;
 		}
 	}
@@ -1404,7 +1398,7 @@ public class WMV_Viewer
 			state.turnXStart = getXOrientation();
 			state.turnXTarget = state.turnXStart + angle;
 			
-			PVector turnInfo = getTurnInfo(state.turnXStart, state.turnXTarget, 0);
+			PVector turnInfo = getTurnXInfo(state.turnXStart, state.turnXTarget);
 			
 			state.turnXDirection = turnInfo.x;
 			state.turnXStartFrame = worldState.frameCount;
@@ -1422,30 +1416,91 @@ public class WMV_Viewer
 	{
 		if(!state.turningY)
 		{
-			if(angle < 0.f)					// Keep within range 0 to 2π
-				angle += 2*PApplet.PI;
-			else if(angle > 2*PApplet.PI)
-				angle -= 2*PApplet.PI;
+			if(angle > -PApplet.PI * 0.5f + 0.05f && angle < PApplet.PI * 0.5f - 0.05f)
+			{
+				state.turnYStart = getYOrientation();
+				state.turnYTarget = state.turnYStart + angle;
+				PVector turnInfo = getTurnYInfo(state.turnYStart, state.turnYTarget);
+				state.turnYDirection = turnInfo.x;
+				state.turnYStartFrame = worldState.frameCount;
+				state.turningY = true;
+			}
+		}
+	}
 
-			state.turnYStart = getYOrientation();
-			state.turnYTarget = state.turnYStart + angle;
-			PVector turnInfo = getTurnInfo(state.turnYStart, state.turnYTarget, 0);
-			state.turnYDirection = turnInfo.x;
-			state.turnYStartFrame = worldState.frameCount;
-			state.turningY = true;
+	/**
+	 * Rotate smoothly along X axis with specified turn info
+	 * @param turnInfo PVector {direction, angular distance}, where direction is specified as 1: clockwise, -1: counterclockwise
+	 */
+	public void turnX(PVector turnInfo)
+	{
+		if(!state.turningX)
+		{
+			float angle = state.turnXStart + turnInfo.y;
+			
+			if(debug.viewer && debug.detailed) 
+				p.mv.systemMessage("Viewer.turnX()... angle:"+angle);
+			
+			if(angle > -2.f*PApplet.PI && angle < 2.f*PApplet.PI)
+			{
+				state.turnXStart = getXOrientation();
+				state.turnXTarget = angle;
+
+				state.turnXDirection = turnInfo.x;
+				state.turnXStartFrame = p.mv.frameCount;
+
+				if(debug.viewer && debug.detailed) 
+					p.mv.systemMessage(" >> state.turnXTarget:"+state.turnXTarget+" turnXDirection:"+state.turnXDirection);
+
+				state.turningX = true;
+			}
+		}
+	}
+	
+	/**
+	 * Rotate smoothly along Y axis by specified angle
+	 * @param turnInfo PVector {direction, angularDistance}, where direction is specified as 1: up, -1: down (?)
+	 */
+	public void turnY(PVector turnInfo)
+	{
+		if(!state.turningY)
+		{
+			float angle = state.turnYStart + turnInfo.y;
+			
+			if(debug.viewer && debug.detailed) 
+				p.mv.systemMessage("Viewer.turnY()... angle:"+angle);
+
+			if(angle > -PApplet.PI * 0.5f + 0.05f && angle < PApplet.PI * 0.5f - 0.05f)
+			{
+				state.turnYStart = getYOrientation();
+				state.turnYTarget = angle;
+				state.turnYDirection = turnInfo.x;
+				state.turnYStartFrame = worldState.frameCount;
+				
+				if(debug.viewer && debug.detailed) 
+					p.mv.systemMessage(" >> state.turnYTarget:"+state.turnYTarget+" turnYDirection:"+state.turnYDirection);
+
+				state.turningY = true;
+			}
 		}
 	}
 
 	/**
 	 * Smoothly turn to look at given media
 	 * @param goal Point to smoothly turn towards
+	 * @param mediaType Media type
+	 * @param turnXInfo Turn X info
+	 * @param turnYInfo Turn Y info
 	 */
-	private void lookAtMedia( int id, int mediaType ) 
+	private void lookAtMedia( int id, int mediaType, PVector turnXInfo, PVector turnYInfo ) 
 	{
 		PVector turnLoc = new PVector(0,0,0);
 		
 		if(debug.viewer)
-			p.mv.systemMessage("Looking at media:"+id+" mediaType:"+mediaType);
+		{
+			p.mv.systemMessage("Viewer.lookAtMedia()... Looking at media:"+id+" mediaType:"+mediaType);
+			p.mv.systemMessage(" >> turnXInfo.x:"+turnXInfo.x+" turnYInfo.x:"+turnYInfo.x+"  turnXInfo.y:"+turnXInfo.y+" turnYInfo.y:"+turnYInfo.y);
+		}
 
 		switch(mediaType)
 		{
@@ -1464,7 +1519,7 @@ public class WMV_Viewer
 		}
 		
 		state.turningMediaGoal = new PVector(id, mediaType);
-		turnTowards(turnLoc);
+		turnTowards( turnLoc, turnXInfo, turnYInfo );
 	}
 	
 	/**
@@ -1474,35 +1529,46 @@ public class WMV_Viewer
 	 */
 	private void turnToOrientation( WMV_Orientation newOrientation )
 	{
-		turnXToAngle(newOrientation.getDirection(), 0);		// Calculate which way to turn and start turning in X axis
-		turnYToAngle(newOrientation.getElevation(), 0);		// Calculate which way to turn and start turning in Y axis
+		turnXToAngle(newOrientation.getDirection());		// Calculate which way to turn and start turning in X axis
+		turnYToAngle(newOrientation.getElevation());		// Calculate which way to turn and start turning in Y axis
 	}
 	
 	/**
 	 * Turn smoothly towards given point
 	 * @param goal Point to smoothly turn towards
 	 */
-	private void turnTowards( PVector goal ) 
+	private void turnTowards( PVector goal, PVector turnXInfo, PVector turnYInfo ) 
 	{
-		if(debug.viewer) 
-			p.mv.systemMessage("Turning towards... goal.x:"+goal.x+" goal.y:"+goal.y+" goal.z:"+goal.z);
+		if(turnXInfo == null || turnYInfo == null)
+		{
+			if(debug.viewer) 
+				p.mv.systemMessage("Viewer.turnTowards()... Turning towards goal.x:"+goal.x+" goal.y:"+goal.y+" goal.z:"+goal.z);
 
-		PVector cameraPosition = getLocation();
-		PVector camOrientation = getOrientation();
+			PVector cameraPosition = getLocation();
+			PVector camOrientation = getOrientation();
 
-		PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
-				cameraPosition.y-goal.y, 
-				cameraPosition.z-goal.z   );
-		
-		camOrientation.normalize();
-		cameraToPoint.normalize();
+			PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+					cameraPosition.y-goal.y, 
+					cameraPosition.z-goal.z   );
 
-		float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
-		float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
-		float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
-		
-		turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
-		turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
+			camOrientation.normalize();
+			cameraToPoint.normalize();
+
+			float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+			float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+			float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+
+			turnXToAngle(yaw);		// Calculate which way to turn and start turning in X axis
+			turnYToAngle(pitch);		// Calculate which way to turn and start turning in Y axis
+		}
+		else
+		{
+			turnX(turnXInfo);			// Turn along X axis using specified turn info
+			turnY(turnYInfo);			// Turn along Y axis using specified turn info
+
+//			turnXToAngle(yaw, turnXInfo);		// Calculate which way to turn and start turning in X axis
+//			turnYToAngle(pitch, turnYInfo);		// Calculate which way to turn and start turning in Y axis
+		}
 	}
 
 	/**
@@ -1820,21 +1886,28 @@ public class WMV_Viewer
 	 * Calculate the direction, increment size and length of time needed to turn from startingAngle to targetAngle
 	 * @param startAngle	Starting angle
 	 * @param targetAngle	Target angle
-	 * @return				PVector (direction, increment, length in frames): direction -> 1: clockwise and -1: counterclockwise
+	 * @return PVector {direction, angular distance}, where direction is specified as 1: clockwise, -1: counterclockwise
 	 */
-	private PVector getTurnInfo(float startAngle, float targetAngle, int direction)
+	private PVector getTurnXInfo(float startAngle, float targetAngle)
 	{
+//		if(p.mv.debug.viewer)
+//			p.mv.systemMessage("Viewer.getTurnXInfo()... startAngle:"+startAngle+" targetAngle:"+targetAngle);
+
 		PVector result;
-		float length = 0;
+		float angularDistance = 0;
 		
 		float diffRight = -1.f;		// Difference when turning right (dir = 1)
 		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
 
+		float diff = 0.f;
+		
 		if(targetAngle < 0.f)
 			targetAngle += PApplet.PI * 2.f;
 		if(startAngle < 0.f)
 			startAngle += PApplet.PI * 2.f;
 
+		diff = targetAngle - startAngle;
+		
 		if(targetAngle > startAngle)									// Clockwise
 		{
 			diffRight = targetAngle - startAngle;
@@ -1851,41 +1924,69 @@ public class WMV_Viewer
 			diffLeft = 2.f*PApplet.PI;
 		}
 
-		if(direction == 0)						// Calculate direction
+		angularDistance = diff;		
+
+		if(diffRight <= diffLeft)
 		{
-			if(diffRight <= diffLeft)
-			{
-				length = diffRight;		// Frames until target reached
-				result = new PVector(-1, length);
-				return result;								// Return 1 for clockwise 
-			}
-			else
-			{
-				length = diffLeft;		// Frames until target reached
-				result = new PVector(1, length);
-				return result;								// Return -1 for counterclockwise 
-			}
+//			angularDistance = diffRight;		
+			result = new PVector(-1, angularDistance);
+//			if(p.mv.debug.viewer) p.mv.systemMessage(">> Result: direction: -1  angularDistance:"+angularDistance);
+			return result;								// Return 1 for clockwise 
 		}
-		else												// Full rotation
+		else
 		{
-			if(direction == 1)								// Turn left
-				length = diffLeft;
-			else if(direction == -1)						// Turn right
-				length = diffRight;
-			
-			result = new PVector(direction, length);		// Return direction, increment value and transition frame length 
-			return result;
+//			angularDistance = diffLeft;		
+			result = new PVector(1, angularDistance);
+//			if(p.mv.debug.viewer) p.mv.systemMessage(">> Result: direction: 1  angularDistance:"+angularDistance);
+			return result;								// Return -1 for counterclockwise 
 		}
 	}
 	
+	/**	 
+	 * Calculate the direction, increment size and length of time needed to turn from startingAngle to targetAngle
+	 * @param startAngle	Starting angle
+	 * @param targetAngle	Target angle
+	 * @return PVector {direction, angular distance}, where direction is specified as 1: clockwise, -1: counterclockwise
+	 */
+	private PVector getTurnYInfo(float startAngle, float targetAngle)
+	{
+		PVector result;
+		float angularDistance = 0;
+		
+		float diff = -1.f;		// Difference when turning right (dir = 1)
+
+//		if(p.mv.debug.viewer) p.mv.systemMessage("Viewer.getTurnYInfo()... startAngle:"+startAngle+" targetAngle:"+targetAngle);
+
+		if(targetAngle < -PApplet.PI * 0.5f + 0.05f || targetAngle > PApplet.PI * 0.5f - 0.05f)
+			return null;
+		if(startAngle < -PApplet.PI * 0.5f + 0.05f || startAngle > PApplet.PI * 0.5f - 0.05f)
+			return null;
+
+		int direction = -1;
+		diff = targetAngle - startAngle;
+		if(targetAngle > startAngle)										// Up
+			direction = 1;
+		else if(targetAngle < startAngle)								// Down
+			direction = -1;
+		else if(targetAngle == startAngle)								// Full rotation
+			diff = PApplet.PI;
+
+		angularDistance = diff;		// Frames until target reached
+		
+//		if(p.mv.debug.viewer) p.mv.systemMessage(" >> Result  direction:"+direction+"   angularDistance:"+angularDistance);
+
+		result = new PVector(direction, angularDistance);		// Return direction and transition angular distance
+		return result;
+	}
+
 	/**
-	 * Calculate distance needed to turn between two angles
+	 * Calculate distance needed to turn between two angles along X axis
 	 * @param startAngle Starting angle
 	 * @param targetAngle Target angle
 	 * @param direction Direction to turn (1: clockwise, 0: fastest, -1: counterclockwise)
 	 * @return Angular distance
 	 */
-	float getTurnDistance(float startAngle, float targetAngle, float direction)
+	float getTurnXDistance(float startAngle, float targetAngle, float direction)
 	{
 		float diffRight = -1.f;		// Difference when turning right (dir = 1)
 		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
@@ -1934,6 +2035,57 @@ public class WMV_Viewer
 			
 			return length;
 		}
+	}
+
+
+	/**
+	 * Calculate distance needed to turn between two angles along Y axis
+	 * @param startAngle Starting angle
+	 * @param targetAngle Target angle
+	 * @param direction Direction to turn {1: up, -1: down}
+	 * @return Angular distance
+	 */
+	float getTurnYDistance(float startAngle, float targetAngle) //, float direction)
+	{
+		float diffRight = -1.f;		// Difference when turning up (dir = 1)
+		float diffLeft = -1.f;		// Difference when turning down (dir = -1)
+		float length = 0.f;
+		
+		if(p.mv.debug.viewer)
+			p.mv.systemMessage("Viewer.getTurnYDistance()... startAngle:"+startAngle+" targetAngle:"+targetAngle);
+		
+		if(targetAngle < -PApplet.PI * 0.5f + 0.05f || targetAngle > PApplet.PI * 0.5f - 0.05f)
+			return PApplet.PI;
+		if(startAngle < -PApplet.PI * 0.5f + 0.05f || startAngle > PApplet.PI * 0.5f - 0.05f)
+			return PApplet.PI;
+		
+		float diff = targetAngle - startAngle;
+		
+		if(targetAngle > startAngle)										// Clockwise
+		{
+			diff = targetAngle - startAngle;
+//			diffLeft = (startAngle + 2.f*PApplet.PI) - targetAngle;
+		}
+		else if(targetAngle < startAngle)								// Counterclockwise
+		{
+			diff = startAngle - targetAngle;
+//			diffRight = (targetAngle + 2.f*PApplet.PI) - startAngle;
+		}
+		
+		if(targetAngle == startAngle)								// Full rotation
+		{
+			return PApplet.PI;
+			
+//			diffRight = 2.f*PApplet.PI;
+//			diffLeft = 2.f*PApplet.PI;
+		}
+
+//		if(direction == 1.f)								// Turn left
+//			length = diffLeft;
+//		else if(direction == -1.f)						// Turn right
+//			length = diffRight;
+
+		return length;
 	}
 
 	/**
@@ -2315,7 +2467,7 @@ public class WMV_Viewer
 		
 		if(state.turningX)
 		{
-			float xTurnDistance = getTurnDistance(getXOrientation(), state.turnXTarget, state.turnXDirection);
+			float xTurnDistance = getTurnXDistance(getXOrientation(), state.turnXTarget, state.turnXDirection);
 			if(Math.abs(xTurnDistance) < state.turningNearDistance) // && !turningNearby)
 			{
 				if(Math.abs(xTurnDistance) > state.turningCenterSize)
@@ -2335,7 +2487,7 @@ public class WMV_Viewer
 
 		if(state.turningY)
 		{
-			float yTurnDistance = getTurnDistance(getYOrientation(), state.turnYTarget, state.turnYDirection);
+			float yTurnDistance = getTurnYDistance(getYOrientation(), state.turnYTarget);
 			if(Math.abs(yTurnDistance) < state.turningNearDistance * 0.5f) // && !turningNearby)
 			{
 				if(Math.abs(yTurnDistance) > state.turningCenterSize * 0.5f)
@@ -3042,14 +3194,14 @@ public class WMV_Viewer
 		}
 		else										// If no transitions and not currently moving or turning 
 		{
-			if(worldState.frameCount % 30 == 0 && settings.alwaysLookAtMedia)	
+			if(worldState.frameCount % 30 == 0 && settings.keepMediaInFrame)	
 			{
 				if( !mediaAreVisible(false, 1) )	// Check whether any images are currently visible anywhere in front of camera
 				{
 					if(debug.viewer)
 						p.mv.systemMessage("No images visible! will look at nearest image...");
-					if(settings.alwaysLookAtMedia)
-						lookAtNearestMedia();			// Look for images around the camera
+					if( settings.keepMediaInFrame )
+						lookAtNearestMedia( p.getVisibleClusters(), !p.getState().timeFading );			// Look for images around the camera
 				}
 			}
 		}
@@ -3139,93 +3291,212 @@ public class WMV_Viewer
 		if(state.waiting == false && debug.path) 
 			p.mv.systemMessage("Finished waiting...");
 	}
-	
+
 	/**
-	 * Look at nearest media to current viewer orientation
+	 * Look at media in given cluster list with smallest turn distance from current orientation
+	 * @param clusterList Cluster list
 	 */
-	public void lookAtNearestMedia()
+	public void lookAtNearestMedia(ArrayList<WMV_Cluster> clusterList, boolean ignoreTime)
 	{
 		float closestDist = 100000.f;
 		int closestID = -1;
 		int closestMediaType = -1;
+		PVector closestTurnXInfo = new PVector(0,0,0);
+		PVector closestTurnYInfo = new PVector(0,0,0);
+		boolean found = false;
 		
-		WMV_Cluster c = p.getCurrentCluster();
+//		WMV_Cluster c = p.getCurrentCluster();	// -- Old method
 		
-		if(c != null)
+		for(WMV_Cluster c : clusterList)
 		{
-			for(int i:c.getState().images)
+			if(c != null)
 			{
-				WMV_Image img = p.getCurrentField().getImage(i);
-				PVector cameraPosition = getLocation();
-				PVector camOrientation = getOrientation();
-				PVector goal = img.getLocation();
-
-				PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
-						cameraPosition.y-goal.y, 
-						cameraPosition.z-goal.z   );
-
-				camOrientation.normalize();
-				cameraToPoint.normalize();
-
-				float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
-				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
-				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
-
-				float xStart = getXOrientation();
-				float xTarget = yaw;
-				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
-				float yStart = getXOrientation();
-				float yTarget = pitch;
-				PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
-
-				float turnDist = turnXInfo.y + turnYInfo.y;
-				if(turnDist < closestDist)
+				for(int i:c.getState().images)
 				{
-					closestDist = turnDist;
-					closestID = img.getID();
-					closestMediaType = 0;
+					WMV_Image img = p.getCurrentField().getImage(i);
+					
+					boolean valid = true;
+					if(!ignoreTime) valid = img.getTimeBrightness() > 0.f;
+
+					if(valid)
+					{
+						PVector cameraPosition = getLocation();
+						PVector camOrientation = getOrientation();
+						PVector goal = img.getLocation();
+
+						PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+								cameraPosition.y-goal.y, 
+								cameraPosition.z-goal.z   );
+
+						camOrientation.normalize();
+						cameraToPoint.normalize();
+
+						float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+						float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+						float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+						
+						float xStart = getXOrientation();
+						float xTarget = yaw;
+						PVector turnXInfo = getTurnXInfo(xStart, xTarget);
+						float yStart = getYOrientation();
+						float yTarget = pitch;
+						PVector turnYInfo = getTurnYInfo(yStart, yTarget);
+						
+						if(turnXInfo != null && turnYInfo != null)
+						{
+							float turnDist = turnXInfo.y + turnYInfo.y;
+							if(turnDist < closestDist)
+							{
+								closestDist = turnDist;
+								closestID = img.getID();
+								closestMediaType = 0;
+								closestTurnXInfo = turnXInfo;
+								closestTurnYInfo = turnYInfo;
+								found = true;
+							}
+						}
+					}
 				}
-			}
 
-			for(int i:c.getState().videos)
-			{
-				WMV_Video vid = p.getCurrentField().getVideo(i);
-				PVector cameraPosition = getLocation();
-				PVector camOrientation = getOrientation();
-				PVector goal = vid.getLocation();
-
-				PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
-						cameraPosition.y-goal.y, 
-						cameraPosition.z-goal.z   );
-
-				camOrientation.normalize();
-				cameraToPoint.normalize();
-
-				float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
-				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
-				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
-
-				float xStart = getXOrientation();
-				float xTarget = yaw;
-				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
-				float yStart = getXOrientation();
-				float yTarget = pitch;
-				PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
-
-				float turnDist = turnXInfo.y + turnYInfo.y;
-				if(turnDist < closestDist)
+				for(int i:c.getState().videos)
 				{
-					closestDist = turnDist;
-					closestID = vid.getID();
-					closestMediaType = 2;
+					WMV_Video vid = p.getCurrentField().getVideo(i);
+					
+					boolean valid = true;
+					if(!ignoreTime) valid = vid.getTimeBrightness() > 0.f;
+
+					if(valid)
+					{
+						PVector cameraPosition = getLocation();
+						PVector camOrientation = getOrientation();
+						PVector goal = vid.getLocation();
+
+						PVector cameraToPoint = new PVector( cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+								cameraPosition.y-goal.y, 
+								cameraPosition.z-goal.z  );
+
+						camOrientation.normalize();
+						cameraToPoint.normalize();
+
+						float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+						float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+						float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+
+						float xStart = getXOrientation();
+						float xTarget = yaw;
+						PVector turnXInfo = getTurnXInfo(xStart, xTarget);
+						float yStart = getYOrientation();
+						float yTarget = pitch;
+						PVector turnYInfo = getTurnYInfo(yStart, yTarget);
+
+						if(turnXInfo != null && turnYInfo != null)
+						{
+							float turnDist = turnXInfo.y + turnYInfo.y;
+							if(turnDist < closestDist)
+							{
+								closestDist = turnDist;
+								closestID = vid.getID();
+								closestMediaType = 2;
+								closestTurnXInfo = turnXInfo;
+								closestTurnYInfo = turnYInfo;
+								found = true;
+							}
+						}
+					}
 				}
 			}
 			
-//			if(c.panorama)
-			if(c.getState().panoramas.size() == 0)
-				lookAtMedia(closestID, closestMediaType);				// Look at media with the smallest turn distance
+			if(found && c.getState().panoramas.size() == 0)
+				lookAtMedia( closestID, closestMediaType, closestTurnXInfo, closestTurnYInfo );	// Look at media with the smallest turn distance
 		}
 	}
+
+//	/**
+//	 * Look at nearest media to current viewer orientation
+//	 */
+//	public void lookAtNearestMedia()
+//	{
+//		float closestDist = 100000.f;
+//		int closestID = -1;
+//		int closestMediaType = -1;
+//		
+//		WMV_Cluster c = p.getCurrentCluster();
+//		
+//		if(c != null)
+//		{
+//			for(int i:c.getState().images)
+//			{
+//				WMV_Image img = p.getCurrentField().getImage(i);
+//				PVector cameraPosition = getLocation();
+//				PVector camOrientation = getOrientation();
+//				PVector goal = img.getLocation();
+//
+//				PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+//						cameraPosition.y-goal.y, 
+//						cameraPosition.z-goal.z   );
+//
+//				camOrientation.normalize();
+//				cameraToPoint.normalize();
+//
+//				float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+//				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+//				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+//
+//				float xStart = getXOrientation();
+//				float xTarget = yaw;
+//				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
+//				float yStart = getXOrientation();
+//				float yTarget = pitch;
+//				PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
+//
+//				float turnDist = turnXInfo.y + turnYInfo.y;
+//				if(turnDist < closestDist)
+//				{
+//					closestDist = turnDist;
+//					closestID = img.getID();
+//					closestMediaType = 0;
+//				}
+//			}
+//
+//			for(int i:c.getState().videos)
+//			{
+//				WMV_Video vid = p.getCurrentField().getVideo(i);
+//				PVector cameraPosition = getLocation();
+//				PVector camOrientation = getOrientation();
+//				PVector goal = vid.getLocation();
+//
+//				PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+//						cameraPosition.y-goal.y, 
+//						cameraPosition.z-goal.z   );
+//
+//				camOrientation.normalize();
+//				cameraToPoint.normalize();
+//
+//				float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+//				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+//				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+//
+//				float xStart = getXOrientation();
+//				float xTarget = yaw;
+//				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
+//				float yStart = getXOrientation();
+//				float yTarget = pitch;
+//				PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
+//
+//				float turnDist = turnXInfo.y + turnYInfo.y;
+//				if(turnDist < closestDist)
+//				{
+//					closestDist = turnDist;
+//					closestID = vid.getID();
+//					closestMediaType = 2;
+//				}
+//			}
+//			
+////			if(c.panorama)
+//			if(c.getState().panoramas.size() == 0)
+//				lookAtMedia(closestID, closestMediaType);				// Look at media with the smallest turn distance
+//		}
+//	}
 	
 	/**
 	 * Set viewer field of view and zoom the camera
@@ -3262,7 +3533,7 @@ public class WMV_Viewer
 	{
 		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
 		{
-			if(debug.viewer && debug.detailed) p.mv.systemMessage("Viewer.updateTeleporting()...  Reached teleport goal...");
+			if(debug.viewer && debug.detailed) p.mv.systemMessage("Viewer.updateTeleporting()... Reached teleport goal...");
 			
 			if( !p.getCurrentField().mediaAreFading() )									// Once no more media are fading
 			{

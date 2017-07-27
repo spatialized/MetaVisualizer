@@ -433,6 +433,9 @@ public class MV_Input
 					case "LookDown":
 						ml.world.viewer.stopRotateYTransition();
 						break;
+					case "LookAround":
+						ml.world.viewer.lookAtNearestMedia( ml.world.getVisibleClusters(), !ml.world.getState().timeFading );
+						break;
 
 					case "StopViewer":
 						ml.world.viewer.stop(true);

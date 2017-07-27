@@ -646,16 +646,10 @@ public class WMV_Field
 				s.calculateAudibility();
 				if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
 				s.calculateFadingVisibility(ml, wasVisible);
-//				if(debugSettings.sound)
-//					System.out.println("Field.updateSound()... id #"+s.getID()+" cluster:"+s.getAssociatedClusterID()+" clusterIsVisible():"+clusterIsVisible(s.getAssociatedClusterID()));
-//				if(debugSettings.sound)
-//					System.out.println("Field.updateSound()... id #"+s.getID()+" s.isVisible():"+s.isVisible());
 			}
 			
 			if(s.isLoaded())
 			{
-//				if(debugSettings.sound)
-//					System.out.println("Field.updateSound()... id #"+s.getID()+" isLoaded: true...");
 				if(s.isFadingVolume())
 					s.updateFadingVolume();								// Update volume due to fading
 				else if(s.isPlaying())
@@ -691,7 +685,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Display given image ID in virtual space
+	 * Display given image in virtual space
 	 * @param ml Parent app
 	 * @param i Image ID
 	 */
@@ -752,7 +746,7 @@ public class WMV_Field
 	}
 
 	/**
-	 * Display given panorama ID in virtual space
+	 * Display given panorama in virtual space
 	 * @param ml Parent app
 	 * @param i Panorama ID
 	 */
@@ -797,7 +791,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Display given video ID in virtual space
+	 * Display given video in virtual space
 	 * @param ml Parent app
 	 * @param i Video ID
 	 */
@@ -873,7 +867,7 @@ public class WMV_Field
 	}
 
 	/**
-	 * Display given sound ID in virtual space
+	 * Display given sound in virtual space
 	 * @param ml Parent app
 	 * @param i Sound ID
 	 */

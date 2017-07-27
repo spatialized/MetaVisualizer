@@ -550,21 +550,7 @@ public class MV_KeyboardControls
 			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
 
 		if( key == 'L' )
-			ml.world.viewer.lookAtNearestMedia();
-
-//		if (key == '_') 
-//		{
-//			ml.display.window.subjectDistanceDownBtnDown = false;
-//			ml.world.getCurrentField().stopFadingFocusDistances();
-////			ml.world.getCurrentField().transitionFocusDistances(0.85f);
-//		}
-//
-//		if (key == '+')
-//		{
-//			ml.display.window.subjectDistanceUpBtnDown = false;
-//			ml.world.getCurrentField().stopFadingFocusDistances();
-////			ml.world.getCurrentField().transitionFocusDistances(1.176f);
-//		}
+			ml.world.viewer.lookAtNearestMedia( ml.world.getVisibleClusters(), !ml.world.getState().timeFading );
 
 		if (key == 'E')
 		{

@@ -4,8 +4,6 @@ import java.awt.Canvas;
 import java.awt.Font;
 import java.util.ArrayList;
 
-import com.jogamp.newt.opengl.GLWindow;
-
 import g4p_controls.*;
 import main.java.com.entoptic.metaVisualizer.misc.WMV_Utilities;
 import main.java.com.entoptic.metaVisualizer.world.WMV_World;
@@ -15,8 +13,10 @@ import processing.core.PConstants;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
+import com.jogamp.newt.opengl.GLWindow;
+
 /*********************************
- * Secondary window handler
+ * Secondary window object
  * @author davidgordon
  */
 public class MV_Window 
@@ -125,7 +125,7 @@ public class MV_Window
 	private GButton btnMoveForward, btnMoveLeft, btnMoveBackward, btnMoveRight;		
 	private GButton btnMoveUp, btnMoveDown;		
 	private GButton btnLookUp, btnLookDown;		
-	private GButton btnLookLeft, btnLookRight;
+	private GButton btnLookLeft, btnLookRight, btnLookForNearbyMedia;
 	
 	private GButton btnZoomToViewer, btnMoveToSelected;		// -- btnMoveToSeleced == In progress
 	private GButton btnZoomOutToField, btnMapZoomIn, btnMapZoomOut, btnZoomToWorld;		
@@ -166,7 +166,7 @@ public class MV_Window
 	public GCheckbox chkbxDisplayTerrain, chkbxOrientationMode, chkbxDomeView;
 	public GCheckbox chkbxBlurMasks;
 
-	public GSlider sdrAlpha, sdrBrightness, sdrFarClipping, sdrVisibleAngle, sdrModelFarClipping, 		/* Media Window Sliders */
+	public GSlider sdrAlpha, sdrBrightness, sdrFarClipping, sdrVisibleAngle, sdrModelFarClipping, 			/* Media Window Sliders */
 				   sdrAltitudeFactor, sdrVideoVolume, sdrSoundVolume, sdrHearingDistance; 
 
 	/* Media Window Buttons */
@@ -175,7 +175,7 @@ public class MV_Window
 	public GButton btnSelectPanorama, btnDeselectPanorama;
 	public GButton btnDeselectAll, btnViewSelected, btnStitchPanorama;
 	
-	private GLabel lblAlpha, lblBrightness, lblFarClipping, lblModelFarClipping, lblVisibleAngle;		/* Media Window Labels */
+	private GLabel lblAlpha, lblBrightness, lblFarClipping, lblModelFarClipping, lblVisibleAngle;			/* Media Window Labels */
 	private GLabel lblSubjectDistance;
 	
 	private GLabel lblHideMedia, lblExportingMedia;
@@ -183,7 +183,7 @@ public class MV_Window
 	public GLabel lblSelection, lblSelectionOptions;					
 	private GLabel lblModel, lblAltitudeFactor, lblSelect, lblDeselect;						
 //	public GLabel lblShift2;
-	private GButton btnMediaWindowExit, btnMediaWindowClose;		
+	private GButton btnMediaWindowExit;		
 
 	private int mediaWindowLineBreakY_1, mediaWindowLineBreakY_2, mediaWindowLineBreakY_3, mediaWindowLineBreakY_4;
 
@@ -195,7 +195,7 @@ public class MV_Window
 	public GButton btnTimelineZoomToField, btnTimelineZoomToSelected, btnTimelineZoomToFull;		
 	public GLabel lblTimelineZoomTo, lblTimelineScroll, lblZoomTimeline;					
 //	public GLabel lblShift3;
-	private GButton btnTimeWindowExit, btnTimeWindowClose;		
+	private GButton btnTimeWindowExit;		
 	int timeWindowHeight;
 
 	/* Preferences Window */
@@ -205,7 +205,7 @@ public class MV_Window
 	public GLabel lblViewerStats, lblWorldStats, lblSelectionPreferences, lblGeneral, lblPathNavigationPreferences, lblViewPreferences, lblModelPreferences;					
 	int preferencesWindowHeight;
 	int prefsWindowViewerTextYOffset, prefsWindowWorldTextYOffset;
-	private GButton btnPreferencesWindowExit, btnPreferencesWindowClose;		
+	private GButton btnPreferencesWindowExit;		
 
 	/* Help Window */
 //	private GButton btnAboutHelp, btnImportHelp, btnCloseHelp;
@@ -598,6 +598,13 @@ public class MV_Window
 		btnLookDown.tag = "LookDown";
 		btnLookDown.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnLookDown.fireAllEvents(true);
+
+		x = 125;
+		y += iSmallBoxHeight;
+		btnLookForNearbyMedia = new GButton(navigationWindow, x, y, 160, iVerySmallBoxHeight, "Look for Media (BETA)");
+		btnLookForNearbyMedia.tag = "LookAround";
+		btnLookForNearbyMedia.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnLookForNearbyMedia.fireAllEvents(true);
 
 //		x = 0;
 		y += iLargeBoxHeight;
